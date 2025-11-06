@@ -1,0 +1,815 @@
+ModuleScript: Book
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_RunService_0 = game:GetService("RunService");
+local v3 = require(l_ReplicatedStorage_0.Client.Gui.GuiFrame);
+local v4 = require(l_ReplicatedStorage_0.Client.Gui.Tooltip);
+local v5 = TweenInfo.new(0.5, Enum.EasingStyle.Back);
+local v6 = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In);
+local v7 = TweenInfo.new(0.5, Enum.EasingStyle.Cubic);
+local v8 = TweenInfo.new(0.35, Enum.EasingStyle.Quint);
+local function _(v9) --[[ Line: 16 ]] --[[ Name: getCameraOffset ]]
+    return v9 / 0.17632698070846498;
+end;
+return function(v11) --[[ Line: 22 ]] --[[ Name: Book ]]
+    -- upvalues: l_ReplicatedStorage_0 (copy), l_TweenService_0 (copy), v5 (copy), v7 (copy), v8 (copy), v6 (copy), v4 (copy), l_RunService_0 (copy), v3 (copy)
+    local l_Camera_0 = Instance.new("Camera");
+    l_Camera_0.FieldOfView = 20;
+    l_Camera_0.Parent = v11.Viewport;
+    v11.Viewport.CurrentCamera = l_Camera_0;
+    local v13 = CFrame.Angles(1.5707963267948966, 3.141592653589793, 0);
+    local v14 = l_ReplicatedStorage_0.Assets.Books[v11.Name]:Clone();
+    v14.Parent = v11.Viewport;
+    local l_Top_0 = v14.Top;
+    local v16 = v14:GetPivot():ToObjectSpace(l_Top_0:GetPivot());
+    l_Top_0.Parent = v11.Viewport;
+    local l_NumberValue_0 = Instance.new("NumberValue");
+    local l_NumberValue_1 = Instance.new("NumberValue");
+    l_NumberValue_1.Value = -5;
+    local v19 = 0;
+    local function v21() --[[ Line: 45 ]] --[[ Name: open ]]
+        -- upvalues: v19 (ref), v11 (copy), l_TweenService_0 (ref), l_NumberValue_1 (copy), v5 (ref), l_NumberValue_0 (copy), v7 (ref), v8 (ref)
+        local v20 = v19 + 1;
+        v19 = v20;
+        v11.Visible = true;
+        v11.Close.Visible = false;
+        v11.BackgroundTransparency = 1;
+        l_TweenService_0:Create(v11, TweenInfo.new(0.5), {
+            BackgroundTransparency = 0.5
+        }):Play();
+        l_TweenService_0:Create(l_NumberValue_1, v5, {
+            Value = 0
+        }):Play();
+        task.wait(v5.Time / 3.5);
+        if v20 ~= v19 then
+            return;
+        else
+            l_TweenService_0:Create(l_NumberValue_0, v7, {
+                Value = 1
+            }):Play();
+            task.wait(0.2);
+            if v20 ~= v19 then
+                return;
+            else
+                v11.Close.Visible = true;
+                l_TweenService_0:Create(v11.Container.Left, v8, {
+                    Position = UDim2.fromScale(0, 0)
+                }):Play();
+                l_TweenService_0:Create(v11.Container.Right, v8, {
+                    Position = UDim2.fromScale(1, 0)
+                }):Play();
+                return;
+            end;
+        end;
+    end;
+    local function v23() --[[ Line: 72 ]] --[[ Name: close ]]
+        -- upvalues: v19 (ref), v11 (copy), l_TweenService_0 (ref), l_NumberValue_1 (copy), v6 (ref), l_NumberValue_0 (copy), v7 (ref), v4 (ref), v8 (ref)
+        local v22 = v19 + 1;
+        v19 = v22;
+        v11.Visible = true;
+        v11.Close.Visible = false;
+        l_TweenService_0:Create(l_NumberValue_1, v6, {
+            Value = -5
+        }):Play();
+        l_TweenService_0:Create(v11, TweenInfo.new(0.5), {
+            BackgroundTransparency = 1
+        }):Play();
+        l_TweenService_0:Create(l_NumberValue_0, v7, {
+            Value = 0
+        }):Play();
+        v4:Hide();
+        l_TweenService_0:Create(v11.Container.Left, v8, {
+            Position = UDim2.fromScale(-0.5, 0)
+        }):Play();
+        l_TweenService_0:Create(v11.Container.Right, v8, {
+            Position = UDim2.fromScale(1.5, 0)
+        }):Play();
+        task.wait(v6.Time);
+        if v22 == v19 then
+            v11.Visible = false;
+        end;
+    end;
+    l_RunService_0.Heartbeat:Connect(function() --[[ Line: 91 ]]
+        -- upvalues: v11 (copy), l_NumberValue_0 (copy), l_NumberValue_1 (copy), v13 (copy), l_Top_0 (copy), v16 (copy), v14 (copy)
+        if v11.Visible then
+            local v24 = CFrame.new(1.35 * l_NumberValue_0.Value, l_NumberValue_1.Value, 0) * v13;
+            l_Top_0:PivotTo(v24 * v16 * CFrame.Angles(0, 0, -3.141592653589793 * l_NumberValue_0.Value));
+            v14:PivotTo(v24);
+        end;
+    end);
+    l_Camera_0.CFrame = CFrame.new(0, 0, 14.178204549044274);
+    v11.Container.Left.Position = UDim2.fromScale(-0.5, 0);
+    v11.Container.Right.Position = UDim2.fromScale(1.5, 0);
+    v11.Container.Left.BackgroundTransparency = 1;
+    v11.Container.Right.BackgroundTransparency = 1;
+    v11.Visible = false;
+    v3:BindOnOpened(v11.Name, v21);
+    v3:BindOnClosed(v11.Name, v23);
+end;
+ModuleScript: Intro
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Players_0 = game:GetService("Players");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_RunService_0 = game:GetService("RunService");
+local l_UserInputService_0 = game:GetService("UserInputService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_TeleportService_0 = game:GetService("TeleportService");
+local v6 = require(l_ReplicatedStorage_0.Client.Framework.Utilities.Gui.Animations.SetFade);
+local v7 = require(l_ReplicatedStorage_0.Client.Music);
+local v8 = require(l_ReplicatedStorage_0.Client.Gui.Utils.AutoButtonColor);
+local v9 = require(l_ReplicatedStorage_0.Shared.Palette);
+local v10 = require(l_ReplicatedStorage_0.Client.Gui.Utils.ClickableButton);
+local v11 = require(l_ReplicatedStorage_0.Shared.Data.Worlds);
+local v12 = require(l_ReplicatedStorage_0.Client.Framework.Services.InputMode);
+local v13 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v14 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v15 = require(l_ReplicatedStorage_0.Client.Effects.OutlinePulse);
+local v16 = require(l_ReplicatedStorage_0.Client.Framework.Utilities.Gui.ScaleUI);
+local v17 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local v18 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v21 = TweenInfo.new(0.5, Enum.EasingStyle.Quint);
+local v22 = TweenInfo.new(0.3, Enum.EasingStyle.Quint);
+local v23 = TweenInfo.new(0.5, Enum.EasingStyle.Back);
+local v24 = TweenInfo.new(3, Enum.EasingStyle.Linear);
+local v25 = TweenInfo.new(1, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut);
+local v26 = TweenInfo.new(0.8, Enum.EasingStyle.Quad);
+local v27 = TweenInfo.new(1, Enum.EasingStyle.Sine);
+local v28 = {
+    IsPlaying = true
+};
+local function _() --[[ Line: 42 ]] --[[ Name: skip ]]
+    -- upvalues: v7 (copy), v11 (copy), v28 (copy)
+    v7:SetTrack(v11["The Overworld"].Track, true);
+    v28.IsPlaying = false;
+end;
+v28.Play = function(_) --[[ Line: 47 ]] --[[ Name: Play ]]
+    -- upvalues: l_RunService_0 (copy), v7 (copy), v11 (copy), v28 (copy), l_TeleportService_0 (copy), l_ReplicatedStorage_0 (copy), l_LocalPlayer_0 (copy), v17 (copy), v16 (copy), l_UserInputService_0 (copy), l_TweenService_0 (copy), v12 (copy), v14 (copy), v15 (copy), v18 (copy), v13 (copy), v27 (copy), v8 (copy), v9 (copy), v10 (copy), v6 (copy), v21 (copy), v23 (copy), v24 (copy), v22 (copy), v25 (copy), v26 (copy)
+    if l_RunService_0:IsStudio() then
+        v7:SetTrack(v11["The Overworld"].Track, true);
+        v28.IsPlaying = false;
+        return;
+    elseif l_TeleportService_0:GetLocalPlayerTeleportData() then
+        local v31 = l_ReplicatedStorage_0.Assets.Rejoining:Clone();
+        v31.Parent = l_LocalPlayer_0.PlayerGui;
+        v31.Enabled = true;
+        l_LocalPlayer_0.PlayerGui.ScreenGui.Enabled = false;
+        repeat
+            wait();
+        until v17:IsReady();
+        task.wait(1);
+        v7:SetTrack(v11["The Overworld"].Track, true);
+        v28.IsPlaying = false;
+        l_LocalPlayer_0.PlayerGui.ScreenGui.Enabled = true;
+        v31:Destroy();
+        return;
+    else
+        local v32 = l_ReplicatedStorage_0.Assets.Intro:Clone();
+        v32.Parent = l_LocalPlayer_0.PlayerGui;
+        v32.Enabled = true;
+        l_LocalPlayer_0.PlayerGui.ScreenGui.Enabled = false;
+        v16(v32.UIScale);
+        game.StarterGui:SetCoreGuiEnabled("All", false);
+		v7:SetTrack("rbxassetid://126029033863363", true);
+        local l_Position_0 = v32.Doggy.Position;
+        local l_Vector3Value_0 = Instance.new("Vector3Value");
+        l_Vector3Value_0.Value = Vector3.new(0.6000000238418579, 0.699999988079071, 0, 0);
+        local l_NumberValue_0 = Instance.new("NumberValue");
+        l_NumberValue_0.Value = 100;
+        local function v37() --[[ Line: 85 ]] --[[ Name: updatePercent ]]
+            -- upvalues: v32 (copy)
+            local l_Scale_0 = v32.Logo.Bar.Fill.Size.X.Scale;
+            v32.Logo.Bar.Fill.Visible = l_Scale_0 > 0;
+            v32.Logo.Bar.Label.Text = ("%*%%"):format((math.floor(l_Scale_0 * 100)));
+            v32.Logo.Label.Highlight.UIGradient.Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 0), 
+                NumberSequenceKeypoint.new(l_Scale_0 * 0.95, 0), 
+                NumberSequenceKeypoint.new(l_Scale_0, 1), 
+                NumberSequenceKeypoint.new(1, 1)
+            });
+        end;
+        local v38 = 0;
+        local v39 = 0;
+        local v47 = l_RunService_0.Heartbeat:Connect(function() --[[ Line: 99 ]]
+            -- upvalues: v32 (copy), l_UserInputService_0 (ref), l_TweenService_0 (ref), l_Position_0 (copy), l_NumberValue_0 (copy), l_Vector3Value_0 (copy), v38 (ref), v39 (ref)
+            local l_AbsoluteSize_0 = v32.AbsoluteSize;
+            local l_l_UserInputService_0_MouseLocation_0 = l_UserInputService_0:GetMouseLocation();
+            local v42 = math.clamp(l_l_UserInputService_0_MouseLocation_0.X / l_AbsoluteSize_0.X, 0, 1);
+            local v43 = math.clamp(l_l_UserInputService_0_MouseLocation_0.Y / l_AbsoluteSize_0.Y, 0, 1);
+            l_TweenService_0:Create(v32.Background, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {
+                Position = UDim2.new(0.5, v42 * 35, 0.5, v43 * 35)
+            }):Play();
+            local v44 = math.sin(os.clock() * 4) * 10;
+            v32.Doggy.Position = l_Position_0 + UDim2.fromOffset(0, v44 + l_NumberValue_0.Value);
+            local v45 = math.sin(os.clock() * 3) * 7;
+            v32.Kitty.Position = UDim2.new(l_Vector3Value_0.Value.X, 0, l_Vector3Value_0.Value.Y, v45 + l_NumberValue_0.Value);
+            local v46 = os.clock();
+            if v46 - v38 > 0.5 then
+                v32.Logo.Bar.Tip.MaxVisibleGraphemes = v39 + 20;
+                v39 = (v39 + 1) % 3;
+                v38 = v46;
+            end;
+        end);
+        local function v50(v48) --[[ Line: 123 ]] --[[ Name: updateMode ]]
+            -- upvalues: v32 (copy)
+            local v49 = v48 == "Touch";
+            v32.Play.AnchorPoint = v49 and Vector2.new(0.5, 1) or Vector2.new(0.5, 0.5);
+            v32.Play.Position = v49 and UDim2.new(0.5, 0, 1, -100) or UDim2.fromScale(0.5, 0.5);
+            v32.Graphics.Content.High.Recommended.Visible = not v49;
+            v32.Graphics.Content.Low.Recommended.Visible = v49;
+        end;
+        local v51 = v12.Changed:Connect(v50);
+        local v53 = v14(0.5, function() --[[ Line: 132 ]]
+            -- upvalues: v32 (copy), v15 (ref)
+            if v32.Play.Button.BackgroundTransparency ~= 0 then
+                return;
+            else
+                v15(function(v52) --[[ Line: 136 ]]
+                    -- upvalues: v32 (ref)
+                    v52.UICorner.CornerRadius = v32.Play.Button.UICorner.CornerRadius;
+                    v52.UIStroke.Thickness = 3;
+                end).Parent = v32.Play;
+                return;
+            end;
+        end);
+        local v54 = false;
+        local function v59(v55) --[[ Line: 144 ]] --[[ Name: finish ]]
+            -- upvalues: v54 (ref), v18 (ref), v13 (ref), l_TweenService_0 (ref), v32 (copy), v27 (ref), v7 (ref), v11 (ref), l_LocalPlayer_0 (ref), l_NumberValue_0 (copy), v53 (copy), v47 (copy), v51 (copy), v28 (ref)
+            if v54 then
+                return;
+            else
+                local v56 = v55 == "Low";
+                v54 = true;
+                v18:FireServer("SetSetting", "Low Detail Mode", v56);
+                v13("Pop");
+                l_TweenService_0:Create(v32.Fade, v27, {
+                    BackgroundTransparency = 0
+                }):Play();
+                task.wait(v27.Time);
+                for _, v58 in v32:GetChildren() do
+                    if v58:IsA("GuiObject") and v58.Name ~= "Fade" then
+                        v58.Visible = false;
+                    end;
+                end;
+                v7:SetTrack(v11["The Overworld"].Track, true);
+                l_LocalPlayer_0.PlayerGui.ScreenGui.Enabled = true;
+                l_TweenService_0:Create(v32.Fade, v27, {
+                    BackgroundTransparency = 1
+                }):Play();
+                task.wait(v27.Time);
+                l_NumberValue_0:Destroy();
+                v53:Disconnect();
+                v47:Disconnect();
+                v51:Disconnect();
+                v32:Destroy();
+                v28.IsPlaying = false;
+                game.StarterGui:SetCoreGuiEnabled("All", true);
+                return;
+            end;
+        end;
+        for _, v61 in v32.Graphics.Content:GetChildren() do
+            if v61:IsA("Frame") then
+                v8(v61.Action.Button, v9.Button.Green);
+                v10(v61.Action.Button, function() --[[ Line: 183 ]]
+                    -- upvalues: v59 (copy), v61 (copy)
+                    v59(v61.Name);
+                end);
+            end;
+        end;
+        v32.Graphics.Cover.Visible = false;
+        v32.Background.Size = UDim2.new(1, 70, 1, 70);
+        v32.Background.ImageColor3 = Color3.new();
+        v32.Logo.Bar.Fill.Size = UDim2.new(0, 0, 1, 6);
+        v32.Logo.Bar.BackgroundTransparency = 1;
+        v32.Logo.Bar.UIStroke.Transparency = 1;
+        v32.Logo.Label.ImageTransparency = 1;
+		v32.Logo.Infinity.ImageTransparency = 1;
+        v32.Doggy.ImageTransparency = 1;
+        v32.Kitty.ImageTransparency = 1;
+        v32.Kitty.Position = UDim2.fromScale(l_Vector3Value_0.Value.X, l_Vector3Value_0.Value.Y);
+        v6(v32.Logo.Label, 1);
+        v6(v32.Logo.Infinity, 1);
+        v6(v32.Logo.Bar, 1);
+		v6(v32.Play, 1);
+        v6(v32.Graphics, 1);
+        v50(v12.Mode);
+        v32.Graphics.Visible = false;
+        v37();
+        v32.Logo.Bar.Fill:GetPropertyChangedSignal("Size"):Connect(v37);
+        task.wait(0.75);
+        v32.Logo.UIScale.Scale = 1.5;
+        l_TweenService_0:Create(v32.Logo.UIScale, v21, {
+            Scale = 1
+        }):Play();
+        l_TweenService_0:Create(v32.Logo.Label, v21, {
+            ImageTransparency = 0
+        }):Play();
+        v13("Bounce1");
+        task.wait(v21.Time + 0.25);
+        local l_Position_1 = v32.Logo.Bar.Position;
+        v32.Logo.Bar.Position = l_Position_1 + UDim2.fromOffset(0, 100);
+        l_TweenService_0:Create(v32.Logo.Bar, v23, {
+            Position = l_Position_1, 
+            BackgroundTransparency = 0
+        }):Play();
+        l_TweenService_0:Create(v32.Logo.Bar.UIStroke, v23, {
+            Transparency = 0
+        }):Play();
+        v6(v32.Logo.Bar, 0, v23);
+        task.wait(v23.Time);
+        l_TweenService_0:Create(v32.Logo.Label.Highlight, v21, {
+            ImageTransparency = 0
+        }):Play();
+        l_TweenService_0:Create(v32.Logo.Bar.Fill, v24, {
+            Size = UDim2.new(1, 0, 1, 6)
+        }):Play();
+        task.wait(v24.Time);
+        while not v17:IsReady() do
+            task.wait();
+        end;
+        l_TweenService_0:Create(v32.Logo.Bar, v21, {
+            BackgroundTransparency = 1
+        }):Play();
+        l_TweenService_0:Create(v32.Logo.Bar.UIStroke, v21, {
+            Transparency = 1
+        }):Play();
+        task.delay(0.25, v6, v32.Logo.Bar, 1, v21);
+        task.wait(v21.Time);
+        v32.Logo.Infinity.UIScale.Scale = 1.5;
+        l_TweenService_0:Create(v32.Logo.Infinity, v22, {
+            ImageTransparency = 0
+        }):Play();
+        l_TweenService_0:Create(v32.Logo.Infinity.UIScale, v22, {
+            Scale = 1
+        }):Play();
+        v6(v32.Logo.Infinity, 0, v22);
+        v13("InfinityShine");
+        task.wait(v22.Time * 0.85);
+        l_TweenService_0:Create(v32.Logo.Infinity.Highlight.UIGradient, v25, {
+            Offset = Vector2.new(1.6, 0)
+        }):Play();
+        task.wait(v25.Time * 0.85);
+        l_TweenService_0:Create(v32.Logo.UIScale, v26, {
+            Scale = 0.75
+        }):Play();
+        l_TweenService_0:Create(v32.Background, v26, {
+            ImageColor3 = Color3.new(1, 1, 1)
+        }):Play();
+        l_TweenService_0:Create(v32.Logo, v26, {
+            AnchorPoint = Vector2.new(0.5, 0), 
+            Position = UDim2.new(0.5, 0, 0, 100)
+        }):Play();
+        task.wait(v26.Time * 0.5);
+        l_TweenService_0:Create(v32.Doggy, v21, {
+            ImageTransparency = 0
+		}):Play();
+        l_TweenService_0:Create(l_NumberValue_0, v26, {
+            Value = 0
+        }):Play();
+        task.delay(0.05, function() --[[ Line: 265 ]]
+            -- upvalues: l_TweenService_0 (ref), v32 (copy), v26 (ref), l_Vector3Value_0 (copy)
+            l_TweenService_0:Create(v32.Kitty, v26, {
+                ImageTransparency = 0
+            }):Play();
+            l_TweenService_0:Create(l_Vector3Value_0, v26, {
+                Value = Vector3.new(0.800000011920929, 0.6000000238418579, 0, 0)
+            }):Play();
+        end);
+        v6(v32.Play, 0, v21);
+        v8(v32.Play.Button, v9.Button.Gold);
+        v10(v32.Play.Button, function() --[[ Line: 272 ]]
+            -- upvalues: v13 (ref), v32 (copy), v6 (ref), v21 (ref)
+            v13("Pop");
+            v32.Graphics.Visible = true;
+            v32.Play.Visible = false;
+            v32.Graphics.Cover.Visible = true;
+            v6(v32.Graphics, 0, v21, {
+                "Frame"
+            });
+        end);
+        return;
+    end;
+end;
+return v28;
+ModuleScript: ItemFall
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local l_TweenService_0 = game:GetService("TweenService");
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local v4 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.ItemUtil);
+local l__overlay_0 = l_Players_0.LocalPlayer.PlayerGui.ScreenGui._overlay;
+local l_Frame_0 = Instance.new("Frame");
+l_Frame_0.Size = UDim2.fromOffset(150, 150);
+l_Frame_0.AnchorPoint = Vector2.one / 2;
+l_Frame_0.BackgroundTransparency = 1;
+local l_ImageLabel_0 = Instance.new("ImageLabel");
+l_ImageLabel_0.Size = UDim2.fromScale(1, 1);
+l_ImageLabel_0.BackgroundTransparency = 1;
+l_ImageLabel_0.Name = "Label";
+l_ImageLabel_0.Parent = l_Frame_0;
+local v8 = Random.new();
+local v9 = TweenInfo.new(0.5, Enum.EasingStyle.Quart);
+local v10 = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In);
+local v11 = {};
+local function v18(v12) --[[ Line: 32 ]] --[[ Name: create ]]
+    -- upvalues: v4 (copy), v11 (copy), v8 (copy), l_Frame_0 (copy), l__overlay_0 (copy), l_TweenService_0 (copy), v9 (copy), v10 (copy)
+    local l_v4_Name_0 = v4:GetName(v12);
+    local v14 = v11[l_v4_Name_0] or 0;
+    if v14 > 14 then
+        return;
+    else
+        v11[l_v4_Name_0] = v14 + 1;
+        local v15 = UDim2.new(v8:NextNumber() * 0.75 + 0.125, 0, 1, 100);
+        local v16 = l_Frame_0:Clone();
+        v16.Rotation = (v8:NextNumber() - 0.5) * 25;
+        v16.Position = v15;
+        v16.Parent = l__overlay_0;
+        v4:UpdateIcon(v16, v12);
+        l_TweenService_0:Create(v16, v9, {
+            Position = UDim2.fromScale(v15.X.Scale, 0.5 - v8:NextNumber() / 4)
+        }):Play();
+        task.wait(v9.Time * 0.85);
+        l_TweenService_0:Create(v16, v10, {
+            Position = v15
+        }):Play();
+        task.wait(v10.Time);
+        v4:UpdateIcon(v16);
+        v16:Destroy();
+        local l_v11_0 = v11;
+        l_v11_0[l_v4_Name_0] = l_v11_0[l_v4_Name_0] - 1;
+        if v11[l_v4_Name_0] <= 0 then
+            v11[l_v4_Name_0] = nil;
+        end;
+        return;
+    end;
+end;
+return function(v19) --[[ Line: 62 ]] --[[ Name: ItemFall ]]
+    -- upvalues: v4 (copy), v8 (copy), v18 (copy)
+    if v19.Type == "Pet" then
+        return;
+    else
+        for _ = 1, math.min(7, v4:GetAmount(v19)) do
+            task.delay(v8:NextNumber() * 0.1, v18, v19);
+        end;
+        return;
+    end;
+end;
+ModuleScriptL ProcessingPurchase
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Players_0 = game:GetService("Players");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_MarketplaceService_0 = game:GetService("MarketplaceService");
+local l_RunService_0 = game:GetService("RunService");
+local v5 = require(l_ReplicatedStorage_0.Client.Gui.Utils.Infinity);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v7 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+local _ = require(l_ReplicatedStorage_0.Client.Gui.Prompt);
+local _ = require(l_ReplicatedStorage_0.Shared.Data.Builders.PromptBuilder);
+local v10 = require(l_ReplicatedStorage_0.Client.Gui.Utils.AutoButtonColor);
+local v11 = require(l_ReplicatedStorage_0.Shared.Palette);
+local v12 = require(l_ReplicatedStorage_0.Client.Gui.Utils.ClickableButton);
+local v13 = require(l_ReplicatedStorage_0.Shared.Data.Gamepasses);
+local v14 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.ProductInfo);
+local v15 = require(l_ReplicatedStorage_0.Client.Framework.Utilities.Gui.Confetti);
+local v16 = require(l_ReplicatedStorage_0.Client.Framework.Utilities.Gui.Animations.SetFade);
+local v17 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v18 = require(l_ReplicatedStorage_0.Shared.Constants);
+local v19 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local v20 = require(l_ReplicatedStorage_0.Client.Gui.Tooltip);
+local v21 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Bindable);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local l_ScreenGui_0 = l_LocalPlayer_0.PlayerGui.ScreenGui;
+local l_Processing_0 = script.Processing;
+l_Processing_0.Parent = nil;
+local v25 = v7.new();
+local v26 = {};
+local _ = function(_) --[[ Line: 38 ]] --[[ Name: productSuccess ]]
+
+end;
+local v29 = nil;
+local l_GamepassReceived_0 = l_ScreenGui_0.GamepassReceived;
+l_GamepassReceived_0.Visible = true;
+l_GamepassReceived_0.Parent = nil;
+local v31 = TweenInfo.new(0.35, Enum.EasingStyle.Quint);
+local l_l_GamepassReceived_0_0 = l_GamepassReceived_0 --[[ copy: 29 -> 32 ]];
+local l_v31_0 = v31 --[[ copy: 30 -> 33 ]];
+v29 = function(v34) --[[ Line: 59 ]] --[[ Name: gamepassSuccess ]]
+    -- upvalues: v13 (copy), l_l_GamepassReceived_0_0 (copy), l_RunService_0 (copy), l_ScreenGui_0 (copy), v16 (copy), l_v31_0 (copy), l_TweenService_0 (copy), v15 (copy), v17 (copy), v10 (copy), v11 (copy), v12 (copy), v14 (copy), v18 (copy)
+    local v35 = v13[v34];
+    if not v35 then
+        return;
+    else
+        local v36 = l_l_GamepassReceived_0_0:Clone();
+        local function v39() --[[ Line: 67 ]] --[[ Name: animate ]]
+            -- upvalues: l_RunService_0 (ref), v36 (copy), v34 (copy), l_ScreenGui_0 (ref), v16 (ref), l_v31_0 (ref), l_TweenService_0 (ref), v15 (ref), v17 (ref), v10 (ref), v11 (ref), v12 (ref)
+            local v38 = l_RunService_0.Heartbeat:Connect(function(v37) --[[ Line: 68 ]]
+                -- upvalues: v36 (ref)
+                v36.Frame.Radial.Rotation = (v36.Frame.Radial.Rotation + v37 * 10) % 360;
+            end);
+            v36.Frame.Item.UIScale.Scale = 2;
+            v36.BackgroundTransparency = 1;
+            v36.Frame.Continue.Visible = false;
+            v36.Frame.Item.Gamepass.Text = v34;
+            v36.Parent = l_ScreenGui_0;
+            v16(v36.Frame.Item, 0, l_v31_0);
+            l_TweenService_0:Create(v36, l_v31_0, {
+                BackgroundTransparency = 0.5
+            }):Play();
+            l_TweenService_0:Create(v36.Frame.Item.UIScale, l_v31_0, {
+                Scale = 1
+            }):Play();
+            v15:Emit(v15.Bottom, 15);
+            v17("Fireworks");
+            v17("Gamepass");
+            v10(v36.Frame.Continue.Button, v11.Button.Green);
+            v12(v36.Frame.Continue.Button, function() --[[ Line: 87 ]]
+                -- upvalues: v36 (ref), v38 (copy)
+                v36:Destroy();
+                v38:Disconnect();
+            end);
+            task.wait(0.5);
+            v36.Frame.Continue.Visible = true;
+        end;
+        v14.fromGamepass(v35.Id, function(v40) --[[ Line: 96 ]]
+            -- upvalues: v36 (copy), v18 (ref), v39 (copy)
+            v36.Frame.Item.Icon.Image = v40 and ("rbxassetid://%*"):format(v40.IconImageAssetId) or v18.UnknownImage;
+            v39();
+        end);
+        return;
+    end;
+end;
+l_GamepassReceived_0 = TweenInfo.new(0.35, Enum.EasingStyle.Sine);
+v31 = 0;
+v26.Show = function(_) --[[ Line: 106 ]] --[[ Name: Show ]]
+    -- upvalues: v20 (copy), l_Processing_0 (copy), v5 (copy), v6 (copy), v31 (ref), v25 (copy), l_LocalPlayer_0 (copy), l_TweenService_0 (copy), l_GamepassReceived_0 (copy), v16 (copy)
+    v20:Hide();
+    if l_Processing_0.Parent then
+        return;
+    else
+        local _, v43 = v5(l_Processing_0.Frame.Infinity);
+        local v44 = 0;
+        local v45 = v6(0.5, function() --[[ Line: 115 ]]
+            -- upvalues: l_Processing_0 (ref), v44 (ref)
+            l_Processing_0.Frame.Label.MaxVisibleGraphemes = v44 + 10;
+            v44 = (v44 + 1) % 4;
+        end);
+        local v46 = v31 + 1;
+        v31 = v46;
+        v25:Add(v45);
+        v25:Add(v43);
+        task.delay(0.5, function() --[[ Line: 126 ]]
+            -- upvalues: v31 (ref), v46 (copy), l_Processing_0 (ref), l_LocalPlayer_0 (ref), l_TweenService_0 (ref), l_GamepassReceived_0 (ref), v16 (ref)
+            if v31 ~= v46 then
+                return;
+            else
+                l_Processing_0.Parent = l_LocalPlayer_0.PlayerGui;
+                l_Processing_0.Cover.BackgroundTransparency = 1;
+                l_TweenService_0:Create(l_Processing_0.Cover, l_GamepassReceived_0, {
+                    BackgroundTransparency = 0.2
+                }):Play();
+                v16(l_Processing_0.Frame, 0, l_GamepassReceived_0);
+                return;
+            end;
+        end);
+        return;
+    end;
+end;
+local v47 = 0;
+v26.Hide = function(_) --[[ Line: 138 ]] --[[ Name: Hide ]]
+    -- upvalues: v47 (ref), v31 (ref), l_TweenService_0 (copy), l_Processing_0 (copy), l_GamepassReceived_0 (copy), v16 (copy), v25 (copy)
+    local v49 = v47 + 1;
+    v47 = v49;
+    v31 = v31 + 1;
+    l_TweenService_0:Create(l_Processing_0.Cover, l_GamepassReceived_0, {
+        BackgroundTransparency = 1
+    }):Play();
+    v16(l_Processing_0.Frame, 1, l_GamepassReceived_0);
+    task.delay(l_GamepassReceived_0.Time, function() --[[ Line: 145 ]]
+        -- upvalues: v47 (ref), v49 (copy), v25 (ref), l_Processing_0 (ref)
+        if v47 == v49 then
+            v25:Cleanup();
+            l_Processing_0.Parent = nil;
+        end;
+    end);
+end;
+v26.IsActive = function(_) --[[ Line: 153 ]] --[[ Name: IsActive ]]
+    -- upvalues: l_Processing_0 (copy)
+    return l_Processing_0.Parent ~= nil;
+end;
+v19.Event("ProcessSuccess"):Connect(function() --[[ Line: 158 ]]
+    -- upvalues: v26 (copy)
+    v26:Hide();
+end);
+v21.Event("ProcessingShow"):Connect(function() --[[ Line: 163 ]]
+    -- upvalues: v26 (copy)
+    v26:Show();
+end);
+l_MarketplaceService_0.PromptProductPurchaseFinished:Connect(function(v51, _, v53) --[[ Line: 168 ]]
+    -- upvalues: l_LocalPlayer_0 (copy), v25 (copy), v26 (copy)
+    if v51 ~= l_LocalPlayer_0.UserId then
+        return;
+    else
+        if v53 then
+
+        end;
+        v25:Cleanup();
+        v26:Hide();
+        return;
+    end;
+end);
+l_MarketplaceService_0.PromptGamePassPurchaseFinished:Connect(function(v54, v55, v56) --[[ Line: 180 ]]
+    -- upvalues: l_LocalPlayer_0 (copy), v13 (copy), v29 (ref), v25 (copy), v26 (copy)
+    if v54 ~= l_LocalPlayer_0 then
+        return;
+    else
+        if v56 then
+            local v57 = nil;
+            for v58, v59 in v13 do
+                if v59.Id == v55 then
+                    v57 = v58;
+                    break;
+                end;
+            end;
+            if v57 then
+                task.defer(v29, v57);
+            end;
+        end;
+        v25:Cleanup();
+        v26:Hide();
+        return;
+    end;
+end);
+return v26;
+ModuleScript: Spinner
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Players_0 = game:GetService("Players");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_RunService_0 = game:GetService("RunService");
+local v3 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local v4 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+local v5 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v6 = require(l_ReplicatedStorage_0.Client.Gui.Utils.AutoButtonColor);
+local v7 = require(l_ReplicatedStorage_0.Shared.Palette);
+local v8 = require(l_ReplicatedStorage_0.Client.Gui.Utils.ClickableButton);
+local l_ScreenGui_0 = l_Players_0.LocalPlayer.PlayerGui.ScreenGui;
+local l_Spinner_0 = l_ScreenGui_0.Spinner;
+local l_Template_0 = l_Spinner_0.Template;
+l_Template_0.Parent = nil;
+l_Template_0.Visible = true;
+local l_Template_1 = l_Template_0.Content.Template;
+l_Template_1.Parent = nil;
+local l_Offset_0 = l_Template_1.Size.X.Offset;
+local v14 = {};
+v14.__index = v14;
+local v15 = {};
+local function v19(v16) --[[ Line: 69 ]] --[[ Name: getRenderedIndexes ]]
+    -- upvalues: l_Offset_0 (copy)
+    local v17 = {};
+    for v18 = 1, 7 do
+        v17[v18] = math.floor((v16 + l_Offset_0 * (v18 - 1)) / l_Offset_0) + 1;
+    end;
+    return v17;
+end;
+local function v25(v20, _) --[[ Line: 79 ]] --[[ Name: createElement ]]
+    -- upvalues: l_Template_1 (copy), v3 (copy), l_Offset_0 (copy)
+    local v22 = l_Template_1:Clone();
+    v22.Name = "Element" .. v20;
+    local v23 = {
+        Index = -1, 
+        Offset = 0, 
+        Frame = v22, 
+        Changed = v3.new()
+    };
+    v23.update = function(v24) --[[ Line: 93 ]] --[[ Name: update ]]
+        -- upvalues: v23 (copy), v22 (copy), v20 (copy), l_Offset_0 (ref)
+        if v24 ~= v23.Index then
+            v23.Index = v24;
+            v23.Changed:Fire(v24);
+        end;
+        v22.Position = UDim2.fromOffset((v20 - 1) * l_Offset_0 - v23.Offset, 0);
+    end;
+    v23.remove = function() --[[ Line: 101 ]] --[[ Name: remove ]]
+        -- upvalues: v23 (copy)
+        v23.Frame:Destroy();
+        v23.Changed:Destroy();
+        table.clear(v23);
+    end;
+    return v23;
+end;
+v14.new = function(v26) --[[ Line: 112 ]] --[[ Name: new ]]
+    -- upvalues: l_Template_0 (copy), l_ScreenGui_0 (copy), v4 (copy), l_Offset_0 (copy), v3 (copy), v14 (copy), v25 (copy), l_RunService_0 (copy), v5 (copy), v15 (copy), l_Spinner_0 (copy)
+    local v27 = l_Template_0:Clone();
+    v27.Parent = l_ScreenGui_0.Spinner;
+    local v28 = v4.new();
+    local v29 = math.sqrt(0.1 * (l_Offset_0 * 50));
+    local v30 = setmetatable({
+        _maid = v28, 
+        Elements = {}, 
+        Finished = v3.new(), 
+        Frame = v27, 
+        Offset = 0
+    }, v14);
+    for v31 = 1, 7 do
+        local v32 = v25(v31, v26);
+        v32.Changed:Connect(function(v33) --[[ Line: 131 ]]
+            -- upvalues: v30 (copy), v31 (copy), v32 (copy), v26 (copy)
+            local v34 = v30.Elements[v31 + 1];
+            local v35 = v34 and v34.Frame:GetChildren() or {};
+            if #v35 == 0 then
+                v32.cleanup = v26(v32.Frame, v32.Index, v33 == 56);
+                return;
+            else
+                if v31 == 1 and v32.cleanup then
+                    v32.cleanup();
+                end;
+                for _, v37 in v35 do
+                    v37.Parent = v32.Frame;
+                end;
+                v32.cleanup = v34.cleanup;
+                return;
+            end;
+        end);
+        v32.Frame.Parent = v27.Content;
+        v32.update(v31);
+        v30.Elements[v31] = v32;
+    end;
+    local v38 = 0;
+    local v39 = false;
+    v28:Add(v27);
+    v28:Add(l_RunService_0.Heartbeat:Connect(function(_) --[[ Line: 154 ]]
+        -- upvalues: v29 (ref), v30 (copy), v39 (ref), l_Offset_0 (ref), v38 (ref), v5 (ref)
+        if v29 <= 3 then
+            v29 = math.max(0, v29 - 0.01);
+        else
+            v29 = math.max(0, v29 - 0.05);
+        end;
+        if v29 <= 0.01 or v30.Offset >= 7843 and not v39 then
+            v29 = 0;
+            v39 = true;
+            v30.Finished:Fire();
+        end;
+        local v41 = math.min(7843, v30.Offset + v29);
+        local v42 = v41 % l_Offset_0;
+        if v42 < v38 then
+            v5("Click");
+        end;
+        v38 = v42;
+        v30.Offset = v41;
+        v30:Update();
+    end));
+    v15[v27] = v30;
+    l_Spinner_0.Skip.Visible = true;
+    return v30;
+end;
+v14.Update = function(v43) --[[ Line: 185 ]] --[[ Name: Update ]]
+    -- upvalues: v19 (copy), l_Offset_0 (copy)
+    local v44 = v19(v43.Offset);
+    local v45 = v43.Offset % l_Offset_0;
+    for v46, v47 in v43.Elements do
+        v47.Offset = v45;
+        v47.update(v44[v46]);
+    end;
+end;
+v14.Destroy = function(v48) --[[ Line: 194 ]] --[[ Name: Destroy ]]
+    -- upvalues: v15 (copy)
+    for _, v50 in v48.Elements do
+        if v50.cleanup then
+            v50.cleanup();
+        end;
+    end;
+    v15[v48.Frame] = nil;
+    v48._maid:Cleanup();
+    v48.Finished:Destroy();
+end;
+local function v51() --[[ Line: 206 ]] --[[ Name: updateVisibility ]]
+    -- upvalues: l_Spinner_0 (copy)
+    l_Spinner_0.Visible = #l_Spinner_0:GetChildren() > 2;
+end;
+l_Spinner_0.Visible = #l_Spinner_0:GetChildren() > 2;
+l_Spinner_0.ChildAdded:Connect(v51);
+l_Spinner_0.ChildRemoved:Connect(v51);
+v6(l_Spinner_0.Skip.Button, v7.Button.Green);
+v8(l_Spinner_0.Skip.Button, function() --[[ Line: 216 ]]
+    -- upvalues: v15 (copy), l_Spinner_0 (copy)
+    for _, v53 in v15 do
+        for _, v55 in v53.Elements do
+            if v55.cleanup then
+                v55.cleanup();
+                v55.cleanup = nil;
+            end;
+        end;
+        v53.Offset = 7843;
+        v53:Update();
+    end;
+    l_Spinner_0.Skip.Visible = false;
+end);
+return v14;

@@ -1,0 +1,3623 @@
+ModuleScript: AFKReport
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_UserInputService_0 = game:GetService("UserInputService");
+local l_Players_0 = game:GetService("Players");
+local l_TweenService_0 = game:GetService("TweenService");
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local v5 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Time);
+local v6 = require(l_ReplicatedStorage_0.Shared.Utils.RichText);
+local v7 = require(l_ReplicatedStorage_0.Shared.Data.Builders.PromptBuilder);
+local v8 = require(l_ReplicatedStorage_0.Client.Gui.Prompt);
+local v9 = require(l_ReplicatedStorage_0.Client.Gui.Utils.AutoButtonColor);
+local v10 = require(l_ReplicatedStorage_0.Client.Gui.Utils.ClickableButton);
+local v11 = require(l_ReplicatedStorage_0.Shared.Palette);
+local v12 = require(l_ReplicatedStorage_0.Client.Effects.HatchEgg);
+local v13 = require(l_ReplicatedStorage_0.Shared.Data.Pets);
+local v14 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.PetUtil);
+local v15 = require(l_ReplicatedStorage_0.Shared.Constants);
+local v16 = require(l_ReplicatedStorage_0.Client.Framework.Utilities.Gui.Animations.SetFade);
+local v17 = require(l_ReplicatedStorage_0.Client.Framework.Utilities.Gui.HookScrollingFrame);
+local v18 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.ItemUtil);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Emitter);
+local v20 = require(l_ReplicatedStorage_0.Shared.Utils.AnimateColor);
+local v21 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v22 = require(l_ReplicatedStorage_0.Client.Gui.GuiFrame);
+local v23 = require(l_ReplicatedStorage_0.Client.Gui.Utils.SetCoreGuiEnabled);
+local v24 = require(l_ReplicatedStorage_0.Client.Framework.Services.InputMode);
+local l_ScreenGui_0 = l_Players_0.LocalPlayer.PlayerGui:WaitForChild("ScreenGui");
+local v26 = {};
+local v27 = v5.now();
+local v28 = {
+    Pets = {}
+};
+local function _() --[[ Line: 48 ]] --[[ Name: isAFK ]]
+    -- upvalues: v5 (copy), v27 (ref)
+    return v5.now() - v27 >= 60;
+end;
+local v30 = 0;
+local function _() --[[ Line: 56 ]] --[[ Name: updateGui ]]
+    -- upvalues: v5 (copy), v12 (copy), v30 (ref), l_ScreenGui_0 (copy), v27 (ref)
+    local v31 = v5.now();
+    if v12:IsHatching() then
+        v30 = v31;
+    end;
+    local l_AFK_0 = l_ScreenGui_0.AFK;
+    local v33 = false;
+    if v31 - v30 <= 1 then
+        v33 = v5.now() - v27 >= 60;
+    end;
+    l_AFK_0.Visible = v33;
+end;
+task.spawn(function() --[[ Line: 65 ]]
+    -- upvalues: v5 (copy), v12 (copy), v30 (ref), l_ScreenGui_0 (copy), v27 (ref)
+    while true do
+        local v35 = v5.now();
+        if v12:IsHatching() then
+            v30 = v35;
+        end;
+        local l_AFK_1 = l_ScreenGui_0.AFK;
+        local v37 = false;
+        if v35 - v30 <= 1 then
+            v37 = v5.now() - v27 >= 60;
+        end;
+        l_AFK_1.Visible = v37;
+        task.wait(0.25);
+    end;
+end);
+local v38 = nil;
+local l_AFKReveal_0 = l_ScreenGui_0.AFKReveal;
+l_AFKReveal_0.Visible = false;
+local l_ScrollingFrame_0 = l_AFKReveal_0.Frame.ScrollingFrame;
+local l_Template_0 = l_ScrollingFrame_0.Template;
+l_Template_0.Parent = nil;
+local v42 = Random.new();
+local v43 = TweenInfo.new(0.5, Enum.EasingStyle.Sine);
+local v44 = TweenInfo.new(0.5, Enum.EasingStyle.Back);
+local v45 = TweenInfo.new(0.5, Enum.EasingStyle.Circular);
+local v46 = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.In);
+local l_l_AFKReveal_0_0 = l_AFKReveal_0 --[[ copy: 33 -> 44 ]];
+v24.Changed:Connect(function() --[[ Line: 95 ]] --[[ Name: onInputChanged ]]
+    -- upvalues: v24 (copy), l_l_AFKReveal_0_0 (copy)
+    local l_Mode_0 = v24.Mode;
+    if l_Mode_0 == "Keyboard" then
+        l_l_AFKReveal_0_0.Frame.SubTitle.Label.Text = "Click to Reveal";
+        return;
+    elseif l_Mode_0 == "Touch" then
+        l_l_AFKReveal_0_0.Frame.SubTitle.Label.Text = "Tap to Reveal";
+        return;
+    else
+        l_l_AFKReveal_0_0.Frame.SubTitle.Label.Text = "Select below to Reveal";
+        return;
+    end;
+end);
+local l_Mode_1 = v24.Mode;
+if l_Mode_1 == "Keyboard" then
+    l_AFKReveal_0.Frame.SubTitle.Label.Text = "Click to Reveal";
+elseif l_Mode_1 == "Touch" then
+    l_AFKReveal_0.Frame.SubTitle.Label.Text = "Tap to Reveal";
+else
+    l_AFKReveal_0.Frame.SubTitle.Label.Text = "Select below to Reveal";
+end;
+local l_l_AFKReveal_0_1 = l_AFKReveal_0 --[[ copy: 33 -> 45 ]];
+l_Mode_1 = function() --[[ Line: 109 ]] --[[ Name: cleanup ]]
+    -- upvalues: l_ScrollingFrame_0 (copy), v20 (copy), l_l_AFKReveal_0_1 (copy)
+    for _, v52 in l_ScrollingFrame_0:GetChildren() do
+        if v52:IsA("Frame") then
+            v20.None(v52.Button.Cover.Label);
+            v20.None(v52.Button.Display.Rarity);
+            v20.None(v52.Button.Icon.Label);
+            v52:Destroy();
+        end;
+    end;
+    l_l_AFKReveal_0_1.Visible = false;
+end;
+local function v55(v53, v54) --[[ Line: 125 ]] --[[ Name: finish ]]
+    -- upvalues: l_l_AFKReveal_0_1 (copy), l_TweenService_0 (copy), v43 (copy), v16 (copy), l_Mode_1 (copy), v23 (copy)
+    if v53 < v54 then
+        return;
+    else
+        l_l_AFKReveal_0_1.Close.Visible = false;
+        task.wait(1.5);
+        l_TweenService_0:Create(l_l_AFKReveal_0_1, v43, {
+            BackgroundTransparency = 1
+        }):Play();
+        v16(l_l_AFKReveal_0_1, 1, v43, {
+            "Frame"
+        });
+        task.wait(v43.Time);
+        l_Mode_1();
+        v23(true);
+        return;
+    end;
+end;
+v38 = function(v56) --[[ Line: 139 ]] --[[ Name: displaySpecial ]]
+    -- upvalues: l_Mode_1 (copy), v42 (copy), l_l_AFKReveal_0_1 (copy), l_TweenService_0 (copy), v43 (copy), v23 (copy), v16 (copy), v18 (copy), l_Template_0 (copy), v10 (copy), v45 (copy), v46 (copy), v20 (copy), v13 (copy), v12 (copy), l_ScreenGui_0 (copy), v22 (copy), v55 (copy), v21 (copy), v15 (copy), v44 (copy), l_ScrollingFrame_0 (copy)
+    l_Mode_1();
+    v42:Shuffle(v56);
+    l_l_AFKReveal_0_1.Close.Visible = false;
+    l_l_AFKReveal_0_1.Visible = true;
+    l_l_AFKReveal_0_1.BackgroundTransparency = 1;
+    l_TweenService_0:Create(l_l_AFKReveal_0_1, v43, {
+        BackgroundTransparency = 0.3
+    }):Play();
+    v23(false);
+    v16(l_l_AFKReveal_0_1.Frame.Title, 1);
+    v16(l_l_AFKReveal_0_1.Frame.Title, 0, v43);
+    v16(l_l_AFKReveal_0_1.Frame.SubTitle, 1);
+    task.wait(v43.Time);
+    local v57 = false;
+    local v58 = 0;
+    local v59 = 0;
+    for _, v61 in v56 do
+        v59 = v59 + (v61.Amount or 1);
+    end;
+    for _, v63 in v56 do
+        for _ = 1, v63.Amount or 1 do
+            local l_v18_Rarity_0 = v18:GetRarity(v63);
+            local v66 = l_Template_0:Clone();
+            v66.Button.UIScale.Scale = 0.2;
+            v66.Button.Display.Visible = false;
+            local v67 = false;
+            do
+                local l_v67_0 = v67;
+                v10(v66.Button, function() --[[ Line: 173 ]]
+                    -- upvalues: v57 (ref), l_v67_0 (ref), l_l_AFKReveal_0_1 (ref), v58 (ref), v16 (ref), v66 (copy), v43 (ref), l_TweenService_0 (ref), v45 (ref), v46 (ref), v63 (copy), v20 (ref), l_v18_Rarity_0 (copy), v13 (ref), v12 (ref), l_ScreenGui_0 (ref), v22 (ref), v55 (ref), v59 (ref), v21 (ref)
+                    if not v57 or l_v67_0 then
+                        return;
+                    else
+                        l_v67_0 = true;
+                        v57 = false;
+                        l_l_AFKReveal_0_1.Close.Visible = false;
+                        v58 = v58 + 1;
+                        v16(v66.Button.Cover, 1, v43);
+                        l_TweenService_0:Create(v66.Button.UIScale, v45, {
+                            Scale = 1.35
+                        }):Play();
+                        task.wait(v45.Time);
+                        task.delay(0.3, function() --[[ Line: 186 ]]
+                            -- upvalues: v66 (ref), v16 (ref), v43 (ref)
+                            v66.Button.Display.Visible = true;
+                            v16(v66.Button.Display, 1);
+                            v16(v66.Button.Display, 0, v43);
+                        end);
+                        task.delay(v46.Time, function() --[[ Line: 192 ]]
+                            -- upvalues: v63 (ref), v20 (ref), v66 (ref)
+                            if v63.Shiny then
+                                v20.Cycle(v66.Button.Icon.Label, "ShinyLight", {
+                                    Speed = 0.4
+                                });
+                                return;
+                            else
+                                if v63.Mythic then
+                                    v20.Cycle(v66.Button.Icon.Label, "MythicLight", {
+                                        Speed = 0.4
+                                    });
+                                end;
+                                return;
+                            end;
+                        end);
+                        if l_v18_Rarity_0 == "Secret" then
+                            local v69 = v13[v63.Name];
+                            v12:DisplayPetOnce(v63, v69.Egg);
+                            l_l_AFKReveal_0_1.Visible = false;
+                            l_ScreenGui_0._overlay.BackgroundTransparency = 0;
+                            l_TweenService_0:Create(l_ScreenGui_0._overlay, v43, {
+                                BackgroundTransparency = 1
+                            }):Play();
+                            repeat
+                                task.wait();
+                            until v12:IsHatching() == false;
+                            l_l_AFKReveal_0_1.Visible = true;
+                            l_l_AFKReveal_0_1.Close.Visible = true;
+                            v57 = true;
+                            v66.Button.UIScale.Scale = 1;
+                            v66.Button.Icon.Label.ImageColor3 = Color3.new(1, 1, 1);
+                            v22:Close();
+                            v55(v58, v59);
+                            return;
+                        else
+                            l_TweenService_0:Create(v66.Button.UIScale, v46, {
+                                Scale = 1
+                            }):Play();
+                            l_TweenService_0:Create(v66.Button.Icon.Label, v46, {
+                                ImageColor3 = Color3.new(1, 1, 1)
+                            }):Play();
+                            task.wait(v46.Time);
+                            if v63.Shiny then
+                                v21("Shiny");
+                            end;
+                            if v63.Mythic then
+                                v21("Mythic");
+                            else
+                                v21("Legendary");
+                            end;
+                            l_l_AFKReveal_0_1.Close.Visible = true;
+                            v57 = true;
+                            v55(v58, v59);
+                            return;
+                        end;
+                    end;
+                end);
+                if v63.Shiny then
+                    v20.Cycle(v66.Button.Display.Rarity, "Shiny", {
+                        Speed = 0.4
+                    });
+                elseif v63.Mythic then
+                    v20.Cycle(v66.Button.Display.Rarity, "Mythic", {
+                        Speed = 0.4
+                    });
+                elseif l_v18_Rarity_0 == "Legendary" then
+                    v20.Cycle(v66.Button.Display.Rarity, "Rainbow", {
+                        Speed = 0.4
+                    });
+                else
+                    v66.Button.Display.Rarity.TextColor3 = v15.RarityColors[l_v18_Rarity_0];
+                end;
+                v66.Button.Icon.Label.ImageColor3 = Color3.new();
+                v66.Button.Display.Rarity.Text = v63.Mythic and "Mythic" or l_v18_Rarity_0;
+                v66.Button.Display.Label.Text = v63.Name;
+                v18:UpdateIcon(v66.Button.Icon, v63);
+                l_TweenService_0:Create(v66.Button.UIScale, v44, {
+                    Scale = 1
+                }):Play();
+                v20.Cycle(v66.Button.Cover.Label, "Rainbow", {
+                    Speed = 0.4
+                });
+                v21("PetMove");
+                v16(v66, 1);
+                v16(v66, 0, v43, {
+                    "Frame", 
+                    "ImageButton"
+                });
+                v66.Parent = l_ScrollingFrame_0;
+                task.wait(0.35);
+            end;
+        end;
+    end;
+    v57 = true;
+    l_l_AFKReveal_0_1.Close.Visible = true;
+    v16(l_l_AFKReveal_0_1.Frame.SubTitle, 0, v43);
+end;
+v9(l_AFKReveal_0.Close, v11.Button.Red);
+v10(l_AFKReveal_0.Close, function() --[[ Line: 279 ]]
+    -- upvalues: l_Mode_1 (copy), l_l_AFKReveal_0_1 (copy), v23 (copy)
+    l_Mode_1();
+    l_l_AFKReveal_0_1.Visible = false;
+    v23(true);
+end);
+v17(l_ScrollingFrame_0, l_ScrollingFrame_0.UIListLayout);
+l_ScrollingFrame_0.UIListLayout:GetAttributeChangedSignal("AbsoluteContentSize"):Connect(function() --[[ Line: 287 ]]
+    -- upvalues: l_l_AFKReveal_0_1 (copy), l_ScrollingFrame_0 (copy), l_ScreenGui_0 (copy)
+    l_l_AFKReveal_0_1.Frame.Size = UDim2.fromOffset(1200, (math.max(800, l_ScrollingFrame_0.UIListLayout.AbsoluteContentSize.Y / l_ScreenGui_0.UIScale.Scale)));
+end);
+v26.Load = function(_, v71) --[[ Line: 293 ]] --[[ Name: Load ]]
+    -- upvalues: v28 (ref), v27 (ref), v5 (copy), v12 (copy), v30 (ref), l_ScreenGui_0 (copy)
+    v28 = v71;
+    v27 = -1;
+    local v72 = v5.now();
+    if v12:IsHatching() then
+        v30 = v72;
+    end;
+    local l_AFK_2 = l_ScreenGui_0.AFK;
+    local v74 = false;
+    if v72 - v30 <= 1 then
+        v74 = v5.now() - v27 >= 60;
+    end;
+    l_AFK_2.Visible = v74;
+end;
+v26.Get = function(_) --[[ Line: 300 ]] --[[ Name: Get ]]
+    -- upvalues: v28 (ref)
+    return v28;
+end;
+v26.AddPet = function(_, v77, v78, v79, v80, v81) --[[ Line: 305 ]] --[[ Name: AddPet ]]
+    -- upvalues: v5 (copy), v27 (ref), v28 (ref)
+    if not (v5.now() - v27 >= 60) then
+        return;
+    else
+        for _, v83 in v28.Pets do
+            if v83.Name == v77 and v83.Shiny == v78 and v83.Mythic == v79 then
+                v83.Amount = v83.Amount + v80;
+                return;
+            end;
+        end;
+        table.insert(v28.Pets, {
+            Name = v77, 
+            Shiny = v78, 
+            Mythic = v79, 
+            Amount = v80, 
+            Discovered = v81
+        });
+        return;
+    end;
+end;
+l_AFKReveal_0 = function() --[[ Line: 334 ]] --[[ Name: onUnidled ]]
+    -- upvalues: l_ScreenGui_0 (copy), v27 (ref), v5 (copy), v12 (copy), v30 (ref), v28 (ref), v13 (copy), v14 (copy), v15 (copy), v38 (ref), v7 (copy), v6 (copy), v9 (copy), v11 (copy), v10 (copy), v8 (copy)
+    if l_ScreenGui_0.AFKReveal.Visible then
+        return;
+    else
+        v27 = v5.now();
+        local v84 = v5.now();
+        if v12:IsHatching() then
+            v30 = v84;
+        end;
+        local l_AFK_3 = l_ScreenGui_0.AFK;
+        local v86 = false;
+        if v84 - v30 <= 1 then
+            v86 = v5.now() - v27 >= 60;
+        end;
+        l_AFK_3.Visible = v86;
+        if #v28.Pets == 0 then
+            return;
+        else
+            v84 = {};
+            l_AFK_3 = {};
+            for _, v88 in v28.Pets do
+                local v89 = v13[v88.Name];
+                local v90 = {
+                    Type = "Pet", 
+                    Name = v88.Name, 
+                    Shiny = v88.Shiny and true or nil, 
+                    Mythic = v88.Mythic and true or nil, 
+                    Amount = v88.Amount
+                };
+                if v88.Discovered and v89.Rarity == "Legendary" or v14:GetChance(v90) <= v15.LegendaryTiers[3].Chance then
+                    table.insert(l_AFK_3, v90);
+                end;
+                table.insert(v84, v90);
+            end;
+            if #l_AFK_3 > 0 then
+                v38(l_AFK_3);
+            else
+                v86 = v7.new("AFK Report"):Text((("Welcome back!\n%*"):format((v6.new():size(32)("Here's what you hatched while away"))))):Items(v84):Button(function(v91, v92) --[[ Line: 378 ]]
+                    -- upvalues: v9 (ref), v11 (ref), v10 (ref)
+                    v91.Label.Text = "Continue";
+                    v9(v91, v11.Button.Green);
+                    v10(v91, v92);
+                end);
+                v8(v86:Build());
+            end;
+            table.clear(v28.Pets);
+            return;
+        end;
+    end;
+end;
+l_UserInputService_0.InputBegan:Connect(function(v93) --[[ Line: 391 ]]
+    -- upvalues: l_AFKReveal_0 (copy)
+    local l_UserInputType_0 = v93.UserInputType;
+    if l_UserInputType_0 == Enum.UserInputType.None or l_UserInputType_0 == Enum.UserInputType.MouseMovement then
+        return;
+    else
+        l_AFKReveal_0();
+        return;
+    end;
+end);
+return v26;
+ModuleScript: Activation
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local l_RunService_0 = game:GetService("RunService");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_CollectionService_0 = game:GetService("CollectionService");
+local v5 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local v7 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.CharacterUtil);
+local v8 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local v9 = require(l_ReplicatedStorage_0.Client.Gui.Frames.GumShop);
+local v10 = require(l_ReplicatedStorage_0.Client.Gui.GuiFrame);
+local v11 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local v12 = require(l_ReplicatedStorage_0.Shared.Data.Worlds);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v14 = {};
+local v15 = {};
+local v16 = nil;
+local v17 = TweenInfo.new(1, Enum.EasingStyle.Quint);
+local v18 = {
+    Changed = v6.new()
+};
+local _ = function(v19) --[[ Line: 39 ]] --[[ Name: updateVisible ]]
+    -- upvalues: v14 (copy)
+    for _, v21 in v14 do
+        v21.Enabled = v19;
+    end;
+end;
+v18.Hide = function(_) --[[ Line: 46 ]] --[[ Name: Hide ]]
+    -- upvalues: v14 (copy)
+    for _, v25 in v14 do
+        v25.Enabled = false;
+    end;
+end;
+v18.Show = function(_) --[[ Line: 50 ]] --[[ Name: Show ]]
+    -- upvalues: v14 (copy)
+    for _, v28 in v14 do
+        v28.Enabled = true;
+    end;
+end;
+v18.Bind = function(_, v30, v31) --[[ Line: 54 ]] --[[ Name: Bind ]]
+    -- upvalues: v14 (copy), v15 (copy)
+    local v32 = nil;
+    for _, v34 in v30:GetChildren() do
+        local l_BillboardGui_0 = v34:FindFirstChildOfClass("BillboardGui");
+        if l_BillboardGui_0 then
+            v32 = l_BillboardGui_0;
+            break;
+        end;
+    end;
+    if v32 then
+        v14[v30] = v32;
+    end;
+    v15[v30] = v31;
+end;
+v18.Remove = function(_, v37) --[[ Line: 69 ]] --[[ Name: Remove ]]
+    -- upvalues: v15 (copy)
+    v15[v37] = nil;
+end;
+v18.Beam = function(_, v39, v40) --[[ Line: 73 ]] --[[ Name: Beam ]]
+    -- upvalues: l_TweenService_0 (copy), v17 (copy)
+    local l_Part_0 = Instance.new("Part");
+    l_Part_0.Shape = Enum.PartType.Cylinder;
+    l_Part_0.Anchored = true;
+    l_Part_0.CanCollide = false;
+    l_Part_0.CastShadow = false;
+    l_Part_0.Size = Vector3.new(0, 0, 0, 0);
+    l_Part_0.Material = Enum.Material.Neon;
+    l_Part_0.Color = Color3.new(1, 1, 1);
+    l_Part_0.Transparency = 0.75;
+    l_Part_0.Parent = workspace.Rendered.Generic;
+    local v42 = v40 or v39.Root.Size.Z;
+    local l_Position_0 = v39.Root.Position;
+    local function v44() --[[ Line: 87 ]] --[[ Name: update ]]
+        -- upvalues: l_Part_0 (copy), l_Position_0 (copy)
+        l_Part_0.CFrame = CFrame.new(l_Position_0) * CFrame.Angles(0, 0, 1.5707963267948966) + Vector3.new(0, l_Part_0.Size.Y / 2, 0);
+    end;
+    l_TweenService_0:Create(l_Part_0, v17, {
+        Transparency = 1, 
+        Size = Vector3.new(100, v42, v42)
+    }):Play();
+    l_Part_0.CFrame = CFrame.new(l_Position_0) * CFrame.Angles(0, 0, 1.5707963267948966) + Vector3.new(0, l_Part_0.Size.Y / 2, 0);
+    l_Part_0:GetPropertyChangedSignal("Size"):Connect(v44);
+    task.delay(v17.Time, function() --[[ Line: 101 ]]
+        -- upvalues: l_Part_0 (copy)
+        l_Part_0:Destroy();
+    end);
+    return l_Part_0;
+end;
+local function v50(v45) --[[ Line: 109 ]] --[[ Name: addTagged ]]
+    -- upvalues: v18 (copy), v12 (copy), v9 (copy), v10 (copy), v11 (copy), l_ReplicatedStorage_0 (copy), v8 (copy)
+    if v45.Name == "Shop" then
+        v18:Bind(v45, function() --[[ Line: 111 ]]
+            -- upvalues: v45 (copy), v12 (ref), v9 (ref), v10 (ref)
+            local v46 = nil;
+            local v47 = v45.Parent and v45.Parent.Name or "";
+            v46 = if v12[v47] then v47 else v45.Parent.Parent.Name;
+            v9.open(v46, v9.Kind or "Gum");
+            v10:Open("GumShop");
+        end);
+        return;
+    elseif v45.Name == "Index" then
+        v18:Bind(v45, function() --[[ Line: 125 ]]
+            -- upvalues: v10 (ref)
+            v10:Open("Index");
+        end);
+        return;
+    else
+        if v45.Name == "Sell" then
+            v18:Bind(v45, function() --[[ Line: 130 ]]
+                -- upvalues: v11 (ref), v18 (ref), v45 (copy), l_ReplicatedStorage_0 (ref), v8 (ref)
+                local v48 = v11:Get();
+                if not v48 then
+                    return;
+                elseif v48.Bubble.Amount == 0 then
+                    return;
+                else
+                    v18:Beam(v45).Color = Color3.fromRGB(255, 234, 116);
+                    local v49 = l_ReplicatedStorage_0.Assets.Particles.Spots:Clone();
+                    v49.EmissionDirection = Enum.NormalId.Left;
+                    v49.SpreadAngle = Vector2.new(0, 0);
+                    v49.Enabled = false;
+                    v49.Parent = v45.Root;
+                    v49:Emit(20);
+                    task.delay(v49.Lifetime.Max, function() --[[ Line: 149 ]]
+                        -- upvalues: v49 (copy)
+                        v49:Destroy();
+                    end);
+                    v8:FireServer("SellBubble");
+                    return;
+                end;
+            end);
+        end;
+        return;
+    end;
+end;
+for _, v52 in l_CollectionService_0:GetTagged("Activation") do
+    v50(v52);
+end;
+l_CollectionService_0:GetInstanceAddedSignal("Activation"):Connect(v50);
+l_CollectionService_0:GetInstanceRemovedSignal("Activation"):Connect(function(v53) --[[ Line: 164 ]]
+    -- upvalues: v18 (copy)
+    v18:Remove(v53);
+end);
+l_RunService_0.Heartbeat:Connect(function() --[[ Line: 169 ]]
+    -- upvalues: v15 (copy)
+    local v54 = CFrame.Angles(0, math.rad(os.clock() * -10 % 360), 1.5707963267948966);
+    for v55 in v15 do
+        v55.Ring.CFrame = CFrame.new(v55.Ring.Position) * v54;
+    end;
+end);
+local v56 = 0;
+v5(0.2, function() --[[ Line: 179 ]]
+    -- upvalues: v7 (copy), l_LocalPlayer_0 (copy), v15 (copy), v16 (ref), v56 (ref), v18 (copy)
+    if not v7:IsAlive(l_LocalPlayer_0) then
+        return;
+    else
+        local l_v7_RootPart_0 = v7:GetRootPart(l_LocalPlayer_0);
+        if not l_v7_RootPart_0 then
+            return;
+        else
+            local v58 = l_v7_RootPart_0.Position * Vector3.new(1, 0, 1, 0);
+            local v59 = nil;
+            for v60 in v15 do
+                if v60.Parent and (v58 - v60.Root.Position * Vector3.new(1, 0, 1, 0)).Magnitude <= v60.Root.Size.Y / 2 and math.abs(l_v7_RootPart_0.Position.Y - v60.Root.Position.Y) <= 10 then
+                    v59 = v60;
+                    break;
+                end;
+            end;
+            local v61 = v59 and v59.Name == "Sell";
+            if v59 ~= v16 or v61 then
+                if v61 then
+                    local v62 = os.clock();
+                    if v62 - v56 <= 2 then
+                        return;
+                    else
+                        v56 = v62;
+                    end;
+                end;
+                if v59 then
+                    v15[v59]();
+                end;
+                v18.Changed:Fire(v59 and v59.Name or nil);
+            end;
+            v16 = v59;
+            return;
+        end;
+    end;
+end);
+return v18;
+ModuleScript: IsTrading
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Trading_0 = game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.Trading;
+return function() --[[ Line: 7 ]] --[[ Name: IsTrading ]]
+    -- upvalues: l_Trading_0 (copy)
+    return l_Trading_0.Visible;
+end;
+ModuleScript: IsTrading
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Trading_0 = game:GetService("Players").LocalPlayer.PlayerGui.ScreenGui.Trading;
+return function() --[[ Line: 7 ]] --[[ Name: IsTrading ]]
+    -- upvalues: l_Trading_0 (copy)
+    return l_Trading_0.Visible;
+end;
+ModuleScript: LowDetail
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_RunService_0 = game:GetService("RunService");
+local v2 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local v3 = {
+    Enabled = false, 
+    Changed = v2.new()
+};
+if l_RunService_0:IsClient() then
+    require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData):ConnectDataChanged("Settings", function(v4) --[[ Line: 22 ]]
+        -- upvalues: v3 (copy)
+        local v5 = v4.Settings["Low Detail Mode"];
+        if v3.Enabled ~= v5 then
+            v3.Enabled = v5;
+            v3.Changed:Fire(v5);
+        end;
+    end);
+end;
+return v3;
+ModuleScript: Moonlite
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local v0 = {};
+local _ = require(script.MoonTyp);
+local v2 = require(script.Specials);
+local v3 = require(script.EaseFuncs);
+local l_RunService_0 = game:GetService("RunService");
+local l_HttpService_0 = game:GetService("HttpService");
+if l_RunService_0:IsServer() then
+    warn("Moonlite should NOT be used on the server! Rig transforms will not be replicated.");
+end;
+local v6 = {};
+v6.__index = v6;
+local v7 = {
+    Instance = true, 
+    boolean = true, 
+    ["nil"] = true
+};
+local v8 = {};
+local function v12(v9, v10, v11) --[[ Line: 87 ]] --[[ Name: lerp ]]
+    if type(v9) == "number" then
+        assert(type(v10) == "number");
+        return v9 + (v10 - v9) * v11;
+    else
+        return v9:Lerp(v10, v11);
+    end;
+end;
+local function _(v13) --[[ Line: 96 ]] --[[ Name: toPath ]]
+    return table.concat(v13.InstanceNames, ".");
+end;
+local function v23(v15, v16) --[[ Line: 100 ]] --[[ Name: resolveAnimPath ]]
+    if not v15 then
+        return nil;
+    else
+        local v17 = #v15.InstanceNames;
+        local v18 = v16 or game;
+        if pcall(function() --[[ Line: 108 ]]
+            -- upvalues: v17 (copy), v15 (copy), v18 (ref)
+            for v19 = 2, v17 do
+                local v20 = v15.InstanceNames[v19];
+                local v21 = v15.InstanceTypes[v19];
+                local v22 = v18[v20];
+                assert(typeof(v22) == "Instance");
+                assert(v22.ClassName == v21);
+                v18 = v22;
+            end;
+        end) then
+            return v18;
+        else
+            warn("!! PATH RESOLVE FAILED:", table.concat(v15.InstanceNames, "."));
+            return nil;
+        end;
+    end;
+end;
+local function v34(v24) --[[ Line: 129 ]] --[[ Name: resolveJoints ]]
+    local v25 = {};
+    for _, v27 in v24:GetDescendants() do
+        if v27:IsA("Motor6D") and v27.Active then
+            local l_Part1_0 = v27.Part1;
+            local v29 = l_Part1_0 and l_Part1_0.Name;
+            if v29 then
+                v25[v29] = {
+                    Name = v29, 
+                    Joint = v27, 
+                    Children = {}
+                };
+            end;
+        end;
+    end;
+    for v30, v31 in v25 do
+        local l_Part0_0 = v31.Joint.Part0;
+        if l_Part0_0 then
+            local v33 = v25[l_Part0_0.Name];
+            if v33 then
+                v33.Children[v30] = v31;
+                v31.Parent = v33;
+            end;
+        end;
+    end;
+    return v25;
+end;
+local function v42(v35) --[[ Line: 167 ]] --[[ Name: parseEase ]]
+    local l_Type_0 = v35:FindFirstChild("Type");
+    local l_Params_0 = v35:FindFirstChild("Params");
+    local v38 = {
+        Type = assert(if l_Type_0 and l_Type_0:IsA("StringValue") then l_Type_0.Value else nil), 
+        Params = {}
+    };
+    if l_Params_0 then
+        for _, v40 in l_Params_0:GetChildren() do
+            if v40:IsA("ValueBase") then
+                local l_Value_0 = v40.Value;
+                v38.Params[v40.Name] = l_Value_0;
+            end;
+        end;
+    end;
+    return v38;
+end;
+local function v46(v43) --[[ Line: 192 ]] --[[ Name: parseEaseOld ]]
+    local l_Style_0 = v43:FindFirstChild("Style");
+    assert(l_Style_0 and l_Style_0:IsA("StringValue"), "No style in legacy ease!");
+    local l_Direction_0 = v43:FindFirstChild("Direction");
+    assert(l_Direction_0 and l_Direction_0:IsA("StringValue"), "No direction in legacy ease!");
+    return {
+        Type = l_Style_0.Value, 
+        Params = {
+            Direction = l_Direction_0.Value
+        }
+    };
+end;
+local function v51(v47) --[[ Line: 208 ]] --[[ Name: readValue ]]
+    if v47:IsA("ValueBase") then
+        local v48 = if tonumber(v47.Name) then assert(v47.Parent) else v47;
+        local l_Value_1 = v47.Value;
+        local l_EnumType_0 = v48:FindFirstChild("EnumType");
+        if l_EnumType_0 and l_EnumType_0:IsA("StringValue") then
+            return Enum[l_EnumType_0.Value][l_Value_1];
+        elseif v48:FindFirstChild("Vector2") then
+            return (Vector2.new(l_Value_1.X, l_Value_1.Y));
+        elseif v48:FindFirstChild("ColorSequence") then
+            return (ColorSequence.new(l_Value_1));
+        elseif v48:FindFirstChild("NumberSequence") then
+            return (NumberSequence.new(l_Value_1));
+        else
+            if v48:FindFirstChild("NumberRange") then
+                l_Value_1 = NumberRange.new(l_Value_1);
+            end;
+            return l_Value_1;
+        end;
+    else
+        return v47:GetAttribute("Value");
+    end;
+end;
+local function v57(v52, v53, v54) --[[ Line: 236 ]] --[[ Name: getPropValue ]]
+    -- upvalues: v2 (copy)
+    if v53 then
+        local v55 = v2.Get(v52._scratch, v53, v54);
+        if v55 then
+            local l_Get_0 = v55.Get;
+            if l_Get_0 then
+                return pcall(l_Get_0, v53);
+            else
+                return true, v55.Default;
+            end;
+        end;
+    end;
+    return pcall(function() --[[ Line: 251 ]]
+        -- upvalues: v53 (copy), v54 (copy)
+        return v53[v54];
+    end);
+end;
+local function v65(v58, v59, v60, v61, v62) --[[ Line: 256 ]] --[[ Name: setPropValue ]]
+    -- upvalues: v2 (copy)
+    if v59 then
+        local v63 = v2.Get(v58._scratch, v59, v60);
+        if v63 then
+            if v63.Get == nil and v62 and v61 == true then
+                v61 = false;
+            end;
+            return pcall(v63.Set, v61);
+        end;
+    end;
+    return pcall(function() --[[ Line: 273 ]]
+        -- upvalues: v59 (copy), v60 (copy), v58 (copy), v61 (ref)
+        if v59 and v59:IsA("Camera") and v60 == "CFrame" then
+            if v58.CameraShakeIntensity.Value > 0 then
+                local v64 = v58.TimePosition * 32;
+                v59.CFrame = v61 + Vector3.new(math.noise(v64, 0), math.noise(v64, 0, 100), math.noise(v64, 100, 0)) * v58.CameraShakeIntensity.Value;
+                return;
+            else
+                v59.CFrame = v61;
+                return;
+            end;
+        else
+            v59[v60] = v61;
+            return;
+        end;
+    end);
+end;
+local function v82(v66) --[[ Line: 291 ]] --[[ Name: parseKeyframePack ]]
+    -- upvalues: v51 (copy), v42 (copy), v46 (copy)
+    local v67 = tonumber(v66.Name);
+    assert(v67, "Bad frame number");
+    local l_Values_0 = v66:FindFirstChild("Values");
+    assert(l_Values_0, "No value folder!");
+    assert(l_Values_0:FindFirstChild("0"), "No starting value!");
+    local v69 = {};
+    local v70 = 0;
+    for _, v72 in l_Values_0:GetChildren() do
+        local v73 = tonumber(v72.Name);
+        if v73 then
+            local l_status_0, l_result_0 = pcall(v51, v72);
+            if l_status_0 then
+                v69[v73] = l_result_0;
+                v70 = math.max(v73, v70);
+            end;
+        end;
+    end;
+    local l_Eases_0 = v66:FindFirstChild("Eases");
+    local l_Ease_0 = v66:FindFirstChild("Ease");
+    local v78 = {};
+    if l_Eases_0 then
+        for _, v80 in l_Eases_0:GetChildren() do
+            local v81 = tonumber(v80.Name);
+            assert(v81, (("Bad index on ease @%*"):format((v80:GetFullName()))));
+            v78[v81] = v42(v80);
+        end;
+    elseif l_Ease_0 then
+        v78[v70] = v46(l_Ease_0);
+    end;
+    return {
+        FrameIndex = v67, 
+        FrameCount = v70, 
+        Values = v69, 
+        Eases = v78
+    };
+end;
+local function v100(v83, v84) --[[ Line: 342 ]] --[[ Name: unpackKeyframes ]]
+    -- upvalues: v82 (copy)
+    local v85 = {};
+    local v86 = {};
+    local v87 = {};
+    for _, v89 in v83:GetChildren() do
+        local v90 = tonumber(v89.Name);
+        if v90 then
+            v85[v90] = v82(v89);
+            table.insert(v86, v90);
+        end;
+    end;
+    table.sort(v86);
+    for v91 = 2, #v86 do
+        local v92 = v85[v86[v91 - 1]];
+        local v93 = v85[v86[v91]];
+        v92.Next = v93;
+        v93.Prev = v92;
+    end;
+    local v94 = v85[v86[1]];
+    while v94 do
+        local l_FrameIndex_0 = v94.FrameIndex;
+        local v96 = nil;
+        for v97 = 0, v94.FrameCount do
+            local v98 = v94.Eases[v97] or v96;
+            local v99 = v94.Values[v97];
+            if v99 ~= nil then
+                if v84 then
+                    v99 = v84(v99);
+                end;
+                table.insert(v87, {
+                    Time = l_FrameIndex_0 + v97, 
+                    Value = v99, 
+                    Ease = v98
+                });
+                if v98 then
+                    v96 = v98;
+                end;
+            end;
+        end;
+        v94 = v94.Next;
+    end;
+    return v87;
+end;
+local function _(v101, v102) --[[ Line: 400 ]] --[[ Name: readValueBase ]]
+    local l_v101_FirstChild_0 = v101:FindFirstChild(v102);
+    assert(l_v101_FirstChild_0 and l_v101_FirstChild_0:IsA("ValueBase"));
+    return l_v101_FirstChild_0.Value;
+end;
+local function v147(v105, v106, v107) --[[ Line: 406 ]] --[[ Name: compileItem ]]
+    -- upvalues: v23 (copy), v34 (copy), v51 (copy), v100 (copy), v2 (copy)
+    local v108 = table.find(v105._data.Items, v106);
+    if not v108 then
+        return;
+    else
+        local l_Path_0 = v106.Path;
+        local l_ItemType_0 = l_Path_0.ItemType;
+        local v111 = v106.Override or v23(l_Path_0, v105._root);
+        local l_FirstChild_0 = v105._save:FindFirstChild((tostring(v108)));
+        if not v111 or not l_FirstChild_0 then
+            return;
+        else
+            assert(v111);
+            assert(l_FirstChild_0);
+            local l_Rig_0 = l_FirstChild_0:FindFirstChild("Rig");
+            local l_MarkerTrack_0 = l_FirstChild_0:FindFirstChild("MarkerTrack");
+            if l_Rig_0 and l_ItemType_0 == "Rig" then
+                local v115 = v34(v111);
+                for _, v117 in l_Rig_0:GetChildren() do
+                    if v117.Name == "_joint" then
+                        local l__hier_0 = v117:FindFirstChild("_hier");
+                        local l_default_0 = v117:FindFirstChild("default");
+                        local l__keyframes_0 = v117:FindFirstChild("_keyframes");
+                        if l_default_0 then
+                            l_default_0 = v51(l_default_0);
+                        end;
+                        do
+                            local l_l_default_0_0 = l_default_0;
+                            if l__hier_0 and l__keyframes_0 then
+                                local v122 = v51(l__hier_0);
+                                local v123 = v122:gmatch("[^%.]+");
+                                local v124 = v115[v123()];
+                                while v124 do
+                                    local l_Children_0 = v124.Children;
+                                    local v126 = v123();
+                                    if v126 ~= nil then
+                                        if l_Children_0[v126] then
+                                            v124 = l_Children_0[v126];
+                                        else
+                                            warn((("failed to resolve joint '%*' (could not find child '%*' in %*!)"):format(v122, v126, v124.Name)));
+                                            v124 = nil;
+                                        end;
+                                    else
+                                        break;
+                                    end;
+                                end;
+                                if v124 then
+                                    local l_Joint_0 = v124.Joint;
+                                    v107[l_Joint_0] = {
+                                        Props = {
+                                            Transform = {
+                                                Default = CFrame.identity, 
+                                                Static = false, 
+                                                Sequence = v100(l__keyframes_0, function(v128) --[[ Line: 473 ]]
+                                                    -- upvalues: l_l_default_0_0 (ref)
+                                                    return v128:Inverse() * l_l_default_0_0;
+                                                end)
+                                            }
+                                        }, 
+                                        Target = l_Joint_0
+                                    };
+                                end;
+                            end;
+                        end;
+                    end;
+                end;
+            else
+                local v129 = {};
+                for _, v131 in l_FirstChild_0:GetChildren() do
+                    if v131:IsA("Folder") and v131 ~= l_MarkerTrack_0 then
+                        local l_default_1 = v131:FindFirstChild("default");
+                        local l_Name_0 = v131.Name;
+                        if l_default_1 then
+                            l_default_1 = v51(l_default_1);
+                        end;
+                        v129[l_Name_0] = {
+                            Default = l_default_1, 
+                            Static = v2.Static(v111, l_Name_0), 
+                            Sequence = v100(v131)
+                        };
+                    end;
+                end;
+                v107[v111] = {
+                    Props = v129, 
+                    Target = v111
+                };
+            end;
+            if l_MarkerTrack_0 then
+                local v134 = {};
+                v105._markers[v111] = v134;
+                for _, v136 in l_MarkerTrack_0:GetChildren() do
+                    local v137 = assert((tonumber(v136.Name)));
+                    local l_width_0 = v136:FindFirstChild("width");
+                    assert(l_width_0 and l_width_0:IsA("ValueBase"));
+                    local l_Value_2 = l_width_0.Value;
+                    l_width_0 = {};
+                    local l_KFMarkers_0 = v136:FindFirstChild("KFMarkers");
+                    if l_KFMarkers_0 then
+                        for _, v142 in l_KFMarkers_0:GetChildren() do
+                            if v142:IsA("ValueBase") then
+                                local l_Value_3 = v142.Value;
+                                local l_Val_0 = v142:FindFirstChild("Val");
+                                assert(l_Val_0 and l_Val_0:IsA("ValueBase"));
+                                l_width_0[l_Value_3] = l_Val_0.Value;
+                                local v145 = v134[v137];
+                                if not v145 then
+                                    v145 = {
+                                        StartMarkers = {}, 
+                                        EndMarkers = {}
+                                    };
+                                    v134[v137] = v145;
+                                end;
+                                if l_Value_2 > 0 then
+                                    l_Val_0 = math.min(v137 + l_Value_2, v105.Frames);
+                                    local v146 = v134[l_Val_0];
+                                    if not v146 then
+                                        v146 = {
+                                            StartMarkers = {}, 
+                                            EndMarkers = {}
+                                        };
+                                        v134[l_Val_0] = v146;
+                                    end;
+                                    v146.EndMarkers[l_Value_3] = l_width_0;
+                                end;
+                                v145.StartMarkers[l_Value_3] = l_width_0;
+                            end;
+                        end;
+                    end;
+                end;
+            end;
+            return;
+        end;
+    end;
+end;
+local function v170(v148) --[[ Line: 564 ]] --[[ Name: getInterpolator ]]
+    -- upvalues: v7 (copy), v12 (copy)
+    if typeof(v148) == "ColorSequence" then
+        return function(v149, v150, v151) --[[ Line: 566 ]]
+            local l_Value_4 = v149.Keypoints[1].Value;
+            local l_Value_5 = v150.Keypoints[1].Value;
+            local v154;
+            if type(l_Value_4) == "number" then
+                assert(type(l_Value_5) == "number");
+                v154 = l_Value_4 + (l_Value_5 - l_Value_4) * v151;
+            else
+                v154 = l_Value_4:Lerp(l_Value_5, v151);
+            end;
+            return ColorSequence.new(v154);
+        end;
+    elseif typeof(v148) == "NumberSequence" then
+        return function(v155, v156, v157) --[[ Line: 571 ]]
+            local l_Value_6 = v155.Keypoints[1].Value;
+            local l_Value_7 = v156.Keypoints[1].Value;
+            local v160;
+            if type(l_Value_6) == "number" then
+                assert(type(l_Value_7) == "number");
+                v160 = l_Value_6 + (l_Value_7 - l_Value_6) * v157;
+            else
+                v160 = l_Value_6:Lerp(l_Value_7, v157);
+            end;
+            return NumberSequence.new(v160);
+        end;
+    elseif typeof(v148) == "NumberRange" then
+        return function(v161, v162, v163) --[[ Line: 576 ]]
+            local l_Min_0 = v161.Min;
+            local l_Min_1 = v162.Min;
+            local v166;
+            if type(l_Min_0) == "number" then
+                assert(type(l_Min_1) == "number");
+                v166 = l_Min_0 + (l_Min_1 - l_Min_0) * v163;
+            else
+                v166 = l_Min_0:Lerp(l_Min_1, v163);
+            end;
+            return NumberRange.new(v166);
+        end;
+    elseif v7[typeof(v148)] then
+        return function(v167, v168, v169) --[[ Line: 581 ]]
+            if v169 >= 1 then
+                return v168;
+            else
+                return v167;
+            end;
+        end;
+    else
+        return v12;
+    end;
+end;
+local function v192(v171, v172) --[[ Line: 593 ]] --[[ Name: compileFrames ]]
+    -- upvalues: v170 (copy), v3 (copy)
+    local l__buffer_0 = v171._buffer;
+    for v174, v175 in v172 do
+        local v176 = {};
+        l__buffer_0[v174] = v176;
+        for v177, v178 in v175.Props do
+            if v178.Sequence[1] then
+                local v179 = nil;
+                local v180 = 0;
+                local l_Default_0 = v178.Default;
+                local v182 = v170(v178.Sequence[1].Value);
+                for _, v184 in v178.Sequence do
+                    if not v176[v184.Time] then
+                        v176[v184.Time] = {};
+                    end;
+                    local v185 = v184.Time - v180;
+                    v176[v184.Time][v177] = v184.Value;
+                    if v185 <= 1 then
+                        l_Default_0 = v184.Value;
+                        v179 = v184.Ease;
+                        v180 = v184.Time;
+                    else
+                        if not v178.Static then
+                            local v186 = v3.Get(v179);
+                            for v187 = 0, v185 do
+                                local v188 = v186(v187 / v185);
+                                local v189 = v180 + v187;
+                                if not v176[v189] then
+                                    v176[v189] = {};
+                                end;
+                                v176[v189][v177] = v182(l_Default_0, v184.Value, v188);
+                            end;
+                        end;
+                        v179 = v184.Ease;
+                        l_Default_0 = v184.Value;
+                        v180 = v184.Time;
+                    end;
+                end;
+                if not v178.Static and v180 < v171.Frames then
+                    local v190 = v176[v180][v177];
+                    for v191 = v180, v171.FrameRate do
+                        if not v176[v191] then
+                            v176[v191] = {};
+                        end;
+                        v176[v191][v177] = v190;
+                    end;
+                end;
+            end;
+        end;
+    end;
+end;
+local function v197(v193) --[[ Line: 660 ]] --[[ Name: compileRouting ]]
+    -- upvalues: v147 (copy), v192 (copy)
+    table.clear(v193._buffer);
+    table.clear(v193._elements);
+    table.clear(v193._markers);
+    local v194 = {};
+    for _, v196 in v193._data.Items do
+        v147(v193, v196, v194);
+    end;
+    v192(v193, v194);
+    v193._compiled = true;
+end;
+local function v204(v198) --[[ Line: 675 ]] --[[ Name: restoreTrack ]]
+    -- upvalues: v8 (copy), v65 (copy)
+    local v199 = v8[v198];
+    if not v199 then
+        return;
+    else
+        for v200, v201 in v199 do
+            for v202, v203 in v201 do
+                v65(v198, v200, v202, v203);
+            end;
+        end;
+        v8[v198] = nil;
+        return;
+    end;
+end;
+local function v220(v205, v206) --[[ Line: 691 ]] --[[ Name: stepTrack ]]
+    -- upvalues: v65 (copy)
+    local v207 = math.floor(v205.TimePosition * v205.FrameRate);
+    v206 = math.min(v206, 1 / v205.FrameRate);
+    if v205.Frames < v207 then
+        if v205.Looped then
+            v207 = 0;
+            v205.TimePosition = 0;
+        else
+            v205._completed:Fire(Enum.PlaybackState.Completed);
+            return true;
+        end;
+    end;
+    for v208, v209 in v205._buffer do
+        if v205._locks[v208] == nil then
+            local v210 = v209[v207];
+            if v210 then
+                for v211, v212 in v210 do
+                    v65(v205, v208, v211, v212);
+                end;
+            end;
+        end;
+    end;
+    for v213, v214 in v205._markers do
+        local v215 = v214[v207];
+        if v215 then
+            for v216, v217 in v215.StartMarkers do
+                if v205._markerSignals[v216] then
+                    v205._markerSignals[v216]:Fire(v213, v217);
+                end;
+            end;
+            for v218, v219 in v215.EndMarkers do
+                if v205._endMarkerSignals[v218] then
+                    v205._endMarkerSignals[v218]:Fire(v213, v219);
+                end;
+            end;
+        end;
+    end;
+    v205.TimePosition = v205.TimePosition + v206;
+    return false;
+end;
+v0.CreatePlayer = function(v221, v222) --[[ Line: 744 ]] --[[ Name: CreatePlayer ]]
+    -- upvalues: l_HttpService_0 (copy), v6 (copy), v197 (copy)
+    local v223 = l_HttpService_0:JSONDecode(v221.Value);
+    local l_BindableEvent_0 = Instance.new("BindableEvent");
+    local v225 = setmetatable({
+        Completed = l_BindableEvent_0.Event, 
+        Looped = v223.Information.Looped, 
+        Frames = v223.Information.Length, 
+        FrameRate = v223.Information.FPS or 60, 
+        TimePosition = 0, 
+        CameraShakeIntensity = Instance.new("NumberValue"), 
+        _save = v221, 
+        _data = v223, 
+        _compiled = false, 
+        _completed = l_BindableEvent_0, 
+        _markers = {}, 
+        _markerSignals = {}, 
+        _endMarkerSignals = {}, 
+        _locks = {}, 
+        _elements = {}, 
+        _buffer = {}, 
+        _scratch = {}, 
+        _root = v222
+    }, v6);
+    v197(v225);
+    return v225;
+end;
+v6.Destroy = function(v226) --[[ Line: 779 ]] --[[ Name: Destroy ]]
+    for _, v228 in v226._markerSignals do
+        v228:Destroy();
+    end;
+    for _, v230 in v226._endMarkerSignals do
+        v230:Destroy();
+    end;
+    v226._completed:Destroy();
+    v226.CameraShakeIntensity:Destroy();
+    table.clear(v226._markerSignals);
+    table.clear(v226._endMarkerSignals);
+end;
+v6.IsPlaying = function(v231) --[[ Line: 794 ]] --[[ Name: IsPlaying ]]
+    -- upvalues: v8 (copy)
+    return v8[v231] ~= nil;
+end;
+v6.GetTimeLength = function(v232) --[[ Line: 798 ]] --[[ Name: GetTimeLength ]]
+    return v232.Frames / v232.FrameRate;
+end;
+v6.GetMarkerReachedSignal = function(v233, v234) --[[ Line: 802 ]] --[[ Name: GetMarkerReachedSignal ]]
+    if not v233._markerSignals[v234] then
+        v233._markerSignals[v234] = Instance.new("BindableEvent");
+    end;
+    return v233._markerSignals[v234].Event;
+end;
+v6.GetMarkerEndedSignal = function(v235, v236) --[[ Line: 810 ]] --[[ Name: GetMarkerEndedSignal ]]
+    if not v235._endMarkerSignals[v236] then
+        v235._endMarkerSignals[v236] = Instance.new("BindableEvent");
+    end;
+    return v235._endMarkerSignals[v236].Event;
+end;
+v6.GetSetting = function(v237, v238) --[[ Line: 818 ]] --[[ Name: GetSetting ]]
+    return v237._scratch[v238];
+end;
+v6.SetSetting = function(v239, v240, v241) --[[ Line: 822 ]] --[[ Name: SetSetting ]]
+    v239._scratch[v240] = v241;
+end;
+v6.GetElements = function(v242) --[[ Line: 826 ]] --[[ Name: GetElements ]]
+    return table.clone(v242._elements);
+end;
+v6.LockElement = function(v243, v244, v245) --[[ Line: 830 ]] --[[ Name: LockElement ]]
+    if not v243._locks[v244] then
+        v243._locks[v244] = {};
+    end;
+    if v245 then
+        v243._locks[v244][v245 or "Default"] = true;
+    end;
+    return true;
+end;
+v6.UnlockElement = function(v246, v247, v248) --[[ Line: 842 ]] --[[ Name: UnlockElement ]]
+    local v249 = v246._locks[v247];
+    if v249 then
+        v249[v248 or "Default"] = nil;
+        if not next(v249) then
+            v246._locks[v247] = nil;
+        end;
+    end;
+    return true;
+end;
+v6.IsElementLocked = function(v250, v251) --[[ Line: 856 ]] --[[ Name: IsElementLocked ]]
+    return v250._locks[v251] ~= nil;
+end;
+v6.ReplaceElementByPath = function(v252, v253, v254) --[[ Line: 860 ]] --[[ Name: ReplaceElementByPath ]]
+    -- upvalues: v197 (copy)
+    for _, v256 in v252._data.Items do
+        local l_Path_1 = v256.Path;
+        local v258 = table.concat(l_Path_1.InstanceNames, ".");
+        if v253:lower() == v258:lower() and (l_Path_1.ItemType == "Rig" or v254:IsA(l_Path_1.ItemType)) then
+            v256.Override = v254;
+            v197(v252);
+            return true;
+        end;
+    end;
+    return false;
+end;
+v6.FindElement = function(v259, v260) --[[ Line: 880 ]] --[[ Name: FindElement ]]
+    for _, v262 in v259._elements do
+        if v262 and v262.Name == v260 then
+            return v262;
+        end;
+    end;
+    return nil;
+end;
+v6.FindElementOfType = function(v263, v264) --[[ Line: 890 ]] --[[ Name: FindElementOfType ]]
+    for _, v266 in v263._elements do
+        if v266 and v266:IsA(v264) then
+            return v266;
+        end;
+    end;
+    return nil;
+end;
+v6.Stop = function(v267) --[[ Line: 900 ]] --[[ Name: Stop ]]
+    -- upvalues: v204 (copy)
+    v267.TimePosition = 0;
+    task.spawn(v204, v267);
+    v267._completed:Fire(Enum.PlaybackState.Cancelled);
+end;
+v6.Reset = function(v268) --[[ Line: 906 ]] --[[ Name: Reset ]]
+    -- upvalues: v220 (copy)
+    v268.TimePosition = 0;
+    v220(v268, 0);
+    return true;
+end;
+v6.Play = function(v269) --[[ Line: 913 ]] --[[ Name: Play ]]
+    -- upvalues: v8 (copy), v57 (copy)
+    if v8[v269] then
+        return;
+    else
+        if v269.TimePosition >= v269:GetTimeLength() then
+            v269.TimePosition = 0;
+        end;
+        local v270 = {};
+        for v271, v272 in v269._buffer do
+            if v272[0] then
+                local v273 = {};
+                v270[v271] = v273;
+                for v274 in v272[0] do
+                    local v275, v276 = v57(v269, v271, v274);
+                    if v275 then
+                        v273[v274] = v276;
+                    end;
+                end;
+            end;
+        end;
+        v8[v269] = v270;
+        v269._completed:Fire(Enum.PlaybackState.Playing);
+        return;
+    end;
+end;
+l_RunService_0:BindToRenderStep("__UPDATE_MOONLITE_TRACKS", Enum.RenderPriority.Camera.Value + 1, function(v277) --[[ Line: 943 ]]
+    -- upvalues: v8 (copy), v220 (copy), v204 (copy)
+    for v278 in v8 do
+        if v220(v278, v277) then
+            v204(v278);
+        end;
+    end;
+end);
+return v0;
+ModuleScript: EaseFuncs
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local v0 = {};
+local l_Parent_0 = script.Parent;
+local _ = require(l_Parent_0.MoonTyp);
+v0.Linear = function(v3, v4, v5, v6) --[[ Line: 21 ]] --[[ Name: Linear ]]
+    return v5 * v3 / v6 + v4;
+end;
+v0.Constant = function(v7, _, _, v10) --[[ Line: 29 ]] --[[ Name: Constant ]]
+    if v7 == v10 then
+        return 1;
+    else
+        return 0;
+    end;
+end;
+v0.InSine = function(v11, v12, v13, v14) --[[ Line: 37 ]] --[[ Name: InSine ]]
+    return -v13 * math.cos(v11 / v14 * 1.5707963267948966) + v13 + v12;
+end;
+v0.OutSine = function(v15, v16, v17, v18) --[[ Line: 41 ]] --[[ Name: OutSine ]]
+    return v17 * math.sin(v15 / v18 * 1.5707963267948966) + v16;
+end;
+v0.InOutSine = function(v19, v20, v21, v22) --[[ Line: 45 ]] --[[ Name: InOutSine ]]
+    return -v21 / 2 * (math.cos(3.141592653589793 * v19 / v22) - 1) + v20;
+end;
+v0.OutInSine = function(v23, v24, v25, v26) --[[ Line: 49 ]] --[[ Name: OutInSine ]]
+    -- upvalues: v0 (copy)
+    if v23 < v26 / 2 then
+        return v0.OutSine(v23 * 2, v24, v25 / 2, v26);
+    else
+        return v0.InSine(v23 * 2 - v26, v24 + v25 / 2, v25 / 2, v26);
+    end;
+end;
+v0.InQuad = function(v27, v28, v29, v30) --[[ Line: 61 ]] --[[ Name: InQuad ]]
+    return v29 * math.pow(v27 / v30, 2) + v28;
+end;
+v0.OutQuad = function(v31, v32, v33, v34) --[[ Line: 66 ]] --[[ Name: OutQuad ]]
+    v31 = v31 / v34;
+    return -v33 * v31 * (v31 - 2) + v32;
+end;
+v0.InOutQuad = function(v35, v36, v37, v38) --[[ Line: 71 ]] --[[ Name: InOutQuad ]]
+    v35 = v35 / v38 * 2;
+    if v35 < 1 then
+        return v37 / 2 * math.pow(v35, 2) + v36;
+    else
+        return -v37 / 2 * ((v35 - 1) * (v35 - 3) - 1) + v36;
+    end;
+end;
+v0.OutInQuad = function(v39, v40, v41, v42) --[[ Line: 81 ]] --[[ Name: OutInQuad ]]
+    -- upvalues: v0 (copy)
+    if v39 < v42 / 2 then
+        return v0.OutQuad(v39 * 2, v40, v41 / 2, v42);
+    else
+        return v0.InQuad(v39 * 2 - v42, v40 + v41 / 2, v41 / 2, v42);
+    end;
+end;
+v0.InCubic = function(v43, v44, v45, v46) --[[ Line: 93 ]] --[[ Name: InCubic ]]
+    return v45 * math.pow(v43 / v46, 3) + v44;
+end;
+v0.OutCubic = function(v47, v48, v49, v50) --[[ Line: 98 ]] --[[ Name: OutCubic ]]
+    return v49 * (math.pow(v47 / v50 - 1, 3) + 1) + v48;
+end;
+v0.InOutCubic = function(v51, v52, v53, v54) --[[ Line: 103 ]] --[[ Name: InOutCubic ]]
+    v51 = v51 / v54 * 2;
+    if v51 < 1 then
+        return v53 / 2 * v51 * v51 * v51 + v52;
+    else
+        v51 = v51 - 2;
+        return v53 / 2 * (v51 * v51 * v51 + 2) + v52;
+    end;
+end;
+v0.OutInCubic = function(v55, v56, v57, v58) --[[ Line: 114 ]] --[[ Name: OutInCubic ]]
+    -- upvalues: v0 (copy)
+    if v55 < v58 / 2 then
+        return v0.OutCubic(v55 * 2, v56, v57 / 2, v58);
+    else
+        return v0.InCubic(v55 * 2 - v58, v56 + v57 / 2, v57 / 2, v58);
+    end;
+end;
+v0.InQuart = function(v59, v60, v61, v62) --[[ Line: 126 ]] --[[ Name: InQuart ]]
+    return v61 * math.pow(v59 / v62, 4) + v60;
+end;
+v0.OutQuart = function(v63, v64, v65, v66) --[[ Line: 131 ]] --[[ Name: OutQuart ]]
+    v63 = v63 / v66 - 1;
+    return -v65 * (math.pow(v63, 4) - 1) + v64;
+end;
+v0.InOutQuart = function(v67, v68, v69, v70) --[[ Line: 136 ]] --[[ Name: InOutQuart ]]
+    v67 = v67 / v70 * 2;
+    if v67 < 1 then
+        return v69 / 2 * math.pow(v67, 4) + v68;
+    else
+        v67 = v67 - 2;
+        return -v69 / 2 * (math.pow(v67, 4) - 2) + v68;
+    end;
+end;
+v0.OutInQuart = function(v71, v72, v73, v74) --[[ Line: 147 ]] --[[ Name: OutInQuart ]]
+    -- upvalues: v0 (copy)
+    if v71 < v74 / 2 then
+        return v0.OutQuart(v71 * 2, v72, v73 / 2, v74);
+    else
+        return v0.InQuart(v71 * 2 - v74, v72 + v73 / 2, v73 / 2, v74);
+    end;
+end;
+v0.InQuint = function(v75, v76, v77, v78) --[[ Line: 159 ]] --[[ Name: InQuint ]]
+    return v77 * math.pow(v75 / v78, 5) + v76;
+end;
+v0.OutQuint = function(v79, v80, v81, v82) --[[ Line: 164 ]] --[[ Name: OutQuint ]]
+    return v81 * (math.pow(v79 / v82 - 1, 5) + 1) + v80;
+end;
+v0.InOutQuint = function(v83, v84, v85, v86) --[[ Line: 169 ]] --[[ Name: InOutQuint ]]
+    v83 = v83 / v86 * 2;
+    if v83 < 1 then
+        return v85 / 2 * math.pow(v83, 5) + v84;
+    else
+        v83 = v83 - 2;
+        return v85 / 2 * (math.pow(v83, 5) + 2) + v84;
+    end;
+end;
+v0.OutInQuint = function(v87, v88, v89, v90) --[[ Line: 180 ]] --[[ Name: OutInQuint ]]
+    -- upvalues: v0 (copy)
+    if v87 < v90 / 2 then
+        return v0.OutQuint(v87 * 2, v88, v89 / 2, v90);
+    else
+        return v0.InQuint(v87 * 2 - v90, v88 + v89 / 2, v89 / 2, v90);
+    end;
+end;
+v0.InSextic = function(v91, v92, v93, v94) --[[ Line: 192 ]] --[[ Name: InSextic ]]
+    return v93 * math.pow(v91 / v94, 6) + v92;
+end;
+v0.OutSextic = function(v95, v96, v97, v98) --[[ Line: 197 ]] --[[ Name: OutSextic ]]
+    v95 = v95 / v98 - 1;
+    return -v97 * (math.pow(v95, 6) - 1) + v96;
+end;
+v0.InOutSextic = function(v99, v100, v101, v102) --[[ Line: 202 ]] --[[ Name: InOutSextic ]]
+    v99 = v99 / v102 * 2;
+    if v99 < 1 then
+        return v101 / 2 * math.pow(v99, 6) + v100;
+    else
+        v99 = v99 - 2;
+        return -v101 / 2 * (math.pow(v99, 6) - 2) + v100;
+    end;
+end;
+v0.OutInSextic = function(v103, v104, v105, v106) --[[ Line: 213 ]] --[[ Name: OutInSextic ]]
+    -- upvalues: v0 (copy)
+    if v103 < v106 / 2 then
+        return v0.OutSextic(v103 * 2, v104, v105 / 2, v106);
+    else
+        return v0.InSextic(v103 * 2 - v106, v104 + v105 / 2, v105 / 2, v106);
+    end;
+end;
+v0.InExpo = function(v107, v108, v109, v110) --[[ Line: 225 ]] --[[ Name: InExpo ]]
+    if v107 == 0 then
+        return v108;
+    else
+        return v109 * math.pow(2, 10 * (v107 / v110 - 1)) + v108 - v109 * 0.001;
+    end;
+end;
+v0.OutExpo = function(v111, v112, v113, v114) --[[ Line: 233 ]] --[[ Name: OutExpo ]]
+    if v111 == v114 then
+        return v112 + v113;
+    else
+        return v113 * 1.001 * (-math.pow(2, -10 * v111 / v114) + 1) + v112;
+    end;
+end;
+v0.InOutExpo = function(v115, v116, v117, v118) --[[ Line: 241 ]] --[[ Name: InOutExpo ]]
+    if v115 == 0 then
+        return v116;
+    elseif v115 == v118 then
+        return v116 + v117;
+    else
+        v115 = v115 / v118 * 2;
+        if v115 < 1 then
+            return v117 / 2 * math.pow(2, 10 * (v115 - 1)) + v116 - v117 * 5.0E-4;
+        else
+            v115 = v115 - 1;
+            return v117 / 2 * 1.0005 * (-math.pow(2, -10 * v115) + 2) + v116;
+        end;
+    end;
+end;
+v0.OutInExpo = function(v119, v120, v121, v122) --[[ Line: 260 ]] --[[ Name: OutInExpo ]]
+    -- upvalues: v0 (copy)
+    if v119 < v122 / 2 then
+        return v0.OutExpo(v119 * 2, v120, v121 / 2, v122);
+    else
+        return v0.InExpo(v119 * 2 - v122, v120 + v121 / 2, v121 / 2, v122);
+    end;
+end;
+v0.InCirc = function(v123, v124, v125, v126) --[[ Line: 272 ]] --[[ Name: InCirc ]]
+    v123 = v123 / v126;
+    return -v125 * (math.sqrt(1 - math.pow(v123, 2)) - 1) + v124;
+end;
+v0.OutCirc = function(v127, v128, v129, v130) --[[ Line: 277 ]] --[[ Name: OutCirc ]]
+    return v129 * math.sqrt(1 - math.pow(v127 / v130 - 1, 2)) + v128;
+end;
+v0.InOutCirc = function(v131, v132, v133, v134) --[[ Line: 282 ]] --[[ Name: InOutCirc ]]
+    v131 = v131 / v134 * 2;
+    if v131 < 1 then
+        return -v133 / 2 * (math.sqrt(1 - v131 * v131) - 1) + v132;
+    else
+        v131 = v131 - 2;
+        return v133 / 2 * (math.sqrt(1 - v131 * v131) + 1) + v132;
+    end;
+end;
+v0.OutInCirc = function(v135, v136, v137, v138) --[[ Line: 293 ]] --[[ Name: OutInCirc ]]
+    -- upvalues: v0 (copy)
+    if v135 < v138 / 2 then
+        return v0.OutCirc(v135 * 2, v136, v137 / 2, v138);
+    else
+        return v0.InCirc(v135 * 2 - v138, v136 + v137 / 2, v137 / 2, v138);
+    end;
+end;
+v0.InBack = function(v139, v140, v141, v142, v143) --[[ Line: 305 ]] --[[ Name: InBack ]]
+    if not v143 then
+        v143 = 1.70158;
+    end;
+    v139 = v139 / v142;
+    return v141 * v139 * v139 * ((v143 + 1) * v139 - v143) + v140;
+end;
+v0.OutBack = function(v144, v145, v146, v147, v148) --[[ Line: 314 ]] --[[ Name: OutBack ]]
+    if not v148 then
+        v148 = 1.70158;
+    end;
+    v144 = v144 / v147 - 1;
+    return v146 * (v144 * v144 * ((v148 + 1) * v144 + v148) + 1) + v145;
+end;
+v0.InOutBack = function(v149, v150, v151, v152, v153) --[[ Line: 323 ]] --[[ Name: InOutBack ]]
+    if not v153 then
+        v153 = 1.70158;
+    end;
+    v153 = v153 * 1.525;
+    v149 = v149 / v152 * 2;
+    if v149 < 1 then
+        return v151 / 2 * (v149 * v149 * ((v153 + 1) * v149 - v153)) + v150;
+    else
+        v149 = v149 - 2;
+        return v151 / 2 * (v149 * v149 * ((v153 + 1) * v149 + v153) + 2) + v150;
+    end;
+end;
+v0.OutInBack = function(v154, v155, v156, v157, v158) --[[ Line: 339 ]] --[[ Name: OutInBack ]]
+    -- upvalues: v0 (copy)
+    if v154 < v157 / 2 then
+        return v0.OutBack(v154 * 2, v155, v156 / 2, v157, v158);
+    else
+        return v0.InBack(v154 * 2 - v157, v155 + v156 / 2, v156 / 2, v157, v158);
+    end;
+end;
+v0.OutBounce = function(v159, v160, v161, v162) --[[ Line: 351 ]] --[[ Name: OutBounce ]]
+    v159 = v159 / v162;
+    if v159 < 0.36363636363636365 then
+        return v161 * (7.5625 * v159 * v159) + v160;
+    elseif v159 < 0.7272727272727273 then
+        v159 = v159 - 0.5454545454545454;
+        return v161 * (7.5625 * v159 * v159 + 0.75) + v160;
+    elseif v159 < 0.9090909090909091 then
+        v159 = v159 - 0.8181818181818182;
+        return v161 * (7.5625 * v159 * v159 + 0.9375) + v160;
+    else
+        v159 = v159 - 0.9545454545454546;
+        return v161 * (7.5625 * v159 * v159 + 0.984375) + v160;
+    end;
+end;
+v0.InBounce = function(v163, v164, v165, v166) --[[ Line: 368 ]] --[[ Name: InBounce ]]
+    -- upvalues: v0 (copy)
+    return v165 - v0.OutBounce(v166 - v163, 0, v165, v166) + v164;
+end;
+v0.InOutBounce = function(v167, v168, v169, v170) --[[ Line: 372 ]] --[[ Name: InOutBounce ]]
+    -- upvalues: v0 (copy)
+    if v167 < v170 / 2 then
+        return v0.InBounce(v167 * 2, 0, v169, v170) * 0.5 + v168;
+    else
+        return v0.OutBounce(v167 * 2 - v170, 0, v169, v170) * 0.5 + v169 * 0.5 + v168;
+    end;
+end;
+v0.OutInBounce = function(v171, v172, v173, v174) --[[ Line: 380 ]] --[[ Name: OutInBounce ]]
+    -- upvalues: v0 (copy)
+    if v171 < v174 / 2 then
+        return v0.OutBounce(v171 * 2, v172, v173 / 2, v174);
+    else
+        return v0.InBounce(v171 * 2 - v174, v172 + v173 / 2, v173 / 2, v174);
+    end;
+end;
+v0.ElasticBlend = function(v175, v176, v177, v178, v179, v180) --[[ Line: 392 ]] --[[ Name: ElasticBlend ]]
+    if v176 ~= 0 then
+        local v181 = math.abs(v179);
+        v180 = if v178 ~= 0 then v180 * (v178 / math.abs(v176)) else 0;
+        if math.abs(v175 * v177) < v181 then
+            local v182 = math.abs(v175 * v177) / v181;
+            v180 = v180 * v182 + (1 - v182);
+        end;
+    end;
+    return v180;
+end;
+v0.InElastic = function(v183, v184, v185, v186, v187, v188) --[[ Line: 411 ]] --[[ Name: InElastic ]]
+    -- upvalues: v0 (copy)
+    local v189 = nil;
+    local v190 = 1;
+    if v183 == 0 then
+        return v184;
+    else
+        v183 = v183 / v186;
+        if v183 == 1 then
+            return v184 + v185;
+        else
+            v183 = v183 - 1;
+            if not v188 or v188 == 0 then
+                v188 = v186 * 0.3;
+            end;
+            if v187 == nil or v187 < math.abs(v185) then
+                v189 = v188 / 4;
+                v190 = v0.ElasticBend(v183, v185, v186, v187, v189, v190);
+                v187 = v185;
+            else
+                v189 = v188 / 6.283185307179586 * math.asin(v185 / v187);
+            end;
+            return -v190 * (v187 * math.pow(2, 10 * v183) * math.sin((v183 * v186 - v189) * 6.283185307179586 / v188)) + v184;
+        end;
+    end;
+end;
+v0.OutElastic = function(v191, v192, v193, v194, v195, v196) --[[ Line: 442 ]] --[[ Name: OutElastic ]]
+    -- upvalues: v0 (copy)
+    local v197 = nil;
+    local v198 = 1;
+    if v191 == 0 then
+        return v192;
+    else
+        v191 = v191 / v194;
+        if v191 == 1 then
+            return v192 + v193;
+        else
+            v191 = -v191;
+            if not v196 or v196 == 0 then
+                v196 = v194 * 0.3;
+            end;
+            if v195 == nil or v195 < math.abs(v193) then
+                v197 = v196 / 4;
+                v198 = v0.ElasticBlend(v191, v193, v194, v195, v197, v198);
+                v195 = v193;
+            else
+                v197 = v196 / 6.283185307179586 * math.asin(v193 / v195);
+            end;
+            return v198 * (v195 * math.pow(2, 10 * v191) * math.sin((v191 * v194 - v197) * 6.283185307179586 / v196)) + v193 + v192;
+        end;
+    end;
+end;
+v0.InOutElastic = function(v199, v200, v201, v202, v203, v204) --[[ Line: 473 ]] --[[ Name: InOutElastic ]]
+    -- upvalues: v0 (copy)
+    local v205 = nil;
+    local v206 = 1;
+    if v199 == 0 then
+        return v200;
+    else
+        v199 = v199 / (v202 / 2);
+        if v199 == 2 then
+            return v200 + v201;
+        else
+            v199 = v199 - 1;
+            if not v204 or v204 == 0 then
+                v204 = v202 * 0.44999999999999996;
+            end;
+            if v203 == nil or v203 < math.abs(v201) then
+                v205 = v204 / 4;
+                v206 = v0.ElasticBlend(v199, v201, v202, v203, v205, v206);
+                v203 = v201;
+            else
+                v205 = v204 / 6.283185307179586 * math.asin(v201 / v203);
+            end;
+            if v199 < 0 then
+                return v206 * -0.5 * (v203 * math.pow(2, 10 * v199) * math.sin((v199 * v202 - v205) * 6.283185307179586 / v204)) + v200;
+            else
+                v199 = -v199;
+                return v206 * 0.5 * (v203 * math.pow(2, 10 * v199) * math.sin((v199 * v202 - v205) * 6.283185307179586 / v204)) + v201 + v200;
+            end;
+        end;
+    end;
+end;
+v0.OutInElastic = function(v207, v208, v209, v210, v211, v212) --[[ Line: 511 ]] --[[ Name: OutInElastic ]]
+    -- upvalues: v0 (copy)
+    if v207 < v210 / 2 then
+        return v0.OutElastic(v207 * 2, v208, v209 / 2, v210, v211, v212);
+    else
+        return v0.InElastic(v207 * 2 - v210, v208 + v209 / 2, v209 / 2, v210, v211, v212);
+    end;
+end;
+local l_HttpService_0 = game:GetService("HttpService");
+local v214 = {
+    Type = "Linear", 
+    Params = {}
+};
+local v215 = {};
+local function v216(v217) --[[ Line: 534 ]] --[[ Name: get ]]
+    -- upvalues: v214 (copy), l_HttpService_0 (copy), v215 (copy), v0 (copy), v216 (copy)
+    local v218 = v217 or v214;
+    local v219 = l_HttpService_0:JSONEncode(v218);
+    if v215[v219] == nil then
+        local l_Params_0 = v218.Params;
+        local v221 = v218.Type or "Linear";
+        local v222 = v0[("%*%*"):format(l_Params_0.Direction or "In", v221)] or v0[v221];
+        if v222 then
+            local v223 = nil;
+            local v224 = nil;
+            if v221 == "Elastic" then
+                v223 = l_Params_0.Amplitude or 1;
+                v224 = l_Params_0.Period or 0.3;
+            elseif v221 == "Back" then
+                v223 = l_Params_0.Overshoot or 1.70158;
+            end;
+            do
+                local l_v223_0, l_v224_0 = v223, v224;
+                v215[v219] = function(v227) --[[ Line: 558 ]]
+                    -- upvalues: v222 (copy), l_v223_0 (ref), l_v224_0 (ref)
+                    return v222(v227, 0, 1, 1, l_v223_0, l_v224_0);
+                end;
+            end;
+        else
+            return v216(v214);
+        end;
+    end;
+    return v215[v219];
+end;
+return {
+    Get = v216
+};
+ModuleScript: MoonTyp
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+return {};
+ModuleScript: Specials 
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Parent_0 = script.Parent;
+local l_RunService_0 = game:GetService("RunService");
+local _ = require(l_Parent_0.MoonTyp);
+local v3 = {};
+local v4 = {
+    Camera = {
+        AttachToPart = true, 
+        LookAtPart = true
+    }, 
+    Humanoid = {
+        AddAccessory = true, 
+        ChangeState = true, 
+        EquipTool = true, 
+        MoveTo = true, 
+        Move = true, 
+        PlayEmote = true, 
+        RemoveAccessories = true, 
+        TakeDamage = true, 
+        UnequipTools = true
+    }, 
+    ParticleEmitter = {
+        Emit = true, 
+        Clear = true
+    }, 
+    Sound = {
+        PlayOnce = true, 
+        SetTime = true, 
+        Play = true, 
+        Resume = true, 
+        Pause = true, 
+        Stop = true
+    }
+};
+local function _(v5, v6, v7) --[[ Line: 70 ]] --[[ Name: getValue ]]
+    return v5:GetAttribute((("__moonlite_%*"):format(v6))) or v7;
+end;
+local function _(v9, v10, v11, v12) --[[ Line: 74 ]] --[[ Name: setValue ]]
+    v9:SetAttribute(("__moonlite_%*"):format(v10), if v11 == v12 then nil else v11);
+end;
+local function _(v14) --[[ Line: 78 ]] --[[ Name: BoundProp ]]
+    return function(v15, v16) --[[ Line: 79 ]]
+        -- upvalues: v14 (copy)
+        assert(v14.Get);
+        return {
+            Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+                -- upvalues: v14 (ref), v15 (copy), v16 (copy)
+                return v14.Get(v15, v16);
+            end, 
+            Set = function(v17) --[[ Line: 87 ]] --[[ Name: Set ]]
+                -- upvalues: v14 (ref), v15 (copy), v16 (copy)
+                v14.Set(v17, v15, v16);
+            end
+        };
+    end;
+end;
+local function _(v19) --[[ Line: 94 ]] --[[ Name: LazyAction ]]
+    return function(v20) --[[ Line: 95 ]]
+        -- upvalues: v19 (copy)
+        return {
+            Default = false, 
+            Set = function(v21) --[[ Line: 99 ]] --[[ Name: Set ]]
+                -- upvalues: v19 (ref), v20 (copy)
+                if v21 then
+                    v19(v20);
+                end;
+            end
+        };
+    end;
+end;
+local function v32(v23, v24, v25) --[[ Line: 114 ]] --[[ Name: setCameraActive ]]
+    -- upvalues: l_RunService_0 (copy)
+    if v25 and not v23._cameraRenderBound then
+        l_RunService_0:BindToRenderStep("MoonliteRenderCamera", 1000, function() --[[ Line: 116 ]] --[[ Name: updateCamera ]]
+            -- upvalues: v23 (copy), v24 (copy)
+            local l__cameraAttachToPart_0 = v23._cameraAttachToPart;
+            local l__cameraLookAtPart_0 = v23._cameraLookAtPart;
+            if l__cameraAttachToPart_0 then
+                local l_CFrame_0 = l__cameraAttachToPart_0.CFrame;
+                if l__cameraLookAtPart_0 then
+                    l_CFrame_0 = CFrame.new(l_CFrame_0.Position, l__cameraLookAtPart_0.Position);
+                end;
+                v24.CFrame = l_CFrame_0;
+            end;
+        end);
+        v23._cameraRenderBound = true;
+        local l__cameraAttachToPart_1 = v23._cameraAttachToPart;
+        local l__cameraLookAtPart_1 = v23._cameraLookAtPart;
+        if l__cameraAttachToPart_1 then
+            local l_CFrame_1 = l__cameraAttachToPart_1.CFrame;
+            if l__cameraLookAtPart_1 then
+                l_CFrame_1 = CFrame.new(l_CFrame_1.Position, l__cameraLookAtPart_1.Position);
+            end;
+            v24.CFrame = l_CFrame_1;
+        end;
+        if not v23.KeepCameraType then
+            v24.CameraType = Enum.CameraType.Scriptable;
+            return;
+        end;
+    elseif not v25 and v23._cameraRenderBound then
+        l_RunService_0:UnbindFromRenderStep("MoonliteRenderCamera");
+        if not v23.KeepCameraType then
+            v24.CameraType = Enum.CameraType.Custom;
+        end;
+        v23._cameraRenderBound = false;
+    end;
+end;
+local v33 = {};
+local v39 = {
+    Get = function(_, v35) --[[ Line: 151 ]] --[[ Name: Get ]]
+        return v35._cameraAttachToPart;
+    end, 
+    Set = function(v36, v37, v38) --[[ Line: 155 ]] --[[ Name: Set ]]
+        -- upvalues: v32 (copy)
+        if v36 then
+            v38._activeCamera = v37;
+            v38._cameraAttachToPart = v36;
+            v32(v38, v37, true);
+            return;
+        else
+            v38._cameraAttachToPart = nil;
+            return;
+        end;
+    end
+};
+local l_v39_0 = v39 --[[ copy: 12 -> 20 ]];
+v33.AttachToPart = function(v41, v42) --[[ Line: 79 ]]
+    -- upvalues: l_v39_0 (copy)
+    assert(l_v39_0.Get);
+    return {
+        Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+            -- upvalues: l_v39_0 (ref), v41 (copy), v42 (copy)
+            return l_v39_0.Get(v41, v42);
+        end, 
+        Set = function(v43) --[[ Line: 87 ]] --[[ Name: Set ]]
+            -- upvalues: l_v39_0 (ref), v41 (copy), v42 (copy)
+            l_v39_0.Set(v43, v41, v42);
+        end
+    };
+end;
+v39 = {
+    Get = function(_, v45) --[[ Line: 167 ]] --[[ Name: Get ]]
+        return v45._cameraLookAtPart;
+    end, 
+    Set = function(v46, v47, v48) --[[ Line: 171 ]] --[[ Name: Set ]]
+        -- upvalues: v32 (copy)
+        if v46 then
+            v48._activeCamera = v47;
+            v48._cameraLookAtPart = v46;
+            v32(v48, v47, true);
+            if v48._updateCamera then
+                v48._updateCamera();
+                return;
+            end;
+        else
+            v48._cameraLookAtPart = nil;
+            if not v48._cameraAttachToPart then
+                v32(v48, v47, false);
+            end;
+        end;
+    end
+};
+local l_v39_1 = v39 --[[ copy: 12 -> 21 ]];
+v33.LookAtPart = function(v50, v51) --[[ Line: 79 ]]
+    -- upvalues: l_v39_1 (copy)
+    assert(l_v39_1.Get);
+    return {
+        Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+            -- upvalues: l_v39_1 (ref), v50 (copy), v51 (copy)
+            return l_v39_1.Get(v50, v51);
+        end, 
+        Set = function(v52) --[[ Line: 87 ]] --[[ Name: Set ]]
+            -- upvalues: l_v39_1 (ref), v50 (copy), v51 (copy)
+            l_v39_1.Set(v52, v50, v51);
+        end
+    };
+end;
+v3.Camera = v33;
+v3.Terrain = {};
+for _, v54 in Enum.Material:GetEnumItems() do
+    if pcall(function() --[[ Line: 198 ]]
+        -- upvalues: v54 (copy)
+        workspace.Terrain:GetMaterialColor(v54);
+    end) then
+        local l_Terrain_0 = v3.Terrain;
+        local v56 = ("MC_%*"):format(v54.Name);
+        local v60 = {
+            Get = function(v57) --[[ Line: 204 ]] --[[ Name: Get ]]
+                -- upvalues: v54 (copy)
+                return v57:GetMaterialColor(v54);
+            end, 
+            Set = function(v58, v59) --[[ Line: 208 ]] --[[ Name: Set ]]
+                -- upvalues: v54 (copy)
+                v59:SetMaterialColor(v54, v58);
+            end
+        };
+        l_Terrain_0[v56] = function(v61, v62) --[[ Line: 79 ]]
+            -- upvalues: v60 (copy)
+            assert(v60.Get);
+            return {
+                Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+                    -- upvalues: v60 (ref), v61 (copy), v62 (copy)
+                    return v60.Get(v61, v62);
+                end, 
+                Set = function(v63) --[[ Line: 87 ]] --[[ Name: Set ]]
+                    -- upvalues: v60 (ref), v61 (copy), v62 (copy)
+                    v60.Set(v63, v61, v62);
+                end
+            };
+        end;
+    end;
+end;
+v33 = Color3.new(1, 1, 1);
+local v64 = {};
+local v68 = {
+    Get = function(v65) --[[ Line: 223 ]] --[[ Name: Get ]]
+        return v65:GetPivot();
+    end, 
+    Set = function(v66, v67) --[[ Line: 227 ]] --[[ Name: Set ]]
+        v67:PivotTo(v66);
+    end
+};
+local l_v68_0 = v68 --[[ copy: 13 -> 22 ]];
+v64.CFrame = function(v70, v71) --[[ Line: 79 ]]
+    -- upvalues: l_v68_0 (copy)
+    assert(l_v68_0.Get);
+    return {
+        Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+            -- upvalues: l_v68_0 (ref), v70 (copy), v71 (copy)
+            return l_v68_0.Get(v70, v71);
+        end, 
+        Set = function(v72) --[[ Line: 87 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_0 (ref), v70 (copy), v71 (copy)
+            l_v68_0.Set(v72, v70, v71);
+        end
+    };
+end;
+v68 = {
+    Get = function(v73) --[[ Line: 233 ]] --[[ Name: Get ]]
+        -- upvalues: v33 (copy)
+        local l_v33_0 = v33;
+        return v73:GetAttribute((("__moonlite_%*"):format("Color"))) or l_v33_0;
+    end, 
+    Set = function(v75, v76) --[[ Line: 237 ]] --[[ Name: Set ]]
+        -- upvalues: v33 (copy)
+        for _, v78 in v76:GetDescendants() do
+            if v78:IsA("BasePart") then
+                local l_Color_0 = v78.Color;
+                local v80 = v78:GetAttribute((("__moonlite_%*"):format("Color"))) or l_Color_0;
+                if v80 ~= v75 then
+                    v78:SetAttribute(("__moonlite_%*"):format("Color"), if v75 == v80 then nil else v75);
+                    v78.Color = v75;
+                end;
+            end;
+        end;
+        local l_v33_1 = v33;
+        v76:SetAttribute(("__moonlite_%*"):format("Color"), if v75 == l_v33_1 then nil else v75);
+    end
+};
+local l_v68_1 = v68 --[[ copy: 13 -> 23 ]];
+v64.Color = function(v83, v84) --[[ Line: 79 ]]
+    -- upvalues: l_v68_1 (copy)
+    assert(l_v68_1.Get);
+    return {
+        Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+            -- upvalues: l_v68_1 (ref), v83 (copy), v84 (copy)
+            return l_v68_1.Get(v83, v84);
+        end, 
+        Set = function(v85) --[[ Line: 87 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_1 (ref), v83 (copy), v84 (copy)
+            l_v68_1.Set(v85, v83, v84);
+        end
+    };
+end;
+v68 = {
+    Get = function(v86) --[[ Line: 254 ]] --[[ Name: Get ]]
+        return v86:GetScale();
+    end, 
+    Set = function(v87, v88) --[[ Line: 258 ]] --[[ Name: Set ]]
+        v88:ScaleTo(v87);
+    end
+};
+local l_v68_2 = v68 --[[ copy: 13 -> 24 ]];
+v64.Scale = function(v90, v91) --[[ Line: 79 ]]
+    -- upvalues: l_v68_2 (copy)
+    assert(l_v68_2.Get);
+    return {
+        Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+            -- upvalues: l_v68_2 (ref), v90 (copy), v91 (copy)
+            return l_v68_2.Get(v90, v91);
+        end, 
+        Set = function(v92) --[[ Line: 87 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_2 (ref), v90 (copy), v91 (copy)
+            l_v68_2.Set(v92, v90, v91);
+        end
+    };
+end;
+v68 = {
+    Get = function(v93) --[[ Line: 264 ]] --[[ Name: Get ]]
+        return v93:GetAttribute((("__moonlite_%*"):format("Reflectance"))) or 0;
+    end, 
+    Set = function(v94, v95) --[[ Line: 268 ]] --[[ Name: Set ]]
+        if (v95:GetAttribute((("__moonlite_%*"):format("Reflectance"))) or 0) ~= v94 then
+            for _, v97 in v95:GetDescendants() do
+                if v97:IsA("BasePart") then
+                    local l_Reflectance_0 = v97.Reflectance;
+                    local v99 = v97:GetAttribute((("__moonlite_%*"):format("BaseReflectance"))) or l_Reflectance_0;
+                    v97.Reflectance = v99 + (1 - v99) * v94;
+                end;
+            end;
+            v95:SetAttribute(("__moonlite_%*"):format("Reflectance"), if v94 == 0 then nil else v94);
+        end;
+    end
+};
+local l_v68_3 = v68 --[[ copy: 13 -> 25 ]];
+v64.Reflectance = function(v101, v102) --[[ Line: 79 ]]
+    -- upvalues: l_v68_3 (copy)
+    assert(l_v68_3.Get);
+    return {
+        Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+            -- upvalues: l_v68_3 (ref), v101 (copy), v102 (copy)
+            return l_v68_3.Get(v101, v102);
+        end, 
+        Set = function(v103) --[[ Line: 87 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_3 (ref), v101 (copy), v102 (copy)
+            l_v68_3.Set(v103, v101, v102);
+        end
+    };
+end;
+v68 = {
+    Get = function(v104) --[[ Line: 285 ]] --[[ Name: Get ]]
+        return v104:GetAttribute((("__moonlite_%*"):format("Transparency"))) or 0;
+    end, 
+    Set = function(v105, v106) --[[ Line: 289 ]] --[[ Name: Set ]]
+        if (v106:GetAttribute((("__moonlite_%*"):format("Transparency"))) or 0) ~= v105 then
+            for _, v108 in v106:GetDescendants() do
+                if v108:IsA("BasePart") then
+                    v108.LocalTransparencyModifier = v105;
+                end;
+            end;
+            v106:SetAttribute(("__moonlite_%*"):format("Transparency"), if v105 == 0 then nil else v105);
+        end;
+    end
+};
+local l_v68_4 = v68 --[[ copy: 13 -> 26 ]];
+v64.Transparency = function(v110, v111) --[[ Line: 79 ]]
+    -- upvalues: l_v68_4 (copy)
+    assert(l_v68_4.Get);
+    return {
+        Get = function() --[[ Line: 83 ]] --[[ Name: Get ]]
+            -- upvalues: l_v68_4 (ref), v110 (copy), v111 (copy)
+            return l_v68_4.Get(v110, v111);
+        end, 
+        Set = function(v112) --[[ Line: 87 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_4 (ref), v110 (copy), v111 (copy)
+            l_v68_4.Set(v112, v110, v111);
+        end
+    };
+end;
+v3.Model = v64;
+v64 = {
+    AddAccessory = function(v113) --[[ Line: 310 ]] --[[ Name: AddAccessory ]]
+        return {
+            Default = nil, 
+            Set = function(v114) --[[ Line: 316 ]] --[[ Name: Set ]]
+                -- upvalues: v113 (copy)
+                if v114 then
+                    pcall(v113.AddAccessory, v113, v114);
+                end;
+            end
+        };
+    end, 
+    ChangeState = function(v115) --[[ Line: 324 ]] --[[ Name: ChangeState ]]
+        return {
+            Default = Enum.HumanoidStateType.None, 
+            Set = function(v116) --[[ Line: 328 ]] --[[ Name: Set ]]
+                -- upvalues: v115 (copy)
+                v115:ChangeState(v116);
+            end
+        };
+    end, 
+    EquipTool = function(v117) --[[ Line: 334 ]] --[[ Name: EquipTool ]]
+        return {
+            Default = nil, 
+            Set = function(v118) --[[ Line: 340 ]] --[[ Name: Set ]]
+                -- upvalues: v117 (copy)
+                if v118 then
+                    pcall(v117.EquipTool, v117, v118);
+                end;
+            end
+        };
+    end
+};
+v68 = function(v119) --[[ Line: 348 ]]
+    v119.Jump = true;
+end;
+local l_v68_5 = v68 --[[ copy: 13 -> 27 ]];
+v64.Jump = function(v121) --[[ Line: 95 ]]
+    -- upvalues: l_v68_5 (copy)
+    return {
+        Default = false, 
+        Set = function(v122) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_5 (ref), v121 (copy)
+            if v122 then
+                l_v68_5(v121);
+            end;
+        end
+    };
+end;
+v64.MoveTo = function(v123) --[[ Line: 352 ]] --[[ Name: MoveTo ]]
+    local l_v123_Attribute_0 = v123:GetAttribute("MoveToDefault");
+    if typeof(l_v123_Attribute_0) ~= "Vector3" then
+        local l_RootPart_0 = v123.RootPart;
+        l_v123_Attribute_0 = if l_RootPart_0 then l_RootPart_0.Position else Vector3.new(0, 0, 0, 0);
+        v123:SetAttribute("MoveToDefault", l_v123_Attribute_0);
+    end;
+    return {
+        Default = l_v123_Attribute_0, 
+        Set = function(v126) --[[ Line: 370 ]] --[[ Name: Set ]]
+            -- upvalues: v123 (copy)
+            v123:MoveTo(v126);
+        end
+    };
+end;
+v64.Move = function(v127) --[[ Line: 376 ]] --[[ Name: Move ]]
+    local l_v127_Attribute_0 = v127:GetAttribute("MoveDefault");
+    if typeof(l_v127_Attribute_0) ~= "Vector3" then
+        local l_RootPart_1 = v127.RootPart;
+        l_v127_Attribute_0 = if l_RootPart_1 then l_RootPart_1.CFrame.LookVector else Vector3.new(0, 0, 0, 0);
+        v127:SetAttribute("MoveDefault", l_v127_Attribute_0);
+    end;
+    return {
+        Default = l_v127_Attribute_0, 
+        Set = function(v130) --[[ Line: 394 ]] --[[ Name: Set ]]
+            -- upvalues: v127 (copy)
+            v127:Move(v130);
+        end
+    };
+end;
+v64.PlayEmote = function(v131) --[[ Line: 400 ]] --[[ Name: PlayEmote ]]
+    return {
+        Default = "", 
+        Set = function(v132) --[[ Line: 404 ]] --[[ Name: Set ]]
+            -- upvalues: v131 (copy)
+            v131:PlayEmote(v132);
+        end
+    };
+end;
+v68 = function(v133) --[[ Line: 410 ]]
+    v133:RemoveAccessories();
+end;
+local l_v68_6 = v68 --[[ copy: 13 -> 28 ]];
+v64.RemoveAccessories = function(v135) --[[ Line: 95 ]]
+    -- upvalues: l_v68_6 (copy)
+    return {
+        Default = false, 
+        Set = function(v136) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_6 (ref), v135 (copy)
+            if v136 then
+                l_v68_6(v135);
+            end;
+        end
+    };
+end;
+v64.Sit = function(v137) --[[ Line: 414 ]] --[[ Name: Sit ]]
+    return {
+        Set = function(v138) --[[ Line: 416 ]] --[[ Name: Set ]]
+            -- upvalues: v137 (copy)
+            v137.Sit = v138;
+        end
+    };
+end;
+v64.TakeDamage = function(v139) --[[ Line: 422 ]] --[[ Name: TakeDamage ]]
+    return {
+        Set = function(v140) --[[ Line: 424 ]] --[[ Name: Set ]]
+            -- upvalues: v139 (copy)
+            v139:TakeDamage(v140);
+        end
+    };
+end;
+v68 = function(v141) --[[ Line: 430 ]]
+    v141:UnequipTools();
+end;
+local l_v68_7 = v68 --[[ copy: 13 -> 29 ]];
+v64.UnequipTools = function(v143) --[[ Line: 95 ]]
+    -- upvalues: l_v68_7 (copy)
+    return {
+        Default = false, 
+        Set = function(v144) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_7 (ref), v143 (copy)
+            if v144 then
+                l_v68_7(v143);
+            end;
+        end
+    };
+end;
+v3.Humanoid = v64;
+v64 = {};
+v68 = function(v145) --[[ Line: 440 ]]
+    v145:Clear();
+end;
+local l_v68_8 = v68 --[[ copy: 13 -> 30 ]];
+v64.Clear = function(v147) --[[ Line: 95 ]]
+    -- upvalues: l_v68_8 (copy)
+    return {
+        Default = false, 
+        Set = function(v148) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_8 (ref), v147 (copy)
+            if v148 then
+                l_v68_8(v147);
+            end;
+        end
+    };
+end;
+v64.Emit = function(v149) --[[ Line: 444 ]] --[[ Name: Emit ]]
+    local l_v149_Attribute_0 = v149:GetAttribute("EmitCount");
+    if type(l_v149_Attribute_0) ~= "number" then
+        l_v149_Attribute_0 = 0;
+    end;
+    return {
+        Default = l_v149_Attribute_0, 
+        Set = function(v151) --[[ Line: 454 ]] --[[ Name: Set ]]
+            -- upvalues: v149 (copy)
+            if v151 > 0 then
+                v149:Emit(v151);
+            end;
+        end
+    };
+end;
+v3.ParticleEmitter = v64;
+v64 = {};
+v68 = function(v152) --[[ Line: 468 ]]
+    local v153 = v152:Clone();
+    v153.Parent = v152.Parent;
+    v153.PlayOnRemove = true;
+    v153:Destroy();
+end;
+local l_v68_9 = v68 --[[ copy: 13 -> 31 ]];
+v64.PlayOnce = function(v155) --[[ Line: 95 ]]
+    -- upvalues: l_v68_9 (copy)
+    return {
+        Default = false, 
+        Set = function(v156) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_9 (ref), v155 (copy)
+            if v156 then
+                l_v68_9(v155);
+            end;
+        end
+    };
+end;
+v64.SetTime = function(v157) --[[ Line: 475 ]] --[[ Name: SetTime ]]
+    return {
+        Default = 0, 
+        Set = function(v158) --[[ Line: 479 ]] --[[ Name: Set ]]
+            -- upvalues: v157 (copy)
+            v157.TimePosition = v158;
+        end
+    };
+end;
+v68 = function(v159) --[[ Line: 485 ]]
+    v159:Play();
+end;
+local l_v68_10 = v68 --[[ copy: 13 -> 32 ]];
+v64.Play = function(v161) --[[ Line: 95 ]]
+    -- upvalues: l_v68_10 (copy)
+    return {
+        Default = false, 
+        Set = function(v162) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_10 (ref), v161 (copy)
+            if v162 then
+                l_v68_10(v161);
+            end;
+        end
+    };
+end;
+v68 = function(v163) --[[ Line: 489 ]]
+    v163:Resume();
+end;
+local l_v68_11 = v68 --[[ copy: 13 -> 33 ]];
+v64.Resume = function(v165) --[[ Line: 95 ]]
+    -- upvalues: l_v68_11 (copy)
+    return {
+        Default = false, 
+        Set = function(v166) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_11 (ref), v165 (copy)
+            if v166 then
+                l_v68_11(v165);
+            end;
+        end
+    };
+end;
+v68 = function(v167) --[[ Line: 493 ]]
+    v167:Pause();
+end;
+local l_v68_12 = v68 --[[ copy: 13 -> 34 ]];
+v64.Pause = function(v169) --[[ Line: 95 ]]
+    -- upvalues: l_v68_12 (copy)
+    return {
+        Default = false, 
+        Set = function(v170) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_12 (ref), v169 (copy)
+            if v170 then
+                l_v68_12(v169);
+            end;
+        end
+    };
+end;
+v68 = function(v171) --[[ Line: 497 ]]
+    v171:Stop();
+end;
+local l_v68_13 = v68 --[[ copy: 13 -> 35 ]];
+v64.Stop = function(v173) --[[ Line: 95 ]]
+    -- upvalues: l_v68_13 (copy)
+    return {
+        Default = false, 
+        Set = function(v174) --[[ Line: 99 ]] --[[ Name: Set ]]
+            -- upvalues: l_v68_13 (ref), v173 (copy)
+            if v174 then
+                l_v68_13(v173);
+            end;
+        end
+    };
+end;
+v3.Sound = v64;
+v64 = {};
+v39 = {};
+v68 = {};
+local v186 = {
+    __index = function(v175, v176) --[[ Line: 521 ]] --[[ Name: __index ]]
+        -- upvalues: v39 (copy), v3 (copy)
+        local l__target_0 = v175._target;
+        local l_ClassName_0 = l__target_0.ClassName;
+        local v179 = v39[l_ClassName_0];
+        if v179 == nil then
+            v179 = {};
+            for v180, v181 in v3 do
+                if l__target_0:IsA(v180) then
+                    for v182, v183 in v181 do
+                        v179[v182] = v183;
+                    end;
+                end;
+            end;
+            v39[l_ClassName_0] = v179;
+        end;
+        local v184 = v179[v176];
+        local v185 = nil;
+        if v184 then
+            v185 = v184(l__target_0, v175._work);
+            rawset(v175, v176, v185);
+        end;
+        return v185;
+    end
+};
+return {
+    Get = function(v187, v188, v189) --[[ Line: 559 ]] --[[ Name: get ]]
+        -- upvalues: v68 (copy), v186 (copy)
+        local v190 = v68[v188];
+        if not v190 then
+            v190 = setmetatable({
+                _target = v188, 
+                _work = v187
+            }, v186);
+            v188.Destroying:Connect(function() --[[ Line: 569 ]]
+                -- upvalues: v68 (ref), v188 (copy), v190 (ref)
+                if v68[v188] == v190 then
+                    v68[v188] = nil;
+                end;
+            end);
+            v68[v188] = assert(v190);
+        end;
+        return v190[v189];
+    end, 
+    Static = function(v191, v192) --[[ Line: 583 ]] --[[ Name: static ]]
+        -- upvalues: v64 (copy), v4 (copy)
+        local l_ClassName_1 = v191.ClassName;
+        if not v64[l_ClassName_1] then
+            local v194 = {};
+            for v195, v196 in pairs(v4) do
+                if v191:IsA(v195) then
+                    for v197, v198 in v196 do
+                        v194[v197] = v198;
+                    end;
+                end;
+            end;
+            v64[l_ClassName_1] = v194;
+        end;
+        return v64[l_ClassName_1][v192] == true;
+    end, 
+    Index = v3
+};
+ModuleScript: Music
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_Players_0 = game:GetService("Players");
+local v3 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Time);
+local v4 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local _ = require(l_ReplicatedStorage_0.Shared.Constants);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v7 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local l_ScreenGui_0 = l_Players_0.LocalPlayer.PlayerGui:WaitForChild("ScreenGui");
+local v9 = {
+    Enabled = true, 
+    Volume = 0.5, 
+    Looped = v7.new()
+};
+local v10 = TweenInfo.new(2, Enum.EasingStyle.Sine);
+local l_NumberValue_0 = Instance.new("NumberValue");
+local v12 = nil;
+local l_Sound_0 = Instance.new("Sound");
+l_Sound_0.Looped = true;
+l_Sound_0.Parent = l_ScreenGui_0;
+v9.Sound = l_Sound_0;
+local v14 = 1.1;
+local function v16() --[[ Line: 38 ]] --[[ Name: getSoundLength ]]
+    -- upvalues: l_Sound_0 (ref)
+    local v15 = 0;
+    if l_Sound_0.TimeLength == 0 then
+        repeat
+            v15 = v15 + 1;
+            task.wait();
+        until l_Sound_0.TimeLength ~= 0 or v15 > 200;
+    end;
+    return l_Sound_0.TimeLength / l_Sound_0.PlaybackSpeed;
+end;
+local function v17() --[[ Line: 50 ]] --[[ Name: updateVolume ]]
+    -- upvalues: l_Sound_0 (ref), v14 (ref), l_NumberValue_0 (copy), v9 (copy)
+    l_Sound_0.Volume = v14 * l_NumberValue_0.Value * v9.Volume;
+end;
+v9.SetVolume = function(v18, v19) --[[ Line: 55 ]] --[[ Name: SetVolume ]]
+    -- upvalues: l_Sound_0 (ref), v14 (ref), l_NumberValue_0 (copy), v9 (copy)
+    v18.Volume = v19;
+    l_Sound_0.Volume = v14 * l_NumberValue_0.Value * v9.Volume;
+end;
+v9.SetTrack = function(v20, v21, v22) --[[ Line: 61 ]] --[[ Name: SetTrack ]]
+    -- upvalues: l_Sound_0 (ref), v12 (ref), l_ScreenGui_0 (copy), v9 (copy), l_NumberValue_0 (copy), v14 (ref), v10 (copy), v16 (copy), v3 (copy), l_TweenService_0 (copy)
+    if not v20.Enabled then
+        return;
+    elseif l_Sound_0.SoundId == v21 or v12 and v12.SoundId == v21 then
+        return;
+    else
+        local v23 = l_Sound_0:Clone();
+        v23.SoundId = v21;
+        v23.Volume = 0;
+        v23.Parent = l_ScreenGui_0;
+        v12 = v23;
+        local l_l_Sound_0_0 = l_Sound_0;
+        l_Sound_0 = v23;
+        v9.Sound = l_Sound_0;
+        l_NumberValue_0.Value = 0;
+        v23.DidLoop:Connect(function() --[[ Line: 80 ]]
+            -- upvalues: v9 (ref)
+            v9.Looped:Fire();
+        end);
+        l_Sound_0.Volume = v14 * l_NumberValue_0.Value * v9.Volume;
+        task.delay(v10.Time, function() --[[ Line: 86 ]]
+            -- upvalues: l_l_Sound_0_0 (copy)
+            l_l_Sound_0_0:Stop();
+            l_l_Sound_0_0:Destroy();
+        end);
+        task.defer(function() --[[ Line: 91 ]]
+            -- upvalues: v16 (ref), v22 (copy), l_Sound_0 (ref), v3 (ref)
+            local v25 = v16();
+            if v25 == 0 or v22 then
+                l_Sound_0.TimePosition = 0;
+            else
+                l_Sound_0.TimePosition = v3.now() % v25;
+            end;
+            l_Sound_0:Play();
+        end);
+        l_TweenService_0:Create(l_l_Sound_0_0, v10, {
+            Volume = 0
+        }):Play();
+        l_TweenService_0:Create(l_NumberValue_0, v10, {
+            Value = 1
+        }):Play();
+        return;
+    end;
+end;
+v9.SetEnabled = function(v26, v27) --[[ Line: 106 ]] --[[ Name: SetEnabled ]]
+    -- upvalues: l_TweenService_0 (copy), l_NumberValue_0 (copy), v10 (copy)
+    v26.Enabled = v27;
+    l_TweenService_0:Create(l_NumberValue_0, v10, {
+        Value = v27 and 1 or 0
+    }):Play();
+end;
+l_NumberValue_0:GetPropertyChangedSignal("Value"):Connect(v17);
+v4:ConnectDataChanged("Settings", function(v28) --[[ Line: 114 ]]
+    -- upvalues: v14 (ref), l_Sound_0 (ref), l_NumberValue_0 (copy), v9 (copy)
+    v14 = math.sqrt(v28.Settings.Music / 100) * 1.1;
+    l_Sound_0.Volume = v14 * l_NumberValue_0.Value * v9.Volume;
+end);
+return v9;
+ModuleScript: PetRender
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local _ = game:GetService("RunService");
+local l_Workspace_0 = game:GetService("Workspace");
+local _ = game:GetService("ServerScriptService");
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Zone);
+local v7 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local _ = require(l_ReplicatedStorage_0.Shared.Constants);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Time);
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local _ = require(l_ReplicatedStorage_0.Shared.Data.Pets);
+local _ = require(l_ReplicatedStorage_0.Client.PetRender.VisualPet);
+local v13 = require(l_ReplicatedStorage_0.Shared.Utils.RenderBand);
+local v14 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.CharacterUtil);
+local _ = Random.new();
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local _ = l_Workspace_0.CurrentCamera;
+local v18 = {
+    Visible = true, 
+    Pets = {}
+};
+local v19 = v13.new();
+local function v22(v20) --[[ Line: 47 ]] --[[ Name: isPetVisible ]]
+    -- upvalues: v18 (copy), v19 (copy), v7 (copy), l_LocalPlayer_0 (copy)
+    if not v20.Owner then
+        return true;
+    elseif not v18.Visible then
+        return false;
+    elseif not v19.Active[v20.Model] then
+        return false;
+    else
+        local v21 = v7:Get();
+        if not v21 then
+            return true;
+        elseif v20.Owner ~= l_LocalPlayer_0 and v21.Settings["Hide Others Pets"] then
+            return false;
+        elseif v20.Owner and v21.Settings["Hide All Pets"] then
+            return false;
+        else
+            return true;
+        end;
+    end;
+end;
+v18.Add = function(v23, v24) --[[ Line: 67 ]] --[[ Name: Add ]]
+    -- upvalues: v14 (copy), v19 (copy), v22 (copy)
+    if v24.Owner then
+        local l_v14_RootPart_0 = v14:GetRootPart(v24.Owner);
+        v24:SpawnAt(if l_v14_RootPart_0 then l_v14_RootPart_0.Position else Vector3.new(0, 0, 0, 0));
+        v24.LastMoved = os.clock();
+        v24:SetFollowStyle(v24.Owner:GetAttribute("PetFollowStyle") or "Circle");
+    end;
+    v19:Add(v24.Model);
+    v23.Pets[v24.GUID] = v24;
+    task.defer(function() --[[ Line: 79 ]]
+        -- upvalues: v24 (copy), v22 (ref)
+        v24:SetVisible((v22(v24)));
+    end);
+end;
+v18.RemoveByGUID = function(v26, v27) --[[ Line: 85 ]] --[[ Name: RemoveByGUID ]]
+    -- upvalues: v19 (copy)
+    local v28 = v26.Pets[v27];
+    if not v28 then
+        return;
+    else
+        v19:Remove(v28.Model);
+        v28:Destroy();
+        v26.Pets[v27] = nil;
+        return;
+    end;
+end;
+v18.SetVisible = function(v29, v30) --[[ Line: 96 ]] --[[ Name: SetVisible ]]
+    -- upvalues: v22 (copy)
+    v29.Visible = v30;
+    for _, v32 in v29.Pets do
+        if not v30 then
+            v32:SetVisible(false);
+        else
+            v32:SetVisible((v22(v32)));
+        end;
+    end;
+end;
+v19.Update:Connect(function(v33, v34) --[[ Line: 109 ]]
+    -- upvalues: v18 (copy), v14 (copy)
+    local v35 = v18.Pets[v33.Name];
+    if not v35 then
+        return;
+    else
+        local l_Owner_0 = v35.Owner;
+        if not l_Owner_0 then
+            return;
+        else
+            local l_v14_RootPart_1 = v14:GetRootPart(l_Owner_0);
+            if not l_v14_RootPart_1 then
+                return;
+            else
+                local l_Position_0 = l_v14_RootPart_1.Position;
+                local l_LookVector_0 = l_v14_RootPart_1.CFrame.LookVector;
+                local v40 = nil;
+                if v35.FollowStyle == "Circle" then
+                    local v41 = v35.GroupIndex / v35.GroupCount * 3.141592653589793 * 2;
+                    v40 = l_Position_0 + Vector3.new(math.sin(v41) * v35.PlayerOffset, 0, math.cos(v41) * v35.PlayerOffset);
+                else
+                    local v42 = math.max(3, (math.floor((math.sqrt(v35.GroupCount)))));
+                    local v43 = (v35.GroupIndex - 1) % v42;
+                    local v44 = (v35.GroupIndex - 1) // v42;
+                    local v45 = v43 - (math.min(v42, v35.GroupCount - v35.GroupIndex + v43 + 1) - 1) / 2;
+                    local l_Unit_0 = l_LookVector_0:Cross((Vector3.new(0, 1, 0, 0))).Unit;
+                    v40 = l_Position_0 - l_LookVector_0 * (5 + v44 * 5) + l_Unit_0 * v45 * 5;
+                end;
+                if v35.IsMoving then
+                    v35:LookAt(v40 + l_LookVector_0);
+                else
+                    v35:LookAt(l_Position_0);
+                end;
+                v35:MoveTo(v40);
+                v35:Render(v34);
+                return;
+            end;
+        end;
+    end;
+end);
+v19.Culled:Connect(function(v47) --[[ Line: 153 ]]
+    -- upvalues: v18 (copy)
+    local v48 = v18.Pets[v47.Name];
+    if v48 then
+        v48:SetVisible(false);
+    end;
+end);
+v19.Render:Connect(function(v49) --[[ Line: 161 ]]
+    -- upvalues: v18 (copy), v22 (copy)
+    local v50 = v18.Pets[v49.Name];
+    if v50 then
+        v50:SetVisible((v22(v50)));
+    end;
+end);
+v7:ConnectDataChanged("Settings", function() --[[ Line: 170 ]]
+    -- upvalues: v18 (copy), v22 (copy)
+    for _, v52 in v18.Pets do
+        v52:SetVisible((v22(v52)));
+    end;
+end);
+return v18;
+ModuleScript: VisualPet
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_HttpService_0 = game:GetService("HttpService");
+local _ = game:GetService("RunService");
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.T);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Services.CollisionGroup);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Zone);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Table.Array);
+local v9 = require(l_ReplicatedStorage_0.Shared.Data.Pets);
+local _ = require(l_ReplicatedStorage_0.Shared.Constants);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Spring);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.SequenceUtil);
+local v13 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local v15 = require(l_ReplicatedStorage_0.Shared.Utils.GetPetModel);
+local v16 = require(l_ReplicatedStorage_0.Client.Effects.DynamicLightingModel);
+local v17 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.PetUtil);
+local v18 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.String.FormatCommas);
+local v19 = require(l_ReplicatedStorage_0.Shared.Utils.GetChanceColor);
+local _ = l_Players_0.LocalPlayer;
+local _ = workspace.CurrentCamera;
+local _ = Random.new();
+local _ = TweenInfo.new(2);
+local _ = TweenInfo.new(0.5, Enum.EasingStyle.Cubic);
+local _ = TweenInfo.new(1, Enum.EasingStyle.Sine);
+local _ = TweenInfo.new(0.75, Enum.EasingStyle.Bounce);
+local _ = TweenInfo.new(0.5, Enum.EasingStyle.Cubic, Enum.EasingDirection.InOut);
+local v28 = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out);
+local v29 = TweenInfo.new(v28.Time, v28.EasingStyle, Enum.EasingDirection.In);
+local v30 = {};
+v30.__index = v30;
+local v31 = {};
+local function _(v32, v33, v34) --[[ Line: 113 ]] --[[ Name: lerp ]]
+    return v32 + (v33 - v32) * v34;
+end;
+local function v46(v36) --[[ Line: 117 ]] --[[ Name: makePetModel ]]
+    -- upvalues: v9 (copy), v15 (copy), v13 (copy), v17 (copy), l_ReplicatedStorage_0 (copy), v18 (copy), v19 (copy), v6 (copy)
+    local v37 = v9[v36.Name];
+    local v38 = v15(v36):Clone();
+    v38.Name = v36.GUID;
+    local v39 = 1;
+    if v36.Mythic then
+        v39 = v39 * 1.25;
+    end;
+    if v9[v36.Name].Rarity == "Secret" then
+        v39 = v39 * 2;
+	end;
+    v38:ScaleTo(v38:GetScale() * v39);
+    local _ = v13:Get();
+    local l_Hitbox_0 = v38:FindFirstChild("Hitbox");
+    local l_v17_Chance_0 = v17:GetChance(v36);
+    local v43 = l_ReplicatedStorage_0.Assets.PetTag:Clone();
+    if v37.Tag then
+        v43.Chance.Text = v37.Tag;
+    else
+        v43.Chance.Text = ("1 in %*"):format((v18((math.ceil(100 / l_v17_Chance_0)))));
+    end;
+    v43.StudsOffsetWorldSpace = Vector3.new(0, v38:GetExtentsSize().Y / 2.5, 0);
+    v43.Chance.TextColor3 = v19(l_v17_Chance_0, v37.Tag);
+    v43.Label.Text = v36.Name;
+    v43.Parent = l_Hitbox_0;
+    for _, v45 in v38:GetDescendants() do
+        if v45:IsA("BasePart") then
+            v45.CanCollide = false;
+            v45.CastShadow = false;
+        end;
+    end;
+    v6:AddModel(v38, "Pets");
+    return v38;
+end;
+local function _(v47, v48, v49) --[[ Line: 169 ]] --[[ Name: isValidStepLength ]]
+    return (v47 - v49).Magnitude >= (v47 - v48).Magnitude;
+end;
+local function v61(v51, v52, v53) --[[ Line: 174 ]] --[[ Name: new ]]
+    -- upvalues: v9 (copy), v16 (copy), v30 (copy), v31 (copy)
+    local _ = v9[v51.Name];
+    local v55 = v52:GetAttribute("Animation") or "Walk";
+    local l_v52_ExtentsSize_0 = v52:GetExtentsSize();
+    if v53 and v53.Character then
+        local _ = v53.Character:FindFirstChildOfClass("Humanoid");
+    end;
+    local v58 = v16(v52);
+    local v59 = setmetatable({
+        GUID = v51.GUID, 
+        Name = v51.Name, 
+        Shiny = v51.Shiny or false, 
+        Mythic = v51.Mythic or false, 
+        Owner = v53, 
+        Model = v52, 
+        FollowStyle = "Circle", 
+        PlayerOffset = math.min(6, math.max(l_v52_ExtentsSize_0.X, l_v52_ExtentsSize_0.Z) / 2 + 3), 
+        Animation = v55, 
+        AnimationOffset = v53 and math.random() * 3.141592653589793 or 0, 
+        Animator = Instance.new("CFrameValue"), 
+        Dampener = Instance.new("NumberValue"), 
+        YDampener = Instance.new("NumberValue"), 
+        Visible = nil, 
+        Position = Vector3.new(), 
+        Goal = Vector3.new(), 
+        Look = Vector3.new(), 
+        Twist = CFrame.new(), 
+        ActiveDampener = true, 
+        GroupIndex = 1, 
+        GroupCount = 1, 
+        Phase = 0, 
+        WalkSpeed = 50, 
+        WalkSpeedOverride = nil, 
+        CleanupLighting = v58, 
+        LastMoved = os.clock(), 
+        IsMoving = false, 
+        CanMove = true
+    }, v30);
+    local v60 = v31[v51.Name];
+    if v60 then
+        v59.CustomRig = v60(v59.Model);
+    end;
+    return v59;
+end;
+v30.new = function(v62, v63) --[[ Line: 230 ]] --[[ Name: new ]]
+    -- upvalues: v61 (copy), v46 (copy)
+    return (v61(v62, v46(v62), v63));
+end;
+v30.fromModel = function(v64) --[[ Line: 235 ]] --[[ Name: fromModel ]]
+    -- upvalues: v6 (copy), l_HttpService_0 (copy), v61 (copy)
+    local l_v64_Pivot_0 = v64:GetPivot();
+    v6:AddModel(v64, "Pets");
+    local v66 = {
+        Name = v64.Name, 
+        GUID = l_HttpService_0:GenerateGUID(false)
+    };
+    local v67 = v61(v66, v64);
+    v67:SpawnAt(l_v64_Pivot_0.Position, l_v64_Pivot_0.Position - l_v64_Pivot_0.LookVector);
+    return v67;
+end;
+v30.GetAnimationCFrame = function(v68, v69) --[[ Line: 252 ]] --[[ Name: GetAnimationCFrame ]]
+    local v70 = v68.Phase + v68.AnimationOffset;
+    local l_Value_0 = v68.Dampener.Value;
+    if not v68.Owner then
+        l_Value_0 = math.min(l_Value_0, math.clamp((v68.Goal * Vector3.new(1, 0, 1, 0) - v69 * Vector3.new(1, 0, 1, 0)).Magnitude, 0, 4) / 4);
+    end;
+    if not v68.ActiveDampener then
+        l_Value_0 = 1;
+    end;
+    if v68.Animation == "Walk" then
+        local v72 = math.abs((math.sin(v70 * 10))) * 3 * l_Value_0;
+        local v73 = math.rad((math.sin(v70 * 10))) * 20 * l_Value_0;
+        return CFrame.new(0, v72, 0) * CFrame.Angles(0, 0, v73);
+    elseif v68.Animation == "Bounce" then
+        local v74 = math.rad((math.sin(v70 * 20))) * 20 * l_Value_0;
+        local v75 = math.abs((math.sin(v70 * 10))) * 3 * l_Value_0;
+        return CFrame.new(0, v75, 0) * CFrame.Angles(v74, 0, 0);
+    elseif v68.Animation == "Fly" then
+        return CFrame.new(0, 3, 0) * CFrame.Angles(math.rad(-math.cos(v70 * 4)) * 8, 0, 0) + Vector3.new(0, math.sin(v70 * 4) * 0.5, 0);
+    elseif v68.Animation == "Hover" then
+        return CFrame.new(0, 3, 0) + Vector3.new(0, math.sin(v70 * 6) * 0.35, 0);
+    else
+        return CFrame.new();
+    end;
+end;
+v30.GetMovementStep = function(v76, v77, v78, v79) --[[ Line: 287 ]] --[[ Name: GetMovementStep ]]
+    local l_Magnitude_0 = (v78 - v76.Goal).Magnitude;
+    local v81 = (v76.Goal - v78).Unit * Vector3.new(1, 0, 1, 0);
+    local v82 = v78 + v81 * v77 * v79;
+    if l_Magnitude_0 > 100 then
+        v82 = v76.Goal;
+    elseif l_Magnitude_0 == 0 then
+        v82 = v78;
+    elseif not ((v78 - v76.Goal).Magnitude >= (v78 - v82).Magnitude) then
+        v82 = v76.Goal;
+    end;
+    return v82, l_Magnitude_0, v81;
+end;
+v30.Render = function(v83, v84) --[[ Line: 306 ]] --[[ Name: Render ]]
+    -- upvalues: l_TweenService_0 (copy), v28 (copy), v29 (copy)
+    local v85 = v83.WalkSpeedOverride or v83.WalkSpeed;
+    local l_v83_MovementStep_0, v87 = v83:GetMovementStep(v83.CanMove and v84 or 0, v83.Position, v85);
+    local v88 = v87 > 0.05;
+    local l_v83_AnimationCFrame_0 = v83:GetAnimationCFrame(v83.Position);
+    v83.Phase = v83.Phase + v84 * ((not (v83.Animation ~= "Fly") or v83.Animation == "Slow Hover") and v88 and 1.5 or 1);
+    local v90 = CFrame.new();
+    if (l_v83_MovementStep_0 - v83.Look).Magnitude > 0.05 then
+        v90 = CFrame.new(v83.Look * Vector3.new(1, 0, 1, 0), l_v83_MovementStep_0 * Vector3.new(1, 0, 1, 0));
+        v90 = v90 - v90.Position;
+    end;
+    local v91 = v83.Twist:Lerp(v90, 0.15);
+    local v92 = v83.Owner and v83.Owner.Character;
+    local v93 = v92 and v92:FindFirstChildOfClass("Humanoid");
+    if v93 and v92 and v92.PrimaryPart then
+        local l_YDampener_0 = v83.YDampener;
+        local l_Value_1 = v83.YDampener.Value;
+        l_YDampener_0.Value = l_Value_1 + (v92.PrimaryPart.Position.Y - v93.HipHeight - 1 - l_Value_1) * 0.1;
+    end;
+    if v83.IsMoving ~= v88 then
+        l_TweenService_0:Create(v83.Dampener, v88 and v28 or v29, {
+            Value = v88 and 1 or 0
+        }):Play();
+    end;
+    v83.IsMoving = v88;
+    v83.Position = l_v83_MovementStep_0;
+    v83.Twist = v91;
+    local v96 = CFrame.new(l_v83_MovementStep_0) * v91 * l_v83_AnimationCFrame_0;
+    v83.Model:PivotTo(v96 + Vector3.new(0, v83.YDampener.Value, 0));
+end;
+v30.MoveTo = function(v97, v98, v99) --[[ Line: 346 ]] --[[ Name: MoveTo ]]
+    if v99 then
+        v97:LookAt(v98 + (v98 - v97.Goal).Unit);
+    end;
+    v97.Goal = v98 * Vector3.new(1, 0, 1, 0);
+end;
+v30.LookAt = function(v100, v101) --[[ Line: 355 ]] --[[ Name: LookAt ]]
+    v100.Look = v101 * Vector3.new(1, 0, 1, 0);
+end;
+v30.SpawnAt = function(v102, v103, v104) --[[ Line: 360 ]] --[[ Name: SpawnAt ]]
+    if v104 then
+        v102.Twist = CFrame.new(v104 * Vector3.new(1, 0, 1, 0), v103 * Vector3.new(1, 0, 1, 0)) - v104;
+        v102:LookAt(v104);
+    end;
+    local v105 = v102.Owner and v102.Owner.Character;
+    local v106 = v105 and v105:FindFirstChildOfClass("Humanoid");
+    if v106 and v105 and v105.PrimaryPart then
+        v102.YDampener.Value = v105.PrimaryPart.Position.Y - v106.HipHeight - 1;
+    end;
+    v102.Position = Vector3.new(v103.X, 0, v103.Z);
+    v102.Model:PivotTo(CFrame.new(v103) * v102.Twist + Vector3.new(0, v102.YDampener.Value, 0));
+    v102:MoveTo(v103);
+end;
+v30.SetVisible = function(v107, v108) --[[ Line: 386 ]] --[[ Name: SetVisible ]]
+    if v107.Visible == v108 then
+        return;
+    else
+        v107.Model.Parent = v108 and workspace.Rendered.Pets or nil;
+        v107.Visible = v108;
+        return;
+    end;
+end;
+v30.SwapModel = function(v109, v110) --[[ Line: 395 ]] --[[ Name: SwapModel ]]
+    -- upvalues: v15 (copy), v6 (copy)
+    local _ = v109.Model:FindFirstChild("Hitbox");
+    local l_Model_0 = v109.Model;
+    local v113 = v15(v110);
+    local v114 = v113:GetAttribute("Animation") or "Walk";
+    if v114 == "Fly" or v114 == "Hover" or v114 == "Slow Hover" then
+        v109.Animator.Value = CFrame.new(0, -1.5, 0);
+    else
+        v109.Animator.Value = CFrame.new();
+    end;
+    for _, v116 in l_Model_0:GetChildren() do
+        if v116:IsA("BillboardGui") then
+            v116.Parent = v113;
+        end;
+    end;
+    for _, v118 in v113:GetDescendants() do
+        if v118:IsA("BasePart") then
+            v118.CanCollide = false;
+        end;
+    end;
+    v6:AddModel(v113, "Pets");
+    v113:PivotTo(l_Model_0:GetPivot());
+    v113.Name = l_Model_0.Name;
+    v113.Parent = l_Model_0.Parent;
+    l_Model_0:Destroy();
+    v109.Model = v113;
+    if not v109.Visible then
+        v109.Visible = true;
+        v109:SetVisible(false);
+    end;
+end;
+v30.SetFollowStyle = function(v119, v120) --[[ Line: 433 ]] --[[ Name: SetFollowStyle ]]
+    v119.FollowStyle = v120;
+end;
+v30.Destroy = function(v121) --[[ Line: 438 ]] --[[ Name: Destroy ]]
+    local l_SelectionHighlight_0 = v121.Model:FindFirstChild("SelectionHighlight");
+    if l_SelectionHighlight_0 then
+        l_SelectionHighlight_0.Parent = nil;
+    end;
+    for _, v124 in v121.Model:GetDescendants() do
+        if v124:IsA("Sound") then
+            v124:Stop();
+        end;
+    end;
+    if v121.CleanupLighting then
+        v121.CleanupLighting();
+    end;
+    if v121.CustomRig then
+        v121.CustomRig();
+    end;
+    v121.Owner = nil;
+    v121.Animator:Destroy();
+    v121.Dampener:Destroy();
+    v121.YDampener:Destroy();
+    v121.Model:Destroy();
+end;
+for _, v126 in script:GetChildren() do
+    if v126:IsA("ModuleScript") then
+        v31[v126.Name] = require(v126);
+    end;
+end;
+return v30;
+ModuleScript: Beta TV
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_RunService_0 = game:GetService("RunService");
+local v1 = Random.new();
+local v2 = {
+    "rbxassetid://16664521853", 
+    "http://www.roblox.com/asset/?id=15946592953", 
+    "http://www.roblox.com/asset/?id=6925817108", 
+    "rbxassetid://16664586832", 
+    "rbxassetid://136261696398488", 
+    "http://www.roblox.com/asset/?id=126789487658503", 
+    "rbxassetid://77313477393884", 
+    "http://www.roblox.com/asset/?id=12247488001", 
+    "rbxassetid://70565788424933", 
+    "rbxassetid://100837854324492"
+};
+return function(v3) --[[ Line: 24 ]] --[[ Name: CustomRig ]]
+    -- upvalues: v1 (copy), v2 (copy), l_RunService_0 (copy)
+    local v4 = os.clock() + 1 + v1:NextNumber(1, 4);
+    local l_Decal_0 = v3.Decoration.TV.Decal;
+    local v6 = nil;
+    local function v8() --[[ Line: 29 ]] --[[ Name: sequence ]]
+        -- upvalues: v2 (ref), v1 (ref), v6 (ref), l_Decal_0 (copy)
+        local v7 = nil;
+        repeat
+            v7 = v2[v1:NextInteger(1, #v2)];
+        until v7 ~= v6;
+        v6 = v7;
+        l_Decal_0.Texture = "rbxassetid://16664356973";
+        task.wait(0.25);
+        l_Decal_0.Texture = v7;
+        task.wait(12);
+        l_Decal_0.Texture = "rbxassetid://16664356973";
+        task.wait(0.25);
+        l_Decal_0.Texture = "rbxassetid://16664355171";
+    end;
+    local v11 = l_RunService_0.Heartbeat:Connect(function(_) --[[ Line: 45 ]]
+        -- upvalues: v4 (ref), v8 (copy)
+        local v10 = os.clock();
+        if v4 < v10 then
+            v4 = v10 + 30;
+            task.spawn(v8);
+        end;
+    end);
+    return function() --[[ Line: 53 ]] --[[ Name: cleanup ]]
+        -- upvalues: v11 (copy)
+        v11:Disconnect();
+    end;
+end;
+ModuleScript: PlayerControls
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_LocalPlayer_0 = game:GetService("Players").LocalPlayer;
+local v1 = {};
+local v2 = nil;
+local v3 = nil;
+task.defer(function() --[[ Line: 21 ]]
+    -- upvalues: l_LocalPlayer_0 (copy), v2 (ref), v3 (ref)
+    local l_PlayerModule_0 = l_LocalPlayer_0.PlayerScripts:WaitForChild("PlayerModule");
+    v2 = require(l_PlayerModule_0);
+    v3();
+end);
+local v5 = true;
+local v6 = true;
+v3 = function() --[[ Line: 31 ]] --[[ Name: updateEnabled ]]
+    -- upvalues: v5 (ref), v6 (ref), v2 (ref)
+    local v7 = v5 and v6;
+    if v2 then
+        local l_v2_Controls_0 = v2:GetControls();
+        if v7 == true then
+            l_v2_Controls_0:Enable();
+            return;
+        else
+            l_v2_Controls_0:Disable();
+        end;
+    end;
+end;
+l_LocalPlayer_0.CharacterAdded:Connect(v3);
+v1.Enable = function(_) --[[ Line: 55 ]] --[[ Name: Enable ]]
+    -- upvalues: v6 (ref), v3 (ref)
+    v6 = true;
+    v3();
+end;
+v1.Disable = function(_) --[[ Line: 60 ]] --[[ Name: Disable ]]
+    -- upvalues: v6 (ref), v3 (ref)
+    v6 = false;
+    v3();
+end;
+v1.EnableMaster = function(_) --[[ Line: 65 ]] --[[ Name: EnableMaster ]]
+    -- upvalues: v5 (ref), v3 (ref)
+    v5 = true;
+    v3();
+end;
+v1.DisableMaster = function(_) --[[ Line: 70 ]] --[[ Name: DisableMaster ]]
+    -- upvalues: v5 (ref), v3 (ref)
+    v5 = false;
+    v3();
+end;
+v1.GetMoveVector = function(_) --[[ Line: 75 ]] --[[ Name: GetMoveVector ]]
+    -- upvalues: v2 (ref)
+    if v2 then
+        return v2:GetControls():GetMoveVector();
+    else
+        return (Vector3.new());
+    end;
+end;
+return v1;
+ModuleScript: PlayerRender
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Players_0 = game:GetService("Players");
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v2 = {
+    Visible = true
+};
+local function v8(v3, v4) --[[ Line: 15 ]] --[[ Name: setVisible ]]
+    if not v3 then
+        return;
+    else
+        for _, v6 in v3:GetDescendants() do
+            if v6:IsA("BasePart") or v6:IsA("Decal") then
+                local l_v6_Attribute_0 = v6:GetAttribute("OriginalTransparency");
+                if not l_v6_Attribute_0 then
+                    l_v6_Attribute_0 = v6.Transparency;
+                    v6:SetAttribute("OriginalTransparency", l_v6_Attribute_0);
+                end;
+                v6.Transparency = v4 and l_v6_Attribute_0 or 1;
+            elseif v6:IsA("Fire") or v6:IsA("ParticleEmitter") or v6:IsA("BillboardGui") then
+                v6.Enabled = v4;
+            end;
+        end;
+        return;
+    end;
+end;
+v2.SetPlayersVisible = function(v9, v10, v11) --[[ Line: 34 ]] --[[ Name: SetPlayersVisible ]]
+    -- upvalues: l_Players_0 (copy), l_LocalPlayer_0 (copy), v8 (copy)
+    for _, v13 in l_Players_0:GetPlayers() do
+        if v13.Character and (v11 or l_LocalPlayer_0 ~= v13) then
+            v8(v13.Character, v10);
+        end;
+    end;
+    v9.Visible = v10;
+end;
+local function v16(v14) --[[ Line: 48 ]] --[[ Name: HookPlayer ]]
+    -- upvalues: l_LocalPlayer_0 (copy), v8 (copy), v2 (copy)
+    if v14 == l_LocalPlayer_0 then
+        return;
+    else
+        v14.CharacterAdded:Connect(function(_) --[[ Line: 52 ]]
+            -- upvalues: v8 (ref), v14 (copy), v2 (ref)
+            v8(v14.Character, v2.Visible);
+        end);
+        v14.CharacterAdded:Wait();
+        v8(v14.Character, v2.Visible);
+        return;
+    end;
+end;
+for _, v18 in l_Players_0:GetPlayers() do
+    task.spawn(v16, v18);
+end;
+l_Players_0.PlayerAdded:Connect(v16);
+return v2;
+ModuleScript: Tutorial
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local l_RunService_0 = game:GetService("RunService");
+local _ = game:GetService("ServerScriptService");
+local _ = game:GetService("ExperienceNotificationService");
+local _ = game:GetService("UserInputService");
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.CharacterUtil);
+local v7 = require(l_ReplicatedStorage_0.Shared.Utils.RichText);
+local v8 = require(l_ReplicatedStorage_0.Client.Framework.Services.InputMode);
+local v9 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local v10 = require(l_ReplicatedStorage_0.Shared.Palette);
+local v11 = require(l_ReplicatedStorage_0.Client.Gui.Utils.Notification);
+local v12 = require(l_ReplicatedStorage_0.Client.Gui.GuiFrame);
+local v13 = require(l_ReplicatedStorage_0.Client.Gui.Frames.GumShop);
+local v14 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local v15 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.QuestUtil);
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local v17 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.String.FormatSuffix);
+local v18 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.GetAngleBetweenVectors);
+local v19 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v20 = require(l_ReplicatedStorage_0.Client.Gui.Tooltip);
+local v21 = require(l_ReplicatedStorage_0.Shared.Data.Builders.TooltipBuilder);
+local v22 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.ItemUtil);
+local v23 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.StatsUtil);
+local _ = require(l_ReplicatedStorage_0.Client.Gui.Utils.AutoButtonColor);
+local _ = require(l_ReplicatedStorage_0.Client.Gui.Utils.ClickableButton);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local _ = require(l_ReplicatedStorage_0.Shared.Utils.AnimateColor);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local l_ScreenGui_0 = l_LocalPlayer_0.PlayerGui.ScreenGui;
+local v30 = {
+    KeyProgress = 0, 
+    Active = false, 
+    StageChanged = v14.new(), 
+    Finished = v14.new(), 
+    _tutorialEggAttachment = nil, 
+    _tutorialEgg2Attachment = nil, 
+    _activePickups = {}
+};
+local l_Tutorial_0 = l_ScreenGui_0.HUD.Tutorial;
+local l_Inner_0 = l_Tutorial_0.Content.Info.Bar.Inner;
+local v33 = {
+    [l_ScreenGui_0.HUD.Right.Inventory] = 3, 
+    [l_ScreenGui_0.HUD.Right.RobuxShop] = 3, 
+	[l_ScreenGui_0.HUD.Left.Buttons.Settings] = 3, 
+    [l_ScreenGui_0.Inventory.Frame.Tray] = 4, 
+    [l_ScreenGui_0.HUD.Left.Currency.Bubble.Frame.Buy] = 4, 
+	[l_ScreenGui_0.HUD.Height] = 4, 
+    [l_ScreenGui_0.Inventory.Frame.Sidebar] = 4, 
+    [l_ScreenGui_0.HUD.Left.Buttons.Quests] = 4, 
+    [l_ScreenGui_0.HUD.Left.Buttons.Codes] = 4, 
+    [l_ScreenGui_0.HUD.Left.Buttons.Trading] = 5, 
+    [l_ScreenGui_0.HUD.Left.Buttons.DailyRewards] = 5, 
+    [l_ScreenGui_0.HUD.Right.Season] = 5
+};
+local v34 = nil;
+local v35 = l_ReplicatedStorage_0.Assets.Tutorial:Clone();
+local v36 = nil;
+local v37 = nil;
+local function v46(v38, v39) --[[ Line: 78 ]] --[[ Name: updateTask ]]
+    -- upvalues: v15 (copy), l_Tutorial_0 (copy), l_Inner_0 (copy), v17 (copy), v22 (copy), v23 (copy)
+    if v39 then
+        for v40 = 1, #v39.Tasks do
+            local v41 = v39.Tasks[v40];
+            local v42 = v39.Progress[v40] or 0;
+            if v15:GetRequirement(v41) > v42 then
+                local l_v15_Requirement_0 = v15:GetRequirement(v41);
+                l_Tutorial_0.Content.Info.Title.Text = v39.DisplayName or v39.Id;
+                l_Tutorial_0.Content.Info.Task.Text = v15:FormatTask(v41);
+                l_Inner_0.Fill.Size = UDim2.new(v42 / l_v15_Requirement_0, 0, 1, 6);
+                l_Inner_0.Fill.Visible = v42 > 0;
+                l_Inner_0.Label.Text = ("%* / %*"):format(v17(v42, 1000), (v17(l_v15_Requirement_0, 1000)));
+                v15:UpdateTaskIcon(l_Tutorial_0.Content.Icon, v41);
+                local v44 = v39.Rewards[1];
+                if v44 then
+                    local l_v22_Amount_0 = v22:GetAmount(v44);
+                    if v44.Type == "Currency" then
+                        l_v22_Amount_0 = math.ceil(l_v22_Amount_0 * v23:GetCurrencyMultiplier(v38, v44.Currency, true));
+                    end;
+                    l_Tutorial_0.Reward.Icon.Amount.Text = v17(l_v22_Amount_0);
+                    v22:UpdateIcon(l_Tutorial_0.Reward.Icon, v44);
+                end;
+                l_Tutorial_0.Reward.Visible = v44 ~= nil;
+                break;
+            end;
+        end;
+    end;
+    l_Tutorial_0.Visible = v39 ~= nil;
+end;
+local v47 = nil;
+local l_Highlight_0 = Instance.new("Highlight");
+l_Highlight_0.FillColor = Color3.fromRGB(255, 185, 23);
+local l_l_Highlight_0_0 = l_Highlight_0 --[[ copy: 40 -> 51 ]];
+v47 = function(v50) --[[ Line: 117 ]] --[[ Name: interestHighlight ]]
+    -- upvalues: l_l_Highlight_0_0 (copy)
+    l_l_Highlight_0_0.Parent = v50;
+end;
+l_Highlight_0 = nil;
+local v51 = nil;
+local v52 = {
+    "rbxassetid://123570029977337", 
+    "rbxassetid://130589950767965"
+};
+local l_v52_0 = v52 --[[ copy: 42 -> 52 ]];
+do
+    local l_v51_0 = v51;
+    l_Highlight_0 = function(v55) --[[ Line: 131 ]] --[[ Name: tutorialFinger ]]
+        -- upvalues: v30 (copy), l_v51_0 (ref), v19 (copy), l_ScreenGui_0 (copy), l_v52_0 (copy)
+        if not v30.Active then
+            return;
+        else
+            if l_v51_0 then
+                l_v51_0:Disconnect();
+                l_v51_0 = nil;
+            end;
+            if v55 then
+                l_v51_0 = v19(0.25, function() --[[ Line: 140 ]]
+                    -- upvalues: l_ScreenGui_0 (ref), l_v52_0 (ref)
+                    local v56 = math.floor(os.clock() * 2) % 2 + 1;
+                    l_ScreenGui_0.HUD.FingerPress.Icon.Image = l_v52_0[v56];
+                end);
+            end;
+            l_ScreenGui_0.HUD.FingerPress.Icon.Visible = v55;
+            return;
+        end;
+    end;
+end;
+v51 = function(v57) --[[ Line: 150 ]] --[[ Name: updateTargetArrow ]]
+    -- upvalues: v34 (ref), v35 (copy)
+    if not v57 then
+        v34 = nil;
+        v35.Parent = nil;
+        return;
+    else
+        v34 = v57.WorldPosition;
+        v35.Parent = workspace.Rendered.Generic;
+        return;
+    end;
+end;
+v52 = function() --[[ Line: 160 ]] --[[ Name: updateNotifications ]]
+    -- upvalues: v30 (copy), l_ScreenGui_0 (copy)
+    local v58 = v30.Active and 0 or 1;
+    l_ScreenGui_0.Notifications.AnchorPoint = Vector2.new(0.5, v58);
+    l_ScreenGui_0.Notifications.Position = UDim2.new(0.5, 0, v58, v30.Active and 240 or -210);
+    l_ScreenGui_0.Notifications.UIListLayout.VerticalAlignment = v30.Active and Enum.VerticalAlignment.Top or Enum.VerticalAlignment.Bottom;
+end;
+local function v62() --[[ Line: 168 ]] --[[ Name: updateArrowVisibility ]]
+    -- upvalues: v9 (copy), v15 (copy), l_ScreenGui_0 (copy), v12 (copy), v35 (copy)
+    local v59 = v9:Get();
+    local v60 = v59 and v15:FindById(v59, "tutorial-4");
+    local v61 = not l_ScreenGui_0.Hatching.Visible and not v12:IsAnyOpen();
+    if v60 and v60.Progress[1] > 0 then
+        v61 = false;
+    end;
+    v35.Transparency = v61 and 0 or 1;
+    v35.Highlight.Enabled = v61;
+end;
+local v63 = nil;
+local v64 = false;
+local _ = l_ReplicatedStorage_0.Assets.Tutorial;
+local function v68() --[[ Line: 188 ]] --[[ Name: updateMode ]]
+    -- upvalues: v8 (copy), v7 (copy), v10 (copy), l_ScreenGui_0 (copy)
+    local l_Mode_0 = v8.Mode;
+    local v67 = "Click";
+    if l_Mode_0 == "Gamepad" then
+        v67 = ("Hold %*"):format((v7.autoColor("RT/R2", v10.Text.Pink)));
+    elseif l_Mode_0 == "Touch" then
+        v67 = "Tap";
+    end;
+    l_ScreenGui_0.Notifications.Tutorial.Text = v7.autoStroke((("%* anywhere to %*!"):format(v67, (v7.autoColor("Chew", v10.Color.Cyan)))));
+end;
+local v69 = nil;
+local v70 = 0;
+local v71 = false;
+do
+    local l_v64_0, l_v69_0, l_v70_0, l_v71_0 = v64, v69, v70, v71;
+    v63 = function() --[[ Line: 204 ]] --[[ Name: updateTutorial ]]
+        -- upvalues: v9 (copy), v37 (ref), l_v70_0 (ref), l_v69_0 (ref), v11 (copy), v7 (copy), v10 (copy), v12 (copy), v30 (copy), l_Highlight_0 (ref), l_v71_0 (ref), v15 (copy), v47 (ref), v34 (ref), v35 (copy), v62 (copy), l_v64_0 (ref), v13 (copy), v46 (copy), l_ScreenGui_0 (copy)
+        local v76 = v9:Get();
+        if not v76 then
+            return;
+        else
+            local v77 = nil;
+            local v78 = 1;
+            local v79;
+            while true do
+                v79 = ("tutorial-%*"):format(v78);
+                if v76.QuestsCompleted[v79] then
+                    v78 = v78 + 1;
+                else
+                    break;
+                end;
+            end;
+            v77 = v79;
+            v79 = #v76.Quests;
+            if v77 ~= v37 or l_v70_0 ~= v79 then
+                if l_v69_0 then
+                    l_v69_0:Destroy();
+                    l_v69_0 = nil;
+                end;
+                local v80 = nil;
+                if v77 == "tutorial-2" then
+                    v80 = workspace.Worlds["The Overworld"].Sell.Root.Tutorial;
+                    l_v69_0 = v11(("Sell your %* for %*!"):format(v7.autoColor("Bubbles", v10.Text.Pink), (v7.autoColor("Coins", v10.Text.Yellow))), {
+                        TextSize = 50, 
+                        Permanent = true, 
+                        Sound = "NotificationHelp"
+                    });
+                elseif v77 == "tutorial-3" then
+                    v12:Close();
+                    v80 = v30._tutorialEggAttachment;
+                    l_v69_0 = v11(("Nice! Let's hatch a %*!"):format((v7.autoColor("Common Egg", v10.Text.Cyan))), {
+                        TextSize = 50, 
+                        Permanent = true
+                    });
+                elseif v77 == "tutorial-4" then
+                    l_v69_0 = v11(("Use your pet to help %*!"):format((v7.autoColor("Collect Coins", v10.Text.Yellow))), {
+                        TextSize = 50, 
+                        Permanent = true, 
+                        Sound = "NotificationHelp"
+                    });
+                elseif v77 == "tutorial-5" then
+                    v80 = workspace.Worlds["The Overworld"].Shop.Root.Tutorial;
+                    l_v69_0 = v11(("Time to %*!"):format((v7.autoColor("upgrade your Gum", v10.Text.Cyan))), {
+                        TextSize = 50, 
+                        Permanent = true, 
+                        TeleportId = workspace.Worlds["The Overworld"].Shop.Root:GetFullName(), 
+                        Sound = "NotificationHelp"
+                    });
+                elseif v77 == "tutorial-6" then
+                    v80 = nil;
+                    l_v69_0 = v11(("Try out your new %*!"):format((v7.autoColor("Gum", v10.Text.Pink))), {
+                        TextSize = 50, 
+                        Permanent = true, 
+                        Sound = "NotificationHelp"
+                    });
+                    task.defer(function() --[[ Line: 269 ]]
+                        -- upvalues: l_Highlight_0 (ref)
+                        l_Highlight_0(true);
+                    end);
+                elseif v77 == "tutorial-7" then
+                    v80 = v30._tutorialEgg2Attachment;
+                elseif v77 == "tutorial-10" then
+                    task.spawn(function() --[[ Line: 277 ]]
+                        -- upvalues: l_v71_0 (ref), v12 (ref), v11 (ref), v7 (ref), v10 (ref)
+                        if l_v71_0 then
+                            return;
+                        else
+                            l_v71_0 = true;
+                            v12:Close();
+                            local v81 = v11(("Use the %* to jump higher!"):format((v7.autoColor("Trampoline", v10.Text.Cyan))), {
+                                TextSize = 50, 
+                                Permanent = true, 
+                                Sound = "NotificationHelp"
+                            });
+                            task.wait(5);
+                            v81:Destroy();
+                            return;
+                        end;
+                    end);
+                    v80 = workspace.Worlds["The Overworld"].Output.Attachment;
+                end;
+                local v82 = v15:FindById(v76, v77) ~= nil;
+                if not v82 then
+                    v30.Active = false;
+                    v30.Finished:Fire();
+                    v47();
+                    v34 = nil;
+                    v35.Parent = nil;
+                    v62();
+                else
+                    v30.Active = true;
+                    v30.StageChanged:Fire(v78);
+                end;
+                v37 = v77;
+                l_v70_0 = v79;
+                local v83 = false;
+                if v76.QuestsCompleted["tutorial-1"] == nil then
+                    v83 = v82;
+                end;
+                l_v64_0 = v83;
+                v13.setTutorial(v77 == "tutorial-5");
+                v47();
+                v62();
+                v83 = v80;
+                if not v83 then
+                    v34 = nil;
+                    v35.Parent = nil;
+                else
+                    v34 = v83.WorldPosition;
+                    v35.Parent = workspace.Rendered.Generic;
+                end;
+            end;
+            v46(v76, v15:FindById(v76, v77));
+            l_Highlight_0(l_v64_0);
+            v30.KeyProgress = v78;
+            l_ScreenGui_0.Notifications.Tutorial.Visible = l_v64_0;
+            return;
+        end;
+    end;
+    l_ScreenGui_0.HUD.Chewing.Container:GetPropertyChangedSignal("Visible"):Connect(function() --[[ Line: 326 ]]
+        -- upvalues: l_ScreenGui_0 (copy), v37 (ref)
+        l_ScreenGui_0.HUD.FingerPress.Visible = not l_ScreenGui_0.HUD.Chewing.Container.Visible or v37 == "tutorial-6";
+    end);
+    v68();
+    v8.Changed:Connect(v68);
+    l_RunService_0.Heartbeat:Connect(function(_) --[[ Line: 334 ]]
+        -- upvalues: l_v64_0 (ref), l_ScreenGui_0 (copy)
+        if l_v64_0 then
+            l_ScreenGui_0.Notifications.Tutorial.TextSize = (math.sin(os.clock() * 8) + 1) * 4 + 40;
+        end;
+    end);
+end;
+v20:OnEnter(l_Tutorial_0.Reward.Icon.Hover, function() --[[ Line: 341 ]]
+    -- upvalues: v9 (copy), v37 (ref), v15 (copy), v21 (copy)
+    local v85 = v9:Get();
+    if not v85 or not v37 then
+        return;
+    else
+        local l_v15_ById_0 = v15:FindById(v85, v37);
+        if not l_v15_ById_0 then
+            return;
+        else
+            local v87 = l_v15_ById_0.Rewards[1];
+            if not v87 then
+                return;
+            else
+                return v21.fromItem(v87);
+            end;
+        end;
+    end;
+end);
+v30.Finished:Connect(function() --[[ Line: 358 ]]
+    -- upvalues: v36 (ref), v33 (copy), v52 (copy), l_ReplicatedStorage_0 (copy)
+    if v36 then
+        v36:Disconnect();
+    end;
+    for v88 in v33 do
+        v88.Visible = true;
+    end;
+    v52();
+    l_ReplicatedStorage_0.Client.Gui.Utils.Notification:SetAttribute("Tutorial", false);
+end);
+v30.StageChanged:Connect(function(v89) --[[ Line: 369 ]]
+    -- upvalues: v36 (ref), l_RunService_0 (copy), v6 (copy), l_LocalPlayer_0 (copy), v37 (ref), v30 (copy), v34 (ref), v47 (ref), v35 (copy), v62 (copy), v18 (copy), v33 (copy), v52 (copy), l_ReplicatedStorage_0 (copy)
+    if not v36 then
+        local v90 = 0;
+        do
+            local l_v90_0 = v90;
+            v36 = l_RunService_0.Heartbeat:Connect(function() --[[ Line: 372 ]]
+                -- upvalues: v6 (ref), l_LocalPlayer_0 (ref), v37 (ref), l_v90_0 (ref), v30 (ref), v34 (ref), v47 (ref), v35 (ref), v62 (ref), v18 (ref)
+                local l_v6_RootPart_0 = v6:GetRootPart(l_LocalPlayer_0);
+                if not l_v6_RootPart_0 then
+                    return;
+                else
+                    if v37 == "tutorial-4" and os.clock() - l_v90_0 > 0.1 then
+                        local v93 = 1e999;
+                        local v94 = nil;
+                        for _, v96 in v30._activePickups do
+                            local l_Position_0 = v96:GetPivot().Position;
+                            local l_Magnitude_0 = (l_Position_0 - l_v6_RootPart_0.Position).Magnitude;
+                            if l_Magnitude_0 < v93 then
+                                v93 = l_Magnitude_0;
+                                v94 = v96;
+                                v34 = l_Position_0;
+                            end;
+                        end;
+                        if v34 and v93 > 8 then
+                            v47(v94);
+                            v35.Parent = workspace.Rendered.Generic;
+                        else
+                            v47();
+                        end;
+                        v62();
+                        l_v90_0 = os.clock();
+                    end;
+                    if v37 == "tutorial-10" and v34 and os.clock() - l_v90_0 > 0.1 and (v34 - l_v6_RootPart_0.Position).Magnitude < 35 then
+                        v34 = nil;
+                        v35.Parent = nil;
+                    end;
+                    if not v34 then
+                        return;
+                    else
+                        local v99 = -math.abs((math.sin(os.clock() * 3))) + v35.Size.X;
+                        if (l_v6_RootPart_0.Position - v34).Magnitude <= 18 then
+                            v35:PivotTo(CFrame.new(v34) * CFrame.Angles(0, 0, -1.5707963267948966) * CFrame.new(v99, 0, 0) * CFrame.Angles(-v18(v34, l_v6_RootPart_0.Position) + 1.5707963267948966, 0, 0) + Vector3.new(0, 8.5 + v35.Size.X - (v37 == "tutorial-6" and 100 or 0), 0));
+                            return;
+                        else
+                            v35:PivotTo(CFrame.new(l_v6_RootPart_0.Position, v34) * CFrame.Angles(0, 1.5707963267948966, 0) * CFrame.new(v99, 0, 0));
+                            return;
+                        end;
+                    end;
+                end;
+            end);
+        end;
+    end;
+    for v100, v101 in v33 do
+        v100.Visible = v101 <= v89;
+    end;
+    v52();
+    l_ReplicatedStorage_0.Client.Gui.Utils.Notification:SetAttribute("Tutorial", true);
+end);
+v12:BindOnOpened("any", v62);
+v12:BindOnClosed("any", v62);
+l_ScreenGui_0.Hatching:GetPropertyChangedSignal("Visible"):Connect(v62);
+v9:ConnectDataChanged({
+    "Quests", 
+    "QuestsComplted"
+}, v63);
+v9:ConnectDataChanged({
+    "TeamEquipped", 
+    "Teams", 
+    "ActivePotions", 
+    "ActiveBuffs"
+}, function(v102) --[[ Line: 444 ]]
+    -- upvalues: v30 (copy), v46 (copy), v15 (copy), v37 (ref)
+    if v30.Active then
+        v46(v102, v15:FindById(v102, v37));
+    end;
+end);
+return v30;
+

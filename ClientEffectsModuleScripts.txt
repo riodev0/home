@@ -1,0 +1,3804 @@
+Module Script: Atom
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local v1 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+local function v6(v2, v3) --[[ Line: 12 ]] --[[ Name: draw ]]
+    local l_Magnitude_0 = (v2 - v3).Magnitude;
+    local l_Part_0 = Instance.new("Part");
+    l_Part_0.Anchored = true;
+    l_Part_0.CanCollide = false;
+    l_Part_0.CastShadow = false;
+    l_Part_0.Material = Enum.Material.Neon;
+    l_Part_0.Size = Vector3.new(0.2, 0.2, l_Magnitude_0);
+    l_Part_0.CFrame = CFrame.new(v2:Lerp(v3, 0.5), v3);
+    return l_Part_0;
+end;
+local function v16(v7, v8, v9, v10) --[[ Line: 25 ]] --[[ Name: drawOrbit ]]
+    -- upvalues: v6 (copy)
+    local v11 = nil;
+    local l_Model_0 = Instance.new("Model");
+    for v13 = 1, 16 do
+        local v14 = 0.4188790204786391 * v13;
+        local v15 = v7 * CFrame.Angles(math.rad(v8), 0, 0) * CFrame.new(math.sin(v14) * v9, 0, math.cos(v14) * v10);
+        if v11 then
+            v6(v11, v15.Position).Parent = l_Model_0;
+        end;
+        v11 = v15.Position;
+    end;
+    return l_Model_0;
+end;
+return function(v17, v18) --[[ Line: 49 ]] --[[ Name: Animator ]]
+    -- upvalues: v1 (copy), v16 (copy)
+    local v19 = v1.new();
+    local l_Model_1 = Instance.new("Model");
+    l_Model_1.Name = "Atom";
+    l_Model_1.Parent = workspace;
+    v19:Add(l_Model_1);
+    local l_Part_1 = Instance.new("Part");
+    l_Part_1.Shape = Enum.PartType.Ball;
+    l_Part_1.CastShadow = false;
+    l_Part_1.Anchored = true;
+    l_Part_1.CanCollide = false;
+    l_Part_1.Material = Enum.Material.Neon;
+    l_Part_1.Size = Vector3.new(2, 2, 2, 0);
+    l_Part_1.CFrame = v17;
+    l_Part_1.Parent = l_Model_1;
+    v19:Add(l_Part_1);
+    local v22 = {};
+    local v23 = {
+        {
+            Angle = 90, 
+            X = 3.5, 
+            Y = 3.5
+        }, 
+        {
+            Angle = 35, 
+            X = 3.5, 
+            Y = 3.5
+        }, 
+        {
+            Angle = -35, 
+            X = 3.5, 
+            Y = 3.5
+        }
+    };
+    for v24, v25 in v23 do
+        local v26 = v16(v17, v25.Angle, v25.X, v25.Y);
+        v26.Parent = l_Model_1;
+        v19:Add(v26);
+        for _, v28 in v26:GetChildren() do
+            if v28:IsA("BasePart") then
+                v28.Color = v18;
+            end;
+        end;
+        local v29 = l_Part_1:Clone();
+        v29.Size = Vector3.new(1, 1, 1, 0);
+        v29.Parent = l_Model_1;
+        v19:Add(v29);
+        v22[v24] = {
+            Visual = v29, 
+            Direction = v25.Angle > 0 and 1 or -1, 
+            Offset = v24 * 1423
+        };
+    end;
+    local v30 = 0;
+    return {
+        update = function(v31) --[[ Line: 104 ]] --[[ Name: update ]]
+            -- upvalues: v30 (ref), v23 (copy), v22 (copy), v17 (copy), l_Model_1 (copy)
+            local v32 = CFrame.Angles(0, math.rad(v30 * 2), 0);
+            for v33, v34 in v23 do
+                local v35 = v22[v33];
+                local v36 = -math.rad((v30 + v35.Offset) * 10);
+                local v37 = v17 * v32 * CFrame.Angles(math.rad(v34.Angle), 0, 0) * CFrame.new(math.sin(v36) * v34.X, 0, math.cos(v36) * v34.Y);
+                v35.Visual.CFrame = v37 * CFrame.Angles(0, v36, 0);
+            end;
+            l_Model_1:PivotTo(v17 * v32 + Vector3.new(0, math.sin(v30 / 5) / 2, 0));
+            v30 = v30 + v31 * 12;
+        end, 
+        cleanup = function() --[[ Line: 123 ]] --[[ Name: cleanup ]]
+            -- upvalues: v22 (copy), v23 (copy), v19 (copy)
+            table.clear(v22);
+            table.clear(v23);
+            v19:Cleanup();
+        end
+    };
+end;
+ModuleScript: Enchanter
+
+local _ = game:GetService("ReplicatedStorage");
+local l_Enchanter_0 = workspace.Worlds["The Overworld"].Islands["The Void"].Island.Enchanter;
+l_Enchanter_0.Parent = nil;
+return function(v2) --[[ Line: 13 ]] --[[ Name: Animator ]]
+    -- upvalues: l_Enchanter_0 (copy)
+    local v3 = l_Enchanter_0:Clone();
+    v3:PivotTo(v2);
+    v3.Parent = workspace.Rendered.Generic;
+    local l_CFrame_0 = v3.Hexagon.CFrame;
+    local l_CFrame_1 = v3.Circle.CFrame;
+    local v6 = 0;
+    return {
+        update = function(v7) --[[ Line: 22 ]] --[[ Name: update ]]
+            -- upvalues: v3 (copy), l_CFrame_0 (copy), v6 (ref), l_CFrame_1 (copy)
+            v3.Hexagon.CFrame = l_CFrame_0 * CFrame.Angles(math.rad(v6 * 90), math.rad(v6 * -20), (math.rad(v6 * 45)));
+            v3.Circle.CFrame = l_CFrame_1 * CFrame.Angles(0, math.rad(-v6 * 90), 0);
+            v6 = v6 + v7;
+        end, 
+        cleanup = function() --[[ Line: 28 ]] --[[ Name: cleanup ]]
+            -- upvalues: v3 (copy)
+            v3:Destroy();
+        end
+    };
+end;
+ModuleScript: Example
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local v1 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+return function(_) --[[ Line: 13 ]] --[[ Name: Animator ]]
+    -- upvalues: v1 (copy)
+    local _ = v1.new();
+    local v4 = 0;
+    return {
+        update = function(v5) --[[ Line: 17 ]] --[[ Name: update ]]
+            -- upvalues: v4 (ref)
+            v4 = v4 + v5 * 12;
+        end, 
+        cleanup = function() --[[ Line: 22 ]] --[[ Name: cleanup ]]
+
+        end
+    };
+end;
+ModuleScript Fireworks
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_TweenService_0 = game:GetService("TweenService");
+local v2 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v3 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.EmitParticleAtPosition);
+local v4 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.GetPositionOnArc);
+local v5 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.WorldEmitter);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.SequenceUtil);
+local v7 = Random.new();
+local v8 = {};
+local v9 = TweenInfo.new(0.5, Enum.EasingStyle.Circular);
+local v10 = TweenInfo.new(0.5);
+local function v25(v11, v12) --[[ Line: 23 ]] --[[ Name: Fireworks ]]
+    -- upvalues: v2 (copy), v7 (copy), v8 (copy), l_ReplicatedStorage_0 (copy), v4 (copy), l_TweenService_0 (copy), v9 (copy), v3 (copy), v6 (copy), v10 (copy)
+    v2("Fireworks", v11);
+    for _ = 1, v12 do
+        local l_NumberValue_0 = Instance.new("NumberValue");
+        local v15 = v7:NextNumber() * 3.141592653589793 * 2;
+        local v16 = v7:NextNumber() * 3.141592653589793 * 2;
+        local v17 = v11 + Vector3.new(math.sin(v16) * 3, 0, math.cos(v16) * 3);
+        local v18 = v17 + Vector3.new(math.sin(v15) * v7:NextNumber(0, 3), v7:NextNumber(6, 9), math.cos(v15) * v7:NextNumber(0, 3));
+        local v19 = v8[v7:NextInteger(1, #v8)];
+        local v20 = Color3.fromRGB(255, 255, 255);
+        if v19.Emitter._template:IsA("BasePart") then
+            v20 = v19.Emitter._template.Color;
+        end;
+        local v21 = l_ReplicatedStorage_0.Assets.Particles.Blue:Clone();
+        v21.Color = v20;
+        v21.Trail.LightEmission = 0.25;
+        v21.Trail.Color = ColorSequence.new(v20);
+        v21.Trail.Enabled = false;
+        v21.Anchored = true;
+        v21.CanCollide = false;
+        v21.Parent = workspace.Rendered.Generic;
+        local function v22() --[[ Line: 53 ]] --[[ Name: update ]]
+            -- upvalues: v21 (copy), v4 (ref), v17 (copy), v18 (copy), l_NumberValue_0 (copy)
+            v21.Position = v4(v17, v18, 1.5, l_NumberValue_0.Value);
+        end;
+        v21.Position = v4(v17, v18, 1.5, l_NumberValue_0.Value);
+        l_NumberValue_0:GetPropertyChangedSignal("Value"):Connect(v22);
+        l_TweenService_0:Create(l_NumberValue_0, v9, {
+            Value = 1
+        }):Play();
+        task.defer(function() --[[ Line: 61 ]]
+            -- upvalues: v21 (copy)
+            v21.Trail.Enabled = true;
+        end);
+        task.delay(v9.Time, function() --[[ Line: 65 ]]
+            -- upvalues: v19 (copy), v21 (copy), v3 (ref), v6 (ref), l_TweenService_0 (ref), v10 (ref), l_NumberValue_0 (copy)
+            v19.Emitter.Origin = CFrame.new(v21.Position) * CFrame.Angles(1.5707963267948966, 0, 0);
+            v19.Emitter:Emit(10);
+            v3(v21.Position, v19.Wave, 1);
+            local l_NumberValue_1 = Instance.new("NumberValue");
+            local l_Transparency_0 = v21.Trail.Transparency;
+            l_NumberValue_1:GetPropertyChangedSignal("Value"):Connect(function() --[[ Line: 73 ]]
+                -- upvalues: v21 (ref), l_NumberValue_1 (copy), v6 (ref), l_Transparency_0 (copy)
+                v21.Transparency = l_NumberValue_1.Value;
+                v21.Trail.Transparency = v6.multiplyTransparencySequence(l_Transparency_0, l_NumberValue_1.Value);
+            end);
+            l_TweenService_0:Create(l_NumberValue_1, v10, {
+                Value = 1
+            }):Play();
+            task.wait(v10.Time);
+            l_NumberValue_0:Destroy();
+            l_NumberValue_1:Destroy();
+            v21:Destroy();
+        end);
+        task.wait(v7:NextNumber(0.2, 0.5));
+    end;
+end;
+for v26 = 1, 7 do
+    local v27 = Color3.fromHSV((v26 - 1) / 6, 0.9, 1);
+    local v28 = l_ReplicatedStorage_0.Assets.Effects.Sphere:Clone();
+    v28.Color = v27;
+    v28.Trail.Color = ColorSequence.new(v27);
+    v28.Trail.LightEmission = 0.25;
+    local v29 = v5.new(v28);
+    v29.SpreadAngle = 80;
+    v29.Rate = 0;
+    v29.GravityMultiplier = NumberRange.new(0.2, 0.25);
+    v29.Speed = NumberRange.new(22.5, 25);
+    v29.Transparency = NumberSequence.new(0, 1);
+    v29.Lifetime = NumberRange.new(0.5, 0.75);
+    local v30 = l_ReplicatedStorage_0.Assets.Particles.FireworkWave:Clone();
+    v30.Color = ColorSequence.new(v27);
+    table.insert(v8, {
+        Emitter = v29, 
+        Wave = v30
+    });
+end;
+return v25;
+ModuleScript: Splash
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local v1 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.WorldEmitter);
+local v2 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.EmitParticleAtPosition);
+local v3 = v1.new(l_ReplicatedStorage_0.Assets.Particles.Gold);
+v3.Rate = 0;
+v3.Radius = NumberRange.new(0, 6.5);
+v3.Lifetime = NumberRange.new(1.5, 2.5);
+v3.GravityMultiplier = NumberRange.new(0);
+v3.Speed = NumberRange.new(5, 10);
+v3.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0), 
+    NumberSequenceKeypoint.new(0.5, 0), 
+    NumberSequenceKeypoint.new(1, 1)
+});
+return function(v4) --[[ Line: 21 ]] --[[ Name: Splash ]]
+    -- upvalues: v3 (copy), l_ReplicatedStorage_0 (copy), v2 (copy)
+    local l_v3_0 = v3;
+    l_v3_0.Origin = CFrame.new(v4) * CFrame.Angles(1.5707963267948966, 0, 0);
+    l_v3_0:Emit(10);
+    local l_SplashGold_0 = l_ReplicatedStorage_0.Assets.Particles.SplashGold;
+    v2(v4, l_SplashGold_0, 40);
+end;
+ModuleScript: Bubble
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_HttpService_0 = game:GetService("HttpService");
+local l_RunService_0 = game:GetService("RunService");
+local l_Players_0 = game:GetService("Players");
+local l_TweenService_0 = game:GetService("TweenService");
+local v5 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.String.FormatSuffix);
+local v6 = require(l_ReplicatedStorage_0.Shared.Data.Flavors);
+local v7 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.EmitParticleAtPosition);
+local v9 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v10 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local v11 = require(l_ReplicatedStorage_0.Client.Effects.SetObjectStyle);
+local v12 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Curve);
+local _ = require(l_ReplicatedStorage_0.Shared.Utils.WorldUtil);
+local l_Bubble_0 = l_ReplicatedStorage_0.Assets.Bubble;
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local l_CurrentCamera_0 = workspace.CurrentCamera;
+local v17 = TweenInfo.new(0.35, Enum.EasingStyle.Sine);
+local v18 = v12.new():Add({
+    Length = 5, 
+    Value = 0.5, 
+    Style = Enum.EasingStyle.Sine; 
+    Enum.EasingDirection.In
+}):Add({
+    Length = 45, 
+    Value = 1.25, 
+    Style = Enum.EasingStyle.Sine; 
+    Enum.EasingDirection.Out
+}):Add({
+    Length = 500, 
+    Value = 3.5, 
+    Style = Enum.EasingStyle.Sine; 
+    Enum.EasingDirection.Out
+}):Add({
+    Length = 15000, 
+    Value = 7.5, 
+    Style = Enum.EasingStyle.Sine; 
+    Enum.EasingDirection.Out
+}):Add({
+    Length = 250000, 
+    Value = 20, 
+    Style = Enum.EasingStyle.Sine; 
+    Enum.EasingDirection.Out
+});
+local v19 = {
+    _bubbles = {}, 
+    Enabled = true, 
+    Faded = false
+};
+local function _(v20, v21, v22) --[[ Line: 61 ]] --[[ Name: lerp ]]
+    return v20 + (v21 - v20) * v22;
+end;
+local function v25(v24) --[[ Line: 66 ]] --[[ Name: hookPlayer ]]
+    -- upvalues: v19 (copy)
+    v24:GetAttributeChangedSignal("Bubble"):Connect(function() --[[ Line: 67 ]]
+        -- upvalues: v19 (ref), v24 (copy)
+        v19:Update(v24);
+    end);
+    v19:Create(v24);
+end;
+v19.Update = function(v26, v27, v28) --[[ Line: 74 ]] --[[ Name: Update ]]
+    -- upvalues: l_HttpService_0 (copy), v10 (copy), v18 (copy), l_TweenService_0 (copy), v17 (copy), v5 (copy), v6 (copy), v11 (copy)
+    local v29 = v26._bubbles[v27];
+    if not v29 then
+        return;
+    else
+        local l_v27_Attribute_0 = v27:GetAttribute("Bubble");
+        if not l_v27_Attribute_0 then
+            return;
+        else
+            local v31 = l_HttpService_0:JSONDecode(l_v27_Attribute_0);
+            if not v31 then
+                return;
+            else
+                local v32 = v10:Get();
+                local v33 = false;
+                if v32 then
+                    v33 = v32.Settings["Hide Bubbles"];
+                end;
+                if not v29.Visible or v31.Amount == 0 or v33 then
+                    v29.Model.Parent = nil;
+                else
+                    v29.Model.Parent = workspace.Rendered.Bubbles;
+                end;
+                local v34 = Vector3.new(1, 1, 1, 0) * (v18:Get(v31.Amount) + 0.15);
+                if v28 or v29.Amount > v31.Amount then
+                    l_TweenService_0:Create(v29.Solver, TweenInfo.new(0.01), {
+                        Value = v34
+                    }):Play();
+                else
+                    l_TweenService_0:Create(v29.Solver, v17, {
+                        Value = v34
+                    }):Play();
+                end;
+                for _, v36 in v29.Model:GetDescendants() do
+                    if v36:IsA("TextLabel") then
+                        v36.Text = v5(v31.Amount);
+                        v36.Visible = v31.Amount >= 100;
+                    end;
+                end;
+                local v37 = v6[v31.Flavor];
+                local v38 = {
+                    Type = typeof(v37.Color) == "ColorSequence" and "Cycle" or "Static", 
+                    Color = v37.Color, 
+                    Material = v37.Material, 
+                    Texture = v37.Texture
+                };
+                v11(v29.Model, v38);
+                v29.Amount = v31.Amount;
+                return;
+            end;
+        end;
+    end;
+end;
+v19.Create = function(v39, v40) --[[ Line: 132 ]] --[[ Name: Create ]]
+    -- upvalues: l_Bubble_0 (copy)
+    if v39._bubbles[v40] then
+        return warn((("%* already has an existing bubble"):format(v40.Name)));
+    else
+        local l_Vector3Value_0 = Instance.new("Vector3Value");
+        local v42 = l_Bubble_0:Clone();
+        l_Vector3Value_0:GetPropertyChangedSignal("Value"):Connect(function() --[[ Line: 139 ]]
+            -- upvalues: v42 (copy), l_Vector3Value_0 (copy)
+            v42.Size = l_Vector3Value_0.Value;
+        end);
+        v39._bubbles[v40] = {
+            Amount = 0, 
+            Model = v42, 
+            Visible = v39.Enabled, 
+            Solver = l_Vector3Value_0
+        };
+        v39:Update(v40);
+        return;
+    end;
+end;
+v19.Remove = function(v43, v44) --[[ Line: 152 ]] --[[ Name: Remove ]]
+    -- upvalues: v11 (copy)
+    local v45 = v43._bubbles[v44];
+    if not v45 then
+        return;
+    else
+        v45.Model:Destroy();
+        v45.Solver:Destroy();
+        v11(v45.Model, {
+            Type = "None"
+        });
+        v43._bubbles[v44] = nil;
+        return;
+    end;
+end;
+v19.SetVisible = function(v46, v47) --[[ Line: 164 ]] --[[ Name: SetVisible ]]
+    for v48, v49 in v46._bubbles do
+        v49.Visible = v47;
+        v46:Update(v48);
+    end;
+    v46.Enabled = v47;
+end;
+for _, v51 in l_Players_0:GetPlayers() do
+    v51:GetAttributeChangedSignal("Bubble"):Connect(function() --[[ Line: 67 ]]
+        -- upvalues: v19 (copy), v51 (copy)
+        v19:Update(v51);
+    end);
+    v19:Create(v51);
+end;
+v7.Event("BubbleSold"):Connect(function(v52, _) --[[ Line: 178 ]]
+    -- upvalues: l_Players_0 (copy), v19 (copy), l_LocalPlayer_0 (copy), l_ReplicatedStorage_0 (copy), v9 (copy)
+    local l_l_Players_0_FirstChild_0 = l_Players_0:FindFirstChild(v52);
+    if not l_l_Players_0_FirstChild_0 then
+        return;
+    else
+        local v55 = v19._bubbles[l_l_Players_0_FirstChild_0];
+        if not v55 then
+            return;
+        else
+            local v56 = l_LocalPlayer_0.Character and l_LocalPlayer_0.Character.PrimaryPart;
+            if not v56 then
+                return;
+            elseif (v56.Position - v55.Model.Position).Magnitude > 100 then
+                return;
+            else
+                local l_Attachment_0 = Instance.new("Attachment");
+                l_Attachment_0.WorldPosition = v55.Model.Position;
+                l_Attachment_0.Parent = workspace.Terrain;
+                local v58 = l_ReplicatedStorage_0.Assets.Particles.Pop:Clone();
+                v58.Enabled = false;
+                v58.Parent = l_Attachment_0;
+                v58:Emit(1);
+                v9("Pop", v55.Model.Position);
+                task.delay(v58.Lifetime.Max, function() --[[ Line: 205 ]]
+                    -- upvalues: l_Attachment_0 (copy)
+                    l_Attachment_0:Destroy();
+                end);
+                return;
+            end;
+        end;
+    end;
+end);
+l_Players_0.PlayerAdded:Connect(v25);
+l_Players_0.PlayerRemoving:Connect(function(v59) --[[ Line: 211 ]]
+    -- upvalues: v19 (copy)
+    v19:Remove(v59);
+end);
+v10:ConnectDataChanged("Settings", function() --[[ Line: 216 ]]
+    -- upvalues: v19 (copy)
+    for v60, _ in v19._bubbles do
+        v19:Update(v60);
+    end;
+end);
+l_RunService_0.Heartbeat:Connect(function() --[[ Line: 223 ]]
+    -- upvalues: l_CurrentCamera_0 (copy), v19 (copy)
+    local l_Position_0 = l_CurrentCamera_0.CFrame.Position;
+    local v63 = l_CurrentCamera_0.Focus.Position - l_Position_0;
+    local v64 = v63:Dot(v63) < 25;
+    local v65 = nil;
+    local v66 = nil;
+    if not v64 then
+        v65 = v63.magnitude;
+        v66 = v63 / v65;
+    end;
+    for v67, v68 in v19._bubbles do
+        local v69 = v67.Character and v67.Character:FindFirstChild("Head");
+        if v69 then
+            local l_Faded_0 = v19.Faded;
+            if not l_Faded_0 then
+                if v64 then
+                    l_Faded_0 = true;
+                else
+                    local v71 = v68.Model.Size.X * 0.5;
+                    if v71 > 2.5 then
+                        local v72 = l_Position_0 - v68.Model.Position;
+                        local v73 = v72:Dot(v66);
+                        local v74 = v72:Dot(v72) - v71 * v71;
+                        if v74 > 0 and v73 > 0 then
+                            l_Faded_0 = false;
+                        else
+                            local v75 = v73 * v73 - v74;
+                            l_Faded_0 = v75 >= 0 and v65 >= -v73 - math.sqrt(v75);
+                        end;
+                    end;
+                end;
+            end;
+            if not v19.Enabled and v68.Visible then
+                v68.Visible = false;
+                v19:Update(v67);
+            end;
+            if v68.Visible then
+                for _, v77 in v68.Model:GetChildren() do
+                    if v77:IsA("Texture") then
+                        local l_Transparency_0 = v77.Transparency;
+                        v77.Transparency = l_Transparency_0 + ((l_Faded_0 and 0.96 or 0.25) - l_Transparency_0) * 0.16;
+                    elseif v77:IsA("SurfaceGui") then
+                        local l_TextLabel_0 = v77:FindFirstChildOfClass("TextLabel");
+                        if l_TextLabel_0 then
+                            local l_TextTransparency_0 = l_TextLabel_0.TextTransparency;
+                            l_TextLabel_0.TextTransparency = l_TextTransparency_0 + ((l_Faded_0 and 0.95 or 0) - l_TextTransparency_0) * 0.16;
+                            l_TextTransparency_0 = l_TextLabel_0.TextStrokeTransparency;
+                            l_TextLabel_0.TextStrokeTransparency = l_TextTransparency_0 + ((l_Faded_0 and 0.96 or 0) - l_TextTransparency_0) * 0.16;
+                        end;
+                    end;
+                end;
+                local l_Model_0 = v68.Model;
+                local l_Transparency_1 = v68.Model.Transparency;
+                l_Model_0.Transparency = l_Transparency_1 + ((l_Faded_0 and 0.96 or 0.3) - l_Transparency_1) * 0.15;
+                v68.Model:PivotTo(v69.CFrame * CFrame.new(0, -0.1, -(v69.Size.Z + v68.Model.Size.Z) / 2));
+            end;
+        end;
+    end;
+end);
+return v19;
+ModuleScript: Build
+-- Thanks For Angelus Decompiles https://discord.gg/CYXme7yEG9
+
+-- Bytecode (Base64):
+-- BgM+C0dldENoaWxkcmVuCEJhc2VQYXJ0A0lzQQxUcmFuc3BhcmVuY3kKQ2FuQ29sbGlkZQZVcGRhdGUIcG9zaXRpb24IUG9zaXRpb24JTWFnbml0dWRlBkNGcmFtZQZDcmVhdGUEUGxheQR0YXNrBHdhaXQEVGltZRBGaWxsVHJhbnNwYXJlbmN5CVR3ZWVuSW5mbwNuZXcLRWFzaW5nU3R5bGUERW51bQ9FYXNpbmdEaXJlY3Rpb24CSW4GRW5hYmxlCkNhbWVyYVR5cGUGQ3VzdG9tB0Rpc2FibGUKU2NyaXB0YWJsZQhJbnN0YW5jZQlIaWdobGlnaHQTT3V0bGluZVRyYW5zcGFyZW5jeQZDb2xvcjMJRmlsbENvbG9yEkhpZ2hsaWdodERlcHRoTW9kZQhPY2NsdWRlZAlEZXB0aE1vZGUGUGFyZW50BGZyb20GZmlsdGVyBHNvcnQFdGFibGUFZGVsYXkHQW5pbWF0ZQRnYW1lEVJlcGxpY2F0ZWRTdG9yYWdlCkdldFNlcnZpY2UMVHdlZW5TZXJ2aWNlB3JlcXVpcmUGQ2xpZW50A0d1aQVVdGlscw5QbGF5TG9jYWxTb3VuZA5QbGF5ZXJDb250cm9scwZTaGFyZWQJRnJhbWV3b3JrCVV0aWxpdGllcwVUYWJsZQVBcnJheQl3b3Jrc3BhY2UNQ3VycmVudENhbWVyYQRTaW5lBEJhY2sFUXVpbnQABwoCAAAABwQAAAUCBwEUvAIAaAAAAACfAgIEZAINAG8JAQC8Bwb+AgAAAJ8HAwIOBwgADgECAIwHAABlAAEAjAcBADAHBtkDAAAAMAEG0wQAAABuAvL/AgAAAIIAAQAFAwEDAgMDAwQDBQASBgEYAAAAAAEAAAAAAQAAAAAAAQD9AAYTAAAAAAAAAAAAAAGCAAEAAAAbBwEYAB0AAAAABAEAAAAABW8DAAC8AQD+AQAAAJ8BAwCCAQAAAgMCAwMALAABGAAAAAAALQAAAAAIAgEAAAcEAAAFAgcHFU0EADsAAAAA+wYAAE0FBjsAAAAAJgMEBU0CA6oBAAAATQUBOwAAAAD7BwAATQYHOwAAAAAmBAUGTQMEqgEAAAC3AgIAAwAAAKkEAAGpBAEAggQCAAIDCAMJAC8AARgAAAAAAAAAAAEAAAAAAAAAAgAAAAAwAAAAAAwACQAABwAAAQgHDQFx+wAAAMYBAADGAgAAZAAsAE0FBIUAAAAAjAYBADAGBNkBAAAAqQYBADAGBNMCAAAAbwcDACYGBQcwBgSFAAAAAPsGAQBSCAQA+wkCAOIKBAAwBQqFAAAAALwGBpYFAAAAnwYFArwGBu4GAAAAnwYCAfsGAQBSCAQA+wkDAOIKBwCMCwAAMAsK2QEAAAC8BgaWBQAAAJ8GBQK8BgbuBgAAAJ8GAgGkBgoAACSAgPsJAgBNCAlKDAAAAD4HCAufBgIBbgDT/wIAAACkAAoAACSAgG8BDQCfAAIB+wABAPsCBAD7AwUA4gQPAG8FDQAwBQQWDgAAALwAAJYFAAAAnwAFArwAAO4GAAAAnwACAaQACgAAJICA+wMFAE0CA0oMAAAAlQECEJ8AAgH7AAEA+wIEAKQDEwAASBCB+wUFAE0EBUoMAAAA+wYFAE0FBmkUAAAApAYYABdYUMGfAwQC4gQPAIwFAQAwBQQWDgAAALwAAJYFAAAAnwAFArwAAO4GAAAAnwACAaQACgAAJICAbwEZAJ8AAgH7AAYAvAAAxBoAAACfAAIB+wAHAKQBHQAcbFDBMAEAKhsAAAD7AAgAnwABAYIAAQAeAwoDBAMFBwAAAAAAACBBAAAAAAAAAAAFAQADCwMMBQEBAw0DDgQAJICAAgAAAAAAABJAAw8CAAAAAAAA0D8DEAUBDgKamZmZmZm5PwMRAxIEAEgQgQMTAxQDFQMWBBdYUMECAAAAAAAA4D8DFwMYAxkEHGxQwQA3AAEYAAAAAAEAAQAAAQAAAQAAAAIAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAACAAAAAAAA9wAMAAAAAgAAAAAAAAAAAAAAAAEAAAAAAAACAAAAAAAAAAAAAAAAAAEAAP8AAAIAAAIAAAACAAAAAQAAAAADAAE4AAAAAAgDCAAACAUAAAUDBwcFUfsDAAC8AwNfAAAAAJ8DAgH7AwEApAQEAAMIEMAwBAMqAgAAAPsDAgD7BQEA+wYDAOIHBgAwAQeFBQAAALwDA5YHAAAAnwMFArwDA+4IAAAAnwMCAaQDCwAAKJCAbwQMAJ8DAgKMBAEAMAQDog0AAACMBAEAMAQDFg4AAACkBBAAACjwgIwFAQCMBgEAjAcBAJ8EBAIwBAOAEQAAAKQEFAATSBDAMAQDMxUAAAAwAAMkFgAAAPsFBABNBAXbFwAAALwFAGgYAAAAnwUCAJ8EAALABhkAvAQE+xoAAACfBAMC2QYBABIAAQC8BATqGwAAAJ8EAwK8BARLHAAAAJ8EAgKkBR8AAHjQgfsHAwBNBgdKIAAAANkHAgASAAQAEgICABICBQASAgYAEgADABICBwASAgAAEgIBABIAAgCfBQMBggABACEDGgMUAxgDGwQDCBDAAwoFAQUDCwMMAxwDEgQAKJCAAx0DHgMQAx8EACjwgAMgAyEDIgQTSBDAAyMDJAMlAwEGAgMmAycDKAMNAykEAHjQgQMPAwIDBB8qARgAAAAAAQAAAAABAAAAAAAAAAAAAAACAAAAAQAAAQAAAQAAAAAAAAABAAAAAQACAAAAAAAAAQAAAAMAAAAABgAAAgAAAAAAAAAAAAAAAAAAAB4gAAAAAA0AAAECAFqjAAAApAABAAAAAEBvAgIAvAAAFgMAAACfAAMCpAEBAAAAAEBvAwQAvAEBFgMAAACfAQMCpAIGAAAAUEBNBgBNBwAAAE0FBh8IAAAATQQFoQkAAABNAwQsCgAAAJ8CAgKkAwYAAABQQE0FAE0HAAAATQQFWQsAAACfAwICpAQGAAAAUEBNCQASDAAAAE0ICRwNAAAATQcItQ4AAABNBgdrDwAAAE0FBv0QAAAAnwQCAqQGEgAAABBBTQUGSBMAAACkBhYAAFRAgYwHAgCkCBoAGWBwwZ8GAwKkBxYAAFRAgW8IGwCkCR0AHGBwwZ8HAwKkCBYAAFRAgW8JHgCkCiAAH2BwwZ8IAwKkCRYAAFRAgW8KIQCkCxoAGWBwwZ8JAwL/CgIAAAAAAMALIgAwCwomIwAAAMALJADADCUAEgADABIABQASAAEAEgAGABIABAASAAcAEgAIABIACQAwDArCJgAAAIIKAgAnAysEAAAAQAMsAy0DLgMvBAAAUEADMAMxAzIDMwM0AzUDNgM3AzgDOQM6BAAAEEEDOwMRAxIEAFRAgQMUAxMDPAQZYHDBAgAAAAAAAOA/Az0EHGBwwQKamZmZmZnZPwM+BB9gcMECZmZmZmZm1j8GAAMGBgEGBQMqAwABBQEAARgAAAAAAAAAAQAAAAAAAgAAAAAAAAAAAAABAAAAAAAAAQAAAAAAAAAAAAAAAAMAAAACAAAAAAABAAAAAAABAAAAAAABAAAAAAACAAIAAAkEAAAAAAAAAAAAADgBAAAAAAYO1GfZw9W6RjwQDU0AXJck80j+XVp+dDS5EMEfQP7/Tmh/QEekaviX
+
+local v1 = game:GetService("ReplicatedStorage")
+local u2 = game:GetService("TweenService")
+require(v1.Client.Gui.Utils.PlayLocalSound)
+local u3 = require(v1.Client.PlayerControls)
+local u4 = require(v1.Shared.Framework.Utilities.Table.Array)
+local u5 = workspace.CurrentCamera
+local u6 = TweenInfo.new(2, Enum.EasingStyle.Sine)
+local u7 = TweenInfo.new(0.5, Enum.EasingStyle.Back)
+local u8 = TweenInfo.new(0.4, Enum.EasingStyle.Quint)
+local u9 = TweenInfo.new(0.35, Enum.EasingStyle.Sine)
+return {
+	["Update"] = function(p10, p11) --[[Function name: Update, line 18]]
+		for _, v12 in p10:GetChildren() do
+			if v12:IsA("BasePart") then
+				v12.Transparency = p11 and 0 or 1
+				v12.CanCollide = p11
+			end
+		end
+	end,
+	["Animate"] = function(p13, u14, u15) --[[Function name: Animate, line 31]]
+        --[[
+        Upvalues:
+            [1] = u3
+            [2] = u5
+            [3] = u2
+            [4] = u6
+            [5] = u4
+            [6] = u7
+            [7] = u8
+            [8] = u9
+        --]]
+		u3:Disable()
+		u5.CameraType = Enum.CameraType.Scriptable
+		u2:Create(u5, u6, {
+			["CFrame"] = u14
+		}):Play()
+		local u16 = Instance.new("Highlight")
+		u16.OutlineTransparency = 1
+		u16.FillTransparency = 1
+		u16.FillColor = Color3.new(1, 1, 1)
+		u16.DepthMode = Enum.HighlightDepthMode.Occluded
+		u16.Parent = p13
+		local u20 = u4.from(p13:GetChildren()):filter(function(p17) --[[Anonymous function at line 44]]
+			return p17:IsA("BasePart")
+		end):sort(function(p18, p19) --[[Anonymous function at line 47]]
+            --[[
+            Upvalues:
+                [1] = u14
+            --]]
+			return (p18.Position - u14.Position).Magnitude < (p19.Position - u14.Position).Magnitude
+		end):table()
+		task.delay(u6.Time, function() --[[Anonymous function at line 55]]
+            --[[
+            Upvalues:
+                [1] = u20
+                [2] = u2
+                [3] = u7
+                [4] = u8
+                [5] = u16
+                [6] = u9
+                [7] = u3
+                [8] = u5
+                [9] = u15
+            --]]
+			for _, v21 in u20 do
+				local v22 = v21.CFrame
+				v21.Transparency = 1
+				v21.CanCollide = true
+				v21.CFrame = v22 - Vector3.new(0, 10, 0)
+				u2:Create(v21, u7, {
+					["CFrame"] = v22
+				}):Play()
+				u2:Create(v21, u8, {
+					["Transparency"] = 0
+				}):Play()
+				task.wait(u7.Time / 4.5)
+			end
+			task.wait(0.25)
+			u2:Create(u16, u9, {
+				["FillTransparency"] = 0.25
+			}):Play()
+			task.wait(u9.Time + 0.1)
+			u2:Create(u16, TweenInfo.new(u9.Time, u9.EasingStyle, Enum.EasingDirection.In), {
+				["FillTransparency"] = 1
+			}):Play()
+			task.wait(0.5)
+			u3:Enable()
+			u5.CameraType = Enum.CameraType.Custom
+			u15()
+		end)
+	end
+}
+ModuleScript: DynamicLightingModel
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local v2 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v3 = {};
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local function _() --[[ Line: 20 ]] --[[ Name: getState ]]
+    -- upvalues: l_LocalPlayer_0 (copy)
+    if game.Lighting.ClockTime <= 6 and not l_LocalPlayer_0:GetAttribute("OnIsland") then
+        return "Night";
+    else
+        return "Day";
+    end;
+end;
+local function v12(v6, v7) --[[ Line: 28 ]] --[[ Name: updateModel ]]
+    -- upvalues: v3 (copy)
+    local v8 = v3[v6];
+    if not v8 then
+        return;
+    else
+        for _, v10 in v8 do
+            local v11 = v7 == "Day" and v10.Day or v10.Night;
+            if v10.Instance:IsA("SpecialMesh") then
+                v10.Instance.VertexColor = v11;
+            elseif v10.Instance:IsA("Decal") then
+                v10.Instance.Color3 = v11;
+            end;
+        end;
+        return;
+    end;
+end;
+local function v22(v13) --[[ Line: 47 ]] --[[ Name: DynamicLightingModel ]]
+    -- upvalues: v3 (copy), v12 (copy), l_LocalPlayer_0 (copy)
+    if v3[v13] then
+        return;
+    else
+        local v14 = {};
+        local function v15() --[[ Line: 52 ]] --[[ Name: cleanup ]]
+            -- upvalues: v14 (copy), v3 (ref), v13 (copy)
+            table.clear(v14);
+            v3[v13] = nil;
+        end;
+        for _, v17 in v13:GetDescendants() do
+            if v17:IsA("SpecialMesh") or v17:IsA("Decal") then
+                local l_v17_Attribute_0 = v17:GetAttribute("Day");
+                local l_v17_Attribute_1 = v17:GetAttribute("Night");
+                if l_v17_Attribute_0 and l_v17_Attribute_1 then
+                    table.insert(v14, {
+                        Instance = v17, 
+                        Day = l_v17_Attribute_0, 
+                        Night = l_v17_Attribute_1
+                    });
+                end;
+            end;
+        end;
+        if #v14 == 0 then
+            return;
+        else
+            v3[v13] = v14;
+            v13.AncestryChanged:Connect(function(_, v21) --[[ Line: 78 ]]
+                -- upvalues: v12 (ref), v13 (copy), l_LocalPlayer_0 (ref)
+                if v21 then
+                    v12(v13, (not (game.Lighting.ClockTime <= 6) or l_LocalPlayer_0:GetAttribute("OnIsland")) and "Day" or "Night");
+                end;
+            end);
+            v12(v13, (not (game.Lighting.ClockTime <= 6) or l_LocalPlayer_0:GetAttribute("OnIsland")) and "Day" or "Night");
+            return v15;
+        end;
+    end;
+end;
+local v23 = nil;
+v2(1, function() --[[ Line: 90 ]]
+    -- upvalues: l_LocalPlayer_0 (copy), v23 (ref), v3 (copy), v12 (copy)
+    local v24 = (not (game.Lighting.ClockTime <= 6) or l_LocalPlayer_0:GetAttribute("OnIsland")) and "Day" or "Night";
+    if v23 == v24 then
+        return;
+    else
+        for v25 in v3 do
+            if v25.Parent then
+                v12(v25, v24);
+            end;
+        end;
+        v23 = v24;
+        return;
+    end;
+end);
+return v22;
+ModuleScript: HatchEgg
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_RunService_0 = game:GetService("RunService");
+local l_Players_0 = game:GetService("Players");
+local _ = game:GetService("StarterGui");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_TextService_0 = game:GetService("TextService");
+local _ = game:GetService("Stats");
+local v7 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Table.Array);
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local v9 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+local _ = require(l_ReplicatedStorage_0.Client.Framework.Utilities.UserInput);
+local v11 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Spring);
+local v12 = require(l_ReplicatedStorage_0.Shared.Utils.GetPetModel);
+local v13 = require(l_ReplicatedStorage_0.Shared.Data.Pets);
+local v14 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v15 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.GetPositionOnArc);
+local v16 = require(l_ReplicatedStorage_0.Shared.Utils.AnimateColor);
+local v17 = require(l_ReplicatedStorage_0.Client.Gui.GuiFrame);
+local v18 = require(l_ReplicatedStorage_0.Shared.Constants);
+local v19 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.String.FormatPercent);
+local v20 = require(l_ReplicatedStorage_0.Client.Gui.Tooltip);
+local v21 = require(l_ReplicatedStorage_0.Client.Activation);
+local v22 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Pool);
+local v23 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.ItemUtil);
+local v24 = require(l_ReplicatedStorage_0.Client.Gui.Utils.Shiny);
+local v25 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.SequenceUtil);
+local v26 = require(script.SecretEgg);
+local v27 = require(l_ReplicatedStorage_0.Client.Moonlite);
+local v28 = require(l_ReplicatedStorage_0.Shared.Framework.Services.CollisionGroup);
+local v29 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local v30 = require(l_ReplicatedStorage_0.Client.LowDetail);
+local v31 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v32 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.PetUtil);
+local v33 = require(l_ReplicatedStorage_0.Shared.Data.Eggs);
+local v34 = require(l_ReplicatedStorage_0.Client.PlayerControls);
+local v35 = require(l_ReplicatedStorage_0.Client.Effects.SetObjectStyle);
+local v36 = require(l_ReplicatedStorage_0.Client.Gui.ProximityPrompt);
+local v37 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.String.FormatCommas);
+local v38 = require(l_ReplicatedStorage_0.Client.Music);
+local v39 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.CharacterUtil);
+local v40 = require(l_ReplicatedStorage_0.Client.Effects.Physics);
+local v41 = require(l_ReplicatedStorage_0.Shared.Utils.GetChanceColor);
+local v42 = require(l_ReplicatedStorage_0.Client.Tutorial);
+local v43 = require(l_ReplicatedStorage_0.Client.Framework.Services.InputMode);
+local v44 = {
+	_hatching = false
+};
+local l_CurrentCamera_0 = workspace.CurrentCamera;
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local l_ScreenGui_0 = l_LocalPlayer_0.PlayerGui.ScreenGui;
+local l_Hatching_0 = l_ScreenGui_0.Hatching;
+local l_Template_0 = l_Hatching_0.Template;
+l_Template_0.Parent = nil;
+l_Hatching_0.Border.ImageTransparency = 1;
+local l_Template_1 = l_Hatching_0.Last.Template;
+l_Template_1.Parent = nil;
+local v51 = v22.new(function() --[[ Line: 67 ]]
+	-- upvalues: l_Template_1 (copy)
+	return (l_Template_1:Clone());
+end);
+local v52 = Random.new();
+local v53 = {
+	[1] = {
+		(Vector3.new(0, 0, 0.3499999940395355, 0))
+	}, 
+	[2] = {
+		Vector3.new(0.6000000238418579, 0, 0.30000001192092896, 0), 
+		(Vector3.new(-0.6000000238418579, 0, 0.30000001192092896, 0))
+	}, 
+	[3] = {
+		Vector3.new(0, 0, 0, 0), 
+		Vector3.new(-1, 0, -0.25, 0), 
+		(Vector3.new(1, 0, -0.25, 0))
+	}, 
+	[4] = {
+		Vector3.new(-0.5, -0.6000000238418579, 0, 0), 
+		Vector3.new(0.5, -0.6000000238418579, 0, 0), 
+		Vector3.new(-0.5, 0.6000000238418579, 0, 0), 
+		(Vector3.new(0.5, 0.6000000238418579, 0, 0))
+	}, 
+	[5] = {
+		Vector3.new(0, -0.550000011920929, 0, 0), 
+		Vector3.new(-1, -0.550000011920929, 0, 0), 
+		Vector3.new(1, -0.550000011920929, 0, 0), 
+		Vector3.new(0.5, 0.6499999761581421, 0, 0), 
+		(Vector3.new(-0.5, 0.6499999761581421, 0, 0))
+	}, 
+	[6] = {
+		Vector3.new(0, -0.550000011920929, 0, 0), 
+		Vector3.new(-1, -0.550000011920929, 0, 0), 
+		Vector3.new(1, -0.550000011920929, 0, 0), 
+		Vector3.new(1, 0.6499999761581421, 0, 0), 
+		Vector3.new(0, 0.6499999761581421, 0, 0), 
+		(Vector3.new(-1, 0.6499999761581421, 0, 0))
+	}
+};
+
+-- CHATGPT COOKED
+local SPACING_X, SPACING_Y = 1, 0.8
+local FIXED_COLS = 5
+local function generateGrid(n)
+	local cols = FIXED_COLS
+	local rows = math.ceil(n / cols)
+	local positions = {}
+	for i = 1, n do
+		local idx = i - 1
+		local row = math.floor(idx / cols)
+		local col = idx % cols
+		local offsetX = (col - (cols - 1) / 2) * SPACING_X
+		local offsetY = ((rows - 1) / 2 - row) * SPACING_Y
+
+		table.insert(positions, Vector3.new(offsetX, offsetY, 0))
+	end
+	return positions
+end
+
+for count = 7, 110 do
+	v53[count] = generateGrid(count)
+end
+-- CHATGPT COOKED
+
+local v54 = {
+	Bounce = TweenInfo.new(0.7, Enum.EasingStyle.Bounce), 
+	Pulse = TweenInfo.new(0.25, Enum.EasingStyle.Quint), 
+	Shake = TweenInfo.new(1, Enum.EasingStyle.Quint), 
+	Move = TweenInfo.new(0.5, Enum.EasingStyle.Quint), 
+	Slow = TweenInfo.new(0.75, Enum.EasingStyle.Sine), 
+	Vibrate = TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In), 
+	VibrateFast = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.In), 
+	Explosion = TweenInfo.new(0.5, Enum.EasingStyle.Quint), 
+	Out = TweenInfo.new(0.2, Enum.EasingStyle.Back), 
+	Grow = TweenInfo.new(0.5, Enum.EasingStyle.Back), 
+	Spin = TweenInfo.new(0.5, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut), 
+	Shine = TweenInfo.new(0.75, Enum.EasingStyle.Circular, Enum.EasingDirection.InOut)
+};
+local function v58(v55) --[[ Line: 123 ]] --[[ Name: getGrid ]]
+	-- upvalues: v53 (copy), v7 (copy)
+	local v56 = v53[v55];
+	assert(v56 ~= nil, (("%* does not have valid matrix"):format(v55)));
+	return v7.from(v56):map(function(v57) --[[ Line: 127 ]]
+		return v57 * 3;
+	end):table();
+end;
+local function v63(v59) --[[ Line: 134 ]] --[[ Name: getTweens ]]
+	-- upvalues: v54 (copy)
+	local v60 = {};
+	for v61, v62 in v54 do
+		v60[v61] = TweenInfo.new(v62.Time / (v59 or 1), v62.EasingStyle, v62.EasingDirection);
+	end;
+	return v60;
+end;
+local function v72(v64, v65, v66, v67) --[[ Line: 144 ]] --[[ Name: emitParticle ]]
+	-- upvalues: v30 (copy), l_ReplicatedStorage_0 (copy), v25 (copy)
+	if v30.Enabled then
+		return;
+	else
+		local l_FirstChild_0 = l_ReplicatedStorage_0.Assets.Particles:FindFirstChild(v65);
+		if not l_FirstChild_0 then
+			return;
+		else
+			local v69 = l_FirstChild_0:Clone();
+			v69.Enabled = false;
+			v69.LockedToPart = true;
+			v69.Parent = v64;
+			if v67 then
+				v69.Size = v25.transformNumberSequence(v69.Size, function(v70, _) --[[ Line: 163 ]]
+					-- upvalues: v67 (copy)
+					return NumberSequenceKeypoint.new(v70.Time, v70.Value * v67);
+				end);
+			end;
+			v69:Emit(v66);
+			task.delay(l_FirstChild_0.Lifetime.Max, function() --[[ Line: 170 ]]
+				-- upvalues: v69 (copy)
+				v69:Destroy();
+			end);
+			return;
+		end;
+	end;
+end;
+local function v84(v73) --[[ Line: 176 ]] --[[ Name: updateLast ]]
+	-- upvalues: v13 (copy), v51 (copy), v24 (copy), v16 (copy), v18 (copy), l_TextService_0 (copy), v23 (copy), v19 (copy), v32 (copy), l_Hatching_0 (copy), v29 (copy)
+	for _, v75 in v73.Pets do
+		local v76 = v13[v75.Pet.Name];
+		local l_Name_0 = v75.Pet.Name;
+		local v78 = v51:Get();
+		v78.Name = l_Name_0;
+		v78.Label.Text = l_Name_0;
+		if v75.Pet.Shiny then
+			v78.Label.TextColor3 = Color3.new(1, 1, 1);
+			v24:Add(v78.Icon.Label);
+			v16.Cycle(v78.Label, "Shiny", {
+				Speed = 0.5
+			});
+		elseif v76.Rarity == "Legendary" or v76.Rarity == "Secret" then
+			v78.Label.TextColor3 = Color3.new(1, 1, 1);
+			v24:Remove(v78.Icon.Label);
+			v16.Cycle(v78.Label, "Rainbow", {
+				Speed = 0.5
+			});
+		else
+			v78.Label.TextColor3 = v18.RarityColors[v76.Rarity];
+			v24:Remove(v78.Icon.Label);
+			v16.None(v78.Label);
+		end;
+		local v79 = math.max(l_TextService_0:GetTextSize(v78.Label.Text, v78.Label.TextSize, v78.Label.Font, Vector2.new(1e999, 0)).X, l_TextService_0:GetTextSize(v78.Chance.Text, v78.Chance.TextSize, v78.Chance.Font, Vector2.new(1e999, 0)).X);
+		v23:UpdateIcon(v78.Icon, v75.Pet);
+		v78.Size = UDim2.fromOffset(v79 + 85, 80);
+		v78.Chance.Text = v19(v32:GetChance(v75.Pet), true);
+		v78.Parent = l_Hatching_0.Last;
+	end;
+	v51:Done();
+	local v80 = false;
+	local v81 = v29:Get();
+	if v81 then
+		for _, v83 in v81.MasteryUpgrades do
+			if v83.Type == "StatEgg" then
+				v80 = true;
+				break;
+			end;
+		end;
+	end;
+	l_Hatching_0.Last.Visible = v80;
+end;
+local function _(v85, v86) --[[ Line: 227 ]] --[[ Name: getCFrameFromGrid ]]
+	return CFrame.new(v85[v86] or Vector3.new()) * CFrame.new(0, #v85 >= 4 and -0.25 or 0, -6.5);
+end;
+local function v102(v88) --[[ Line: 233 ]] --[[ Name: playMythicEffect ]]
+	-- upvalues: v11 (copy), l_CurrentCamera_0 (copy), v34 (copy), l_RunService_0 (copy), l_TweenService_0 (copy), v39 (copy), l_LocalPlayer_0 (copy), v40 (copy)
+	local l_ColorCorrectionEffect_0 = Instance.new("ColorCorrectionEffect");
+	l_ColorCorrectionEffect_0.Brightness = 0;
+	l_ColorCorrectionEffect_0.Contrast = 0;
+	l_ColorCorrectionEffect_0.Saturation = 0;
+	l_ColorCorrectionEffect_0.TintColor = Color3.new(1, 1, 1);
+	l_ColorCorrectionEffect_0.Parent = game.Lighting;
+	local v90 = v11.new((Vector3.new()));
+	v90.Friction = 0.25;
+	v90.Stiffness = 1.5;
+	v90.Target = Vector3.new(-0.2617993950843811, 0, 0, 0);
+	l_CurrentCamera_0.CameraType = Enum.CameraType.Scriptable;
+	local l_CFrame_0 = l_CurrentCamera_0.CFrame;
+	local l_NumberValue_0 = Instance.new("NumberValue");
+	l_NumberValue_0.Value = 0;
+	local l_FieldOfView_0 = l_CurrentCamera_0.FieldOfView;
+	v34:Disable();
+	local v94 = 0;
+	local v97 = l_RunService_0.Heartbeat:Connect(function(v95) --[[ Line: 256 ]]
+		-- upvalues: l_CFrame_0 (copy), l_NumberValue_0 (copy), v94 (ref), l_CurrentCamera_0 (ref), v90 (copy)
+		local l_l_CFrame_0_0 = l_CFrame_0;
+		if l_NumberValue_0.Value > 0 then
+			l_l_CFrame_0_0 = l_l_CFrame_0_0 + Vector3.new(math.noise(v94, 0), math.noise(v94, 0, 100), math.noise(v94, 100, 0)) * l_NumberValue_0.Value;
+		end;
+		l_CurrentCamera_0.CFrame = l_l_CFrame_0_0 * CFrame.Angles(0, 0, v90.Value.X);
+		v94 = v94 + v95 * 36;
+	end);
+	l_TweenService_0:Create(l_ColorCorrectionEffect_0, TweenInfo.new(0.75, Enum.EasingStyle.Sine), {
+		Brightness = 0.2, 
+		Contrast = 2, 
+		Saturation = 1, 
+		TintColor = Color3.fromRGB(255, 0, 234)
+	}):Play();
+	l_TweenService_0:Create(l_CurrentCamera_0, TweenInfo.new(0.35, Enum.EasingStyle.Sine), {
+		FieldOfView = l_FieldOfView_0 + 30
+	}):Play();
+	l_TweenService_0:Create(l_NumberValue_0, TweenInfo.new(0.35, Enum.EasingStyle.Sine), {
+		Value = 1.5
+	}):Play();
+	task.wait(0.3);
+	v90.Target = Vector3.new();
+	l_TweenService_0:Create(l_CurrentCamera_0, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {
+		FieldOfView = 70
+	}):Play();
+	task.wait(0.65);
+	l_TweenService_0:Create(l_NumberValue_0, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {
+		Value = 0
+	}):Play();
+	l_TweenService_0:Create(l_ColorCorrectionEffect_0, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {
+		Brightness = 0, 
+		Contrast = 0, 
+		Saturation = 0, 
+		TintColor = Color3.new(1, 1, 1)
+	}):Play();
+	task.wait(0.5);
+	local l_v39_RootPart_0 = v39:GetRootPart(l_LocalPlayer_0);
+	if l_v39_RootPart_0 then
+		local v99 = (l_v39_RootPart_0.Position - l_CurrentCamera_0.CFrame.Position) * Vector3.new(1, 0, 1, 0);
+		l_LocalPlayer_0.Character:PivotTo(CFrame.new(l_v39_RootPart_0.Position, l_v39_RootPart_0.Position + v99));
+	end;
+	local l_Character_0 = l_LocalPlayer_0.Character;
+	local v101 = l_Character_0 and l_Character_0:FindFirstChild("Humanoid");
+	if v101 ~= nil then
+		l_CurrentCamera_0.CameraSubject = v101;
+		l_CurrentCamera_0.CameraType = Enum.CameraType.Custom;
+	end;
+	l_ColorCorrectionEffect_0:Destroy();
+	v90:Destroy();
+	l_NumberValue_0:Destroy();
+	v97:Disconnect();
+	v34:Enable();
+	v40:Update();
+	v88();
+end;
+local v103 = {};
+local _ = function(v104) --[[ Line: 324 ]] --[[ Name: playSceneAnimation ]]
+	-- upvalues: l_ReplicatedStorage_0 (copy), v9 (copy), v103 (copy), v28 (copy), v27 (copy), v54 (copy), l_Hatching_0 (copy), l_TweenService_0 (copy)
+	local l_FirstChild_1 = l_ReplicatedStorage_0.Assets.Animations:FindFirstChild(v104);
+	if not l_FirstChild_1 then
+		return;
+	else
+		local v106 = v9.new();
+		local v107 = false;
+		local v108 = {};
+		local v109 = v103[v104] or l_FirstChild_1:FindFirstChild("Events") and require(l_FirstChild_1:FindFirstChild("Events"));
+		v103[v104] = v109;
+		for _, v111 in l_FirstChild_1.Scene:GetChildren() do
+			local v112 = v111:Clone();
+			if v112:IsA("Model") or v112:IsA("BasePart") then
+				v112:PivotTo(v112:GetPivot() + Vector3.new(10000, 0, 0, 0));
+			end;
+			if v112:IsA("Model") then
+				v28:AddModel(v112, "Ignore");
+			elseif v112:IsA("BasePart") then
+				v28:AddBasePart(v112, "Ignore");
+			end;
+			v108[v112.Name] = v112;
+			v112.Parent = workspace;
+			v106:Add(v112);
+		end;
+		local v113 = v27.CreatePlayer(l_FirstChild_1.Animation);
+		v113:Play();
+		task.delay(0 - v54.Pulse.Time, function() --[[ Line: 358 ]]
+			-- upvalues: l_Hatching_0 (ref), l_TweenService_0 (ref), v54 (ref)
+			l_Hatching_0.Overlay.BackgroundColor3 = Color3.new();
+			l_TweenService_0:Create(l_Hatching_0.Overlay, v54.Pulse, {
+				BackgroundTransparency = 0
+			}):Play();
+		end);
+		if v109 then
+			for v114, v115 in v109 do
+				local v116 = nil;
+				do
+					local l_v116_0 = v116;
+					v113:GetMarkerReachedSignal(v114):Connect(function(_, v119) --[[ Line: 366 ]]
+						-- upvalues: v115 (copy), v108 (copy), v113 (copy), l_v116_0 (ref), v106 (copy)
+						local v120 = v115(v108, v119, v113);
+						if v120 then
+							l_v116_0 = v120;
+							v106:Add(v120);
+						end;
+					end);
+					v113:GetMarkerEndedSignal(v114):Connect(function() --[[ Line: 374 ]]
+						-- upvalues: l_v116_0 (ref), v106 (copy)
+						if l_v116_0 then
+							v106:Remove(l_v116_0);
+						end;
+					end);
+				end;
+			end;
+		end;
+		v113.Completed:Connect(function() --[[ Line: 382 ]]
+			-- upvalues: v54 (ref), v107 (ref), v113 (copy), v106 (copy), v108 (copy)
+			task.wait(v54.Pulse.Time);
+			v107 = true;
+			v113:Destroy();
+			v106:Cleanup();
+			table.clear(v108);
+		end);
+		repeat
+			task.wait();
+		until v107;
+		return;
+	end;
+end;
+local v122 = {};
+local function _(v123, v124) --[[ Line: 415 ]] --[[ Name: getEggModel ]]
+	-- upvalues: l_ReplicatedStorage_0 (copy)
+	local l_FirstChild_2 = l_ReplicatedStorage_0.Assets.Eggs:FindFirstChild((("%*%*"):format(v123, v124.Shiny and " Golden" or "")));
+	if not l_FirstChild_2 then
+		return l_ReplicatedStorage_0.Assets.Eggs["Common Egg"];
+	else
+		return l_FirstChild_2;
+	end;
+end;
+local function v150(v127, v128, v129, v130, v131) --[[ Line: 423 ]] --[[ Name: createEggs ]]
+	-- upvalues: l_ReplicatedStorage_0 (copy), v122 (copy), v33 (copy), v43 (copy)
+	local v132 = {};
+	for v133 = 1, v128 do
+		local v134 = v129.Pets[v133];
+		local l_Pet_0 = v134.Pet;
+		local v136 = l_ReplicatedStorage_0.Assets.Eggs:FindFirstChild((("%*%*"):format(v127, l_Pet_0.Shiny and " Golden" or ""))) or l_ReplicatedStorage_0.Assets.Eggs["Common Egg"];
+		if v127 == "Infinity Egg" then
+			l_Pet_0 = v122[v134.Pet.Name];
+			if l_Pet_0 then
+				v136 = l_ReplicatedStorage_0.Assets.Eggs:FindFirstChild(l_Pet_0);
+			else
+				for v137, v138 in v33 do
+					for _, v140 in v138.Pool do
+						if v140.Item.Type == "Pet" and v140.Item.Name == v134.Pet.Name then
+							v122[v134.Pet.Name] = v137;
+							v136 = l_ReplicatedStorage_0.Assets.Eggs:FindFirstChild(v137);
+							break;
+						end;
+					end;
+					if v136.Name ~= "Infinity Egg" then
+						break;
+					end;
+				end;
+			end;
+		end;
+		l_Pet_0 = v136:Clone();
+		for _, v142 in l_Pet_0:GetDescendants() do
+			if v142:IsA("BasePart") then
+				v142.CanCollide = false;
+				v142.CastShadow = false;
+			end;
+		end;
+		local l_NumberValue_1 = Instance.new("NumberValue");
+		l_NumberValue_1.Value = 0.5;
+		local l_Vector3Value_0 = Instance.new("Vector3Value");
+		l_Vector3Value_0.Value = Vector3.new(0, 7, 0, 0);
+		local l_PrimaryPart_0 = l_Pet_0.PrimaryPart;
+		local l_Highlight_0 = Instance.new("Highlight");
+		l_Highlight_0.DepthMode = Enum.HighlightDepthMode.Occluded;
+		l_Highlight_0.FillColor = Color3.new(1, 1, 1);
+		l_Highlight_0.OutlineColor = Color3.new();
+		l_Highlight_0.OutlineTransparency = 0.8;
+		l_Highlight_0.FillTransparency = 1;
+		l_Highlight_0.Parent = l_Pet_0;
+		l_Highlight_0.Enabled = v43.Mode ~= "Touch";
+		local v147 = v129.Pets[v133];
+		if v147.Pet.Shiny then
+			local v148 = l_ReplicatedStorage_0.Assets.GoldenEgg:Clone();
+			v148.CanCollide = false;
+			v148.CFrame = v136.PrimaryPart and v136.PrimaryPart.CFrame or CFrame.new();
+			v148.Parent = l_Pet_0;
+		end;
+		local l_Attachment_0 = Instance.new("Attachment");
+		l_Attachment_0.Parent = l_PrimaryPart_0;
+		v132[l_Pet_0] = {
+			Index = v133, 
+			Animator = l_Vector3Value_0, 
+			Hatch = v130, 
+			Pulse = v131, 
+			Highlight = l_Highlight_0, 
+			Intensity = l_NumberValue_1, 
+			Delta = 0, 
+			Shaking = false, 
+			Attachment = l_Attachment_0, 
+			Vibration = Instance.new("NumberValue"), 
+			Position = Instance.new("Vector3Value"), 
+			Data = v147
+		};
+	end;
+	return v132;
+end;
+local function v163(v151) --[[ Line: 517 ]] --[[ Name: createPets ]]
+	-- upvalues: v13 (copy), v12 (copy), v30 (copy), l_ReplicatedStorage_0 (copy)
+	local v152 = {};
+	for v153, v154 in v151.Pets do
+		local v155 = v13[v154.Pet.Name];
+		local v156 = v12(v154.Pet):Clone();
+		local l_NumberValue_2 = Instance.new("NumberValue");
+		l_NumberValue_2.Value = 1;
+		local v158 = 1;
+		if v154.Pet.Mythic then
+			v158 = v158 * 1.25;
+		end;
+		if v13[v154.Pet.Name].Rarity == "Secret" then
+			v158 = v158 * 1.5;
+		end;
+		local v159 = v156:GetScale() * v158;
+		v156:ScaleTo(v159);
+		l_NumberValue_2:GetPropertyChangedSignal("Value"):Connect(function() --[[ Line: 537 ]]
+			-- upvalues: v156 (copy), v159 (copy), l_NumberValue_2 (copy)
+			v156:ScaleTo(v159 * l_NumberValue_2.Value);
+		end);
+		for _, v161 in v156:GetDescendants() do
+			if v161:IsA("BasePart") then
+				v161.CanCollide = false;
+				v161.CastShadow = false;
+			end;
+		end;
+		local l_Attachment_1 = Instance.new("Attachment");
+		l_Attachment_1.Parent = v156:FindFirstChild("Hitbox") or v156:FindFirstChildOfClass("BasePart");
+		if (v155.Rarity == "Legendary" or v155.Rarity == "Secret") and not v30.Enabled then
+			l_ReplicatedStorage_0.Assets.Particles.Aura:Clone().Parent = l_Attachment_1;
+		end;
+		v152[v156] = {
+			Index = v153, 
+			Scale = l_NumberValue_2, 
+			Offset = CFrame.new(), 
+			Attachment = l_Attachment_1, 
+			Position = Instance.new("Vector3Value"), 
+			Animator = Instance.new("Vector3Value"), 
+			Rotation = Instance.new("NumberValue"), 
+			Data = v154
+		};
+	end;
+	return v152;
+end;
+local function _(v164) --[[ Line: 575 ]] --[[ Name: isFastAnimation ]]
+	-- upvalues: v13 (copy), v29 (copy), v18 (copy)
+	if not v164.Name then
+		return false;
+	else
+		local v165 = v13[v164.Name];
+		local v166 = v29:Get();
+		local v167 = v165.Chance >= v18.EasyLegendaryThreshold;
+		if v166 and v165.Rarity == "Legendary" and not v166.Settings["Skip Easy Legendary"] then
+			v167 = false;
+		end;
+		if v164.Mythic then
+			return false;
+		else
+			return v167;
+		end;
+	end;
+end;
+local v169 = 0;
+local function v206(v170, v171, v172, v173, v174) --[[ Line: 597 ]] --[[ Name: animateEgg ]]
+	-- upvalues: v13 (copy), v29 (copy), v18 (copy), v169 (ref), v63 (copy), l_TweenService_0 (copy), v14 (copy), v72 (copy), l_CurrentCamera_0 (copy), l_Hatching_0 (copy), l_ReplicatedStorage_0 (copy), v35 (copy), v54 (copy), l_ScreenGui_0 (copy), v30 (copy)
+	local v175 = v13[v172.Data.Pet.Name];
+	local l_Rarity_0 = v175.Rarity;
+	local v177 = true;
+	if l_Rarity_0 ~= "Legendary" then
+		v177 = l_Rarity_0 == "Secret";
+	end;
+	local v178 = v173 == v175.Chance;
+	local l_Pet_1 = v172.Data.Pet;
+	local v180;
+	if not l_Pet_1.Name then
+		v180 = false;
+	else
+		local v181 = v13[l_Pet_1.Name];
+		local v182 = v29:Get();
+		local v183 = v181.Chance >= v18.EasyLegendaryThreshold;
+		if v182 and v181.Rarity == "Legendary" and not v182.Settings["Skip Easy Legendary"] then
+			v183 = false;
+		end;
+		v180 = not l_Pet_1.Mythic and v183;
+	end;
+	v169 = v169 + 1;
+	l_Pet_1 = v63(v171);
+	v170.Parent = workspace.Rendered.Generic;
+	l_TweenService_0:Create(v172.Animator, l_Pet_1.Bounce, {
+		Value = Vector3.new()
+	}):Play();
+	if v172.Index == 1 then
+		task.delay(0.2 / v171, function() --[[ Line: 616 ]]
+			-- upvalues: v14 (ref), v171 (copy)
+			v14("Bounce1");
+			task.wait(0.25 / v171);
+			v14("Bounce2");
+		end);
+	end;
+	task.wait(l_Pet_1.Bounce.Time + 0.1);
+	v72(v172.Attachment, "Strike", 1);
+	v172.Hatch.Target = Vector3.new(-0.1745329201221466, 0, 0, 0);
+	v172.Pulse.Target = Vector3.new(0, 0, 0.25, 0);
+	l_TweenService_0:Create(v172.Highlight, l_Pet_1.Pulse, {
+		FillTransparency = 0.5
+	}):Play();
+	if v172.Index == 1 then
+		if v171 < 1.25 then
+			l_TweenService_0:Create(l_CurrentCamera_0, l_Pet_1.Pulse, {
+				FieldOfView = 72
+			}):Play();
+		end;
+		v14("Pop1");
+	end;
+	task.delay(0.1, function() --[[ Line: 638 ]]
+		-- upvalues: v172 (copy), l_TweenService_0 (ref), l_CurrentCamera_0 (ref), l_Pet_1 (copy)
+		if v172.Index == 1 then
+			l_TweenService_0:Create(l_CurrentCamera_0, l_Pet_1.Pulse, {
+				FieldOfView = 70
+			}):Play();
+		end;
+		v172.Pulse.Target = Vector3.new();
+		l_TweenService_0:Create(v172.Highlight, l_Pet_1.Pulse, {
+			FillTransparency = 1
+		}):Play();
+	end);
+	task.wait(0.3 / v171);
+	v72(v172.Attachment, "Strike", 1);
+	if v172.Index == 1 then
+		if v171 < 1.25 then
+			l_TweenService_0:Create(l_CurrentCamera_0, l_Pet_1.Pulse, {
+				FieldOfView = 75
+			}):Play();
+		end;
+		v14("Pop2");
+	end;
+	v172.Hatch.Target = Vector3.new(0.2617993950843811, 0, 0, 0);
+	v172.Pulse.Target = Vector3.new(0, 0, 0.44999998807907104, 0);
+	l_TweenService_0:Create(v172.Highlight, l_Pet_1.Pulse, {
+		FillTransparency = 0.35
+	}):Play();
+	task.delay(0.1, function() --[[ Line: 658 ]]
+		-- upvalues: v172 (copy), l_TweenService_0 (ref), l_Pet_1 (copy)
+		v172.Pulse.Target = Vector3.new();
+		l_TweenService_0:Create(v172.Highlight, l_Pet_1.Pulse, {
+			FillTransparency = 1
+		}):Play();
+	end);
+	if v177 then
+		if not l_Hatching_0.Border:GetAttribute("Used") then
+			if v172.Data.Pet.Mythic then
+				l_Hatching_0.Border.UIGradient.Color = l_ReplicatedStorage_0.Assets.Gradients.Mythic.Color;
+			else
+				l_Hatching_0.Border.UIGradient.Color = l_ReplicatedStorage_0.Assets.Gradients.Rainbow.Color;
+			end;
+			l_Hatching_0.Border:SetAttribute("Used", true);
+		end;
+		l_TweenService_0:Create(l_Hatching_0.Border, l_Pet_1.Shine, {
+			ImageTransparency = 0
+		}):Play();
+	end;
+	task.wait(0.3 / v171);
+	v172.Pulse.Target = Vector3.new(0, 0, 1, 0);
+	if v172.Index == 1 then
+		l_TweenService_0:Create(l_CurrentCamera_0, l_Pet_1.Slow, {
+			FieldOfView = 67
+		}):Play();
+	end;
+	if v177 then
+		if v172.Data.Pet.Mythic then
+			v35(v172.Highlight, {
+				Type = "Cycle", 
+				Color = l_ReplicatedStorage_0.Assets.Gradients.Mythic.Color
+			});
+		else
+			v35(v172.Highlight, {
+				Type = "Cycle", 
+				Color = l_ReplicatedStorage_0.Assets.Gradients.Rainbow.Color
+			});
+		end;
+	end;
+	v172.Shaking = true;
+	v172.Hatch.Target = Vector3.new();
+	l_TweenService_0:Create(v172.Highlight, TweenInfo.new(2 / v171), {
+		FillTransparency = 0.5
+	}):Play();
+	l_TweenService_0:Create(v172.Intensity, l_Pet_1.Shake, {
+		Value = 1
+	}):Play();
+	v72(v172.Attachment, "Strike", 1);
+	task.wait(l_Pet_1.Slow.Time * 0.75);
+	local l_PrimaryPart_1 = v170.PrimaryPart;
+	local l_Size_0 = l_PrimaryPart_1.Size;
+	local v186 = l_ReplicatedStorage_0.Assets.Effects.EggGlow:Clone();
+	v186.CanCollide = false;
+	v186.CFrame = l_PrimaryPart_1.CFrame;
+	v186.Size = l_Size_0 * 0.995;
+	v186.Transparency = 1;
+	v186.Parent = v170;
+	v172.Shaking = false;
+	v172.Hatch.Target = Vector3.new();
+	if v172.ReorderedPosition then
+		l_TweenService_0:Create(v172.Position, v54.Move, {
+			Value = v172.ReorderedPosition
+		}):Play();
+	end;
+	local v187 = (v173 or 100) <= v18.RareLegendaryThreshold;
+	local v188 = l_Size_0 * 1.5;
+	local v189 = v174 and v174 == "Secret";
+	if (l_Rarity_0 == "Legendary" or l_Rarity_0 == "Secret") and v175.Chance == v173 and not v180 then
+		task.wait(0.15);
+		local v190 = nil;
+		if not l_ScreenGui_0:FindFirstChild("Zoom") and v178 then
+			local v191 = (v175.Chance <= v18.RareLegendaryThreshold and l_ReplicatedStorage_0.Assets.Sounds.Egg.Zoom or l_ReplicatedStorage_0.Assets.Sounds.Egg.ZoomFast):Clone();
+			local v192 = v29:Get();
+			local v193 = if v192 then v192.Settings["Sound Effects"] / 100 else 1;
+			v191.Volume = v191.Volume * math.sqrt(v193);
+			v191.Parent = l_ScreenGui_0;
+			v191:Play();
+			v190 = v191;
+		end;
+		local v194 = v172.ReorderedPosition or v172.Position.Value;
+		task.delay(v54.Move.Time * 0.25, function() --[[ Line: 745 ]]
+			-- upvalues: v187 (copy), l_TweenService_0 (ref), l_CurrentCamera_0 (ref), v172 (copy), v54 (ref), v194 (copy)
+			if v187 then
+				local v195 = TweenInfo.new(5.75, Enum.EasingStyle.Back);
+				l_TweenService_0:Create(l_CurrentCamera_0, v195, {
+					FieldOfView = 110
+				}):Play();
+				l_TweenService_0:Create(v172.Vibration, v54.Vibrate, {
+					Value = 0.25
+				}):Play();
+				l_TweenService_0:Create(v172.Position, v195, {
+					Value = v194 + Vector3.new(0, 0, 2, 0)
+				}):Play();
+				return;
+			else
+				l_TweenService_0:Create(l_CurrentCamera_0, v54.Vibrate, {
+					FieldOfView = 85
+				}):Play();
+				l_TweenService_0:Create(v172.Vibration, v54.Vibrate, {
+					Value = 0.5
+				}):Play();
+				l_TweenService_0:Create(v172.Position, v54.Vibrate, {
+					Value = v194 + Vector3.new(0, 0, 1.5, 0)
+				}):Play();
+				return;
+			end;
+		end);
+		do
+			local l_v190_0 = v190;
+			if l_v190_0 and not v187 then
+				task.delay(1.35, function() --[[ Line: 759 ]]
+					-- upvalues: l_TweenService_0 (ref), l_v190_0 (ref), v54 (ref)
+					l_TweenService_0:Create(l_v190_0, v54.Move, {
+						Volume = 0
+					}):Play();
+				end);
+			end;
+			task.wait(1.5);
+			if v187 then
+				if not v30.Enabled then
+					task.delay(1, function() --[[ Line: 768 ]]
+						-- upvalues: l_ReplicatedStorage_0 (ref), v172 (copy), v54 (ref)
+						local v197 = l_ReplicatedStorage_0.Assets.Particles.Rays:Clone();
+						v197:Emit(3);
+						v197.Parent = v172.Attachment;
+						local v198 = l_ReplicatedStorage_0.Assets.Particles.Electric:Clone();
+						v198.Parent = v172.Attachment;
+						task.wait(1.1 + v54.Move.Time - 0.05);
+						v197:Destroy();
+						v198.Enabled = false;
+					end);
+				end;
+				task.wait(1.1);
+				if not v189 then
+					v14("HolyWhoosh");
+				end;
+				task.wait(v54.Move.Time - 0.05);
+				v188 = v188 * 2.5;
+			end;
+			if not v30.Enabled then
+				for _, v200 in (l_ReplicatedStorage_0.Assets.Particles.Confetti:GetChildren()) do
+					local v201 = v200:Clone();
+					v201.Enabled = false;
+					v201.Parent = v172.Attachment;
+					v201:Emit(12);
+				end;
+			end;
+			if l_v190_0 then
+				l_v190_0:Stop();
+				l_v190_0:Destroy();
+			end;
+			v172.Vibration.Value = 0;
+			l_TweenService_0:Create(v172.Vibration, v54.Pulse, {
+				Value = 0
+			}):Play();
+			l_TweenService_0:Create(l_CurrentCamera_0, v54.Pulse, {
+				FieldOfView = 70
+			}):Play();
+			l_TweenService_0:Create(v172.Position, v54.Pulse, {
+				Value = v194
+			}):Play();
+		end;
+	elseif v172.Index == 1 then
+		l_TweenService_0:Create(l_CurrentCamera_0, l_Pet_1.Slow, {
+			FieldOfView = 70
+		}):Play();
+	end;
+	for _, v203 in v170:GetDescendants() do
+		if v203:IsA("BasePart") and v203 ~= v186 then
+			v203.Transparency = 1;
+		elseif v203:IsA("ParticleEmitter") then
+			v203.Enabled = false;
+			v203:Clear();
+		elseif v203:IsA("Beam") then
+			v203.Enabled = false;
+		elseif v203:IsA("PointLight") then
+			v203.Enabled = false;
+		end;
+	end;
+	if v189 then
+		v172.Shaking = false;
+		return;
+	else
+		if not v173 or v173 and v178 then
+			local v204 = v172.Data.Pet.Shiny and "Shiny" or "";
+			v72(v172.Attachment, "Streak" .. v204, 10);
+			v72(v172.Attachment, "Poof" .. v204, 30);
+			v72(v172.Attachment, "Sparkles" .. v204, 8);
+			v72(v172.Attachment, "Explosion", 1);
+			if v173 then
+				v72(v172.Attachment, "Shockwave", 1);
+			end;
+			v186.Transparency = 0;
+		end;
+		if v177 and not v30.Enabled then
+			local v205 = l_ReplicatedStorage_0.Assets.Particles.CircleExplode:Clone();
+			v205.Parent = v172.Attachment;
+			task.delay(1.5, function() --[[ Line: 853 ]]
+				-- upvalues: v205 (copy)
+				v205.Enabled = false;
+			end);
+		end;
+		l_TweenService_0:Create(v186, l_Pet_1.Explosion, {
+			Size = l_Size_0 * 1.5, 
+			Transparency = 1
+		}):Play();
+		v169 = v169 - 1;
+		return;
+	end;
+end;
+local function v212(v207, v208) --[[ Line: 867 ]] --[[ Name: formatChance ]]
+	-- upvalues: v32 (copy), v13 (copy), v37 (copy), v41 (copy)
+	local l_v32_Chance_0 = v32:GetChance(v208);
+	v207.TextSize = 40;
+	local v210 = math.ceil(100 / l_v32_Chance_0);
+	local v211 = v13[v208.Name];
+	if v210 == 1 and v211.Tag then
+		v207.Text = v211.Tag;
+	else
+		v207.Text = ("1 in %*"):format((v37(v210)));
+	end;
+	v207.TextColor3 = v41(l_v32_Chance_0, v211.Tag);
+end;
+local v213 = {};
+local v214 = false;
+local function v236() --[[ Line: 888 ]] --[[ Name: display ]]
+	-- upvalues: v214 (ref), v213 (copy), l_ScreenGui_0 (copy), v42 (copy), v26 (copy), v9 (copy), v163 (copy), v58 (copy), v13 (copy), l_Template_0 (copy), v44 (copy), v36 (copy), l_Hatching_0 (copy), l_RunService_0 (copy), l_CurrentCamera_0 (copy), v14 (copy), l_ReplicatedStorage_0 (copy), v38 (copy), v16 (copy), v18 (copy), v212 (copy), l_TweenService_0 (copy), v54 (copy), v30 (copy), v72 (copy), v15 (copy), v17 (copy)
+	if v214 then
+		return;
+	elseif #v213 == 0 then
+		return;
+	else
+		local v215 = table.remove(v213, 1);
+		if not v215 then
+			return;
+		else
+			v214 = true;
+			l_ScreenGui_0.HUD.Visible = false;
+			if v42.Active then
+				l_ScreenGui_0.Notifications.Visible = false;
+			end;
+			if v215.Egg then
+				v26(v215.Egg, v215.Pet.Shiny);
+			end;
+			local v216 = v9.new();
+			local v217 = {
+				Deleted = false, 
+				New = false, 
+				Pet = v215.Pet
+			};
+			local v218 = v163({
+				Pets = {
+					v217
+				}, 
+				Name = "none", 
+				Speed = 1
+			});
+			local v219 = next(v218);
+			local v220 = v218[v219];
+			local v221 = v58(1);
+			local v222 = v219:FindFirstChild("Hitbox").Position.Y - v219:GetPivot().Y;
+			local v223 = v13[v217.Pet.Name];
+			local v224 = true;
+			if v223.Rarity ~= "Legendary" then
+				v224 = v223.Rarity == "Secret";
+			end;
+			local v225 = l_Template_0:Clone();
+			v225.Label.Text = v217.Pet.Name;
+			v225.New.Visible = v217.New;
+			v225.Deleted.Visible = v217.Deleted;
+			local l_Chance_0 = v225.Chance;
+			local v227 = true;
+			if v215.Egg == nil then
+				v227 = v224;
+			end;
+			l_Chance_0.Visible = v227;
+			v225.Shiny.Visible = v217.Pet.Shiny or false;
+			v225.Visible = true;
+			v225.Parent = l_ScreenGui_0;
+			v44._hatching = true;
+			v36:Disable();
+			l_Hatching_0.Border:SetAttribute("Used", nil);
+			v216:Add(v225);
+			v216:Add(v219);
+			v216:Add(l_RunService_0.RenderStepped:Connect(function() --[[ Line: 948 ]]
+				-- upvalues: v219 (copy), l_CurrentCamera_0 (ref), v220 (copy), l_ScreenGui_0 (ref), v225 (copy)
+				if not v219.Parent then
+					return;
+				else
+					local v228 = l_CurrentCamera_0.CFrame * CFrame.new(v220.Position.Value + v220.Animator.Value) * v220.Offset * CFrame.Angles(0, v220.Rotation.Value, 0);
+					local l_Hitbox_0 = v219:FindFirstChild("Hitbox");
+					if l_Hitbox_0 then
+						local v230 = l_CurrentCamera_0:WorldToScreenPoint(v228.Position + Vector3.new(0, l_Hitbox_0.Size.Y / 2 - 0.25, 0)) / l_ScreenGui_0.UIScale.Scale;
+						v225.Position = UDim2.fromOffset(v230.X, v230.Y);
+					end;
+					v219:PivotTo(v228);
+					return;
+				end;
+			end));
+			v14("Hatch");
+			if v217.Pet.Mythic then
+				v225.Rarity.Text = "Mythic";
+			else
+				v225.Rarity.Text = v223.Rarity;
+			end;
+			l_Chance_0 = 0;
+			if v223.Rarity == "Secret" then
+				v227 = l_ReplicatedStorage_0.Assets.Particles.SecretExplode:Clone();
+				v227.Enabled = true;
+				v227.Parent = v220.Attachment;
+				v227:Emit(40);
+				v14("HolyExplosion");
+				v14("SecretReveal");
+				l_Hatching_0.Border.UIGradient.Color = l_ReplicatedStorage_0.Assets.Gradients.Secret.Color;
+				l_Chance_0 = l_Chance_0 + 1.5;
+				local l_v227_0 = v227 --[[ copy: 13 -> 18 ]];
+				task.delay(1.5, function() --[[ Line: 983 ]]
+					-- upvalues: v38 (ref), l_v227_0 (copy)
+					v38:SetVolume(0.5);
+					l_v227_0.Enabled = false;
+				end);
+			end;
+			if v217.Pet.Mythic then
+				l_Chance_0 = l_Chance_0 + 1;
+				v16.Cycle(v225.Rarity, "Mythic", {
+					Speed = 1
+				});
+			elseif v223.Rarity == "Legendary" then
+				v16.Cycle(v225.Rarity, "Rainbow", {
+					Speed = 0.5
+				});
+			else
+				v16.None(v225.Rarity);
+				v225.Rarity.TextColor3 = v18.RarityColors[v223.Rarity];
+			end;
+			if v225.Chance.Visible then
+				v212(v225.Chance, v217.Pet);
+			end;
+			l_CurrentCamera_0.FieldOfView = 110;
+			v219.Parent = workspace.Rendered.Generic;
+			v220.Position.Value = (CFrame.new(v221[1] or Vector3.new()) * CFrame.new(0, #v221 >= 4 and -0.25 or 0, -6.5)).Position - Vector3.new(0, v222, 0);
+			v220.Scale.Value = 3;
+			v220.Animator.Value = Vector3.new(0, -0.75, 0, 0);
+			l_TweenService_0:Create(l_CurrentCamera_0, v54.Pulse, {
+				FieldOfView = 70
+			}):Play();
+			l_TweenService_0:Create(v220.Scale, v54.Pulse, {
+				Value = 1.35
+			}):Play();
+			l_TweenService_0:Create(v220.Animator, v54.Pulse, {
+				Value = Vector3.new()
+			}):Play();
+			l_TweenService_0:Create(l_Hatching_0.Border, v54.Shine, {
+				ImageTransparency = 0
+			}):Play();
+			if not v30.Enabled then
+				v227 = l_ReplicatedStorage_0.Assets.Particles.Shockwave:Clone();
+				v227.Rate = 2;
+				v227.Enabled = true;
+				v227.Parent = v220.Attachment;
+				local l_v227_1 = v227 --[[ copy: 13 -> 17 ]];
+				v216:Add(l_RunService_0.Heartbeat:Connect(function() --[[ Line: 1019 ]]
+					-- upvalues: l_v227_1 (copy)
+					l_v227_1.Color = ColorSequence.new(Color3.fromHSV(os.clock() % 1, 1, 1));
+				end));
+			end;
+			v227 = v215.Pet.Shiny and "Shiny" or "";
+			v72(v220.Attachment, "Streak" .. v227, 10, 2);
+			v72(v220.Attachment, "Poof" .. v227, 30, 2);
+			v72(v220.Attachment, "Sparkles" .. v227, 8, 2);
+			task.wait(v54.Pulse.Time + 2.5 + 1);
+			local l_Value_0 = v220.Position.Value;
+			local v234 = l_Value_0 * Vector3.new(0, 1, 1, 0) - Vector3.new(0, 7.5, 0, 0);
+			local l_NumberValue_3 = Instance.new("NumberValue");
+			v225.Visible = false;
+			v220.Attachment:Destroy();
+			l_NumberValue_3:GetPropertyChangedSignal("Value"):Connect(function() --[[ Line: 1036 ]]
+				-- upvalues: v220 (copy), l_NumberValue_3 (copy), v15 (ref), l_Value_0 (copy), v234 (copy)
+				v220.Scale.Value = math.max(1.35 - l_NumberValue_3.Value, 0.35);
+				v220.Position.Value = v15(l_Value_0, v234, 6, l_NumberValue_3.Value);
+			end);
+			l_TweenService_0:Create(l_Hatching_0.Border, v54.Shine, {
+				ImageTransparency = 1
+			}):Play();
+			task.delay(0.1, v14, "PetMove");
+			v216:Add(l_NumberValue_3);
+			l_TweenService_0:Create(l_NumberValue_3, v54.Spin, {
+				Value = 1
+			}):Play();
+			task.wait(v54.Spin.Time);
+			if #v213 == 0 then
+				v17:OpenLast(true);
+			end;
+			v216:Cleanup();
+			l_ScreenGui_0.HUD.Visible = true;
+			l_ScreenGui_0.Notifications.Visible = true;
+			v214 = false;
+			v36:Enable();
+			v44._hatching = false;
+			return;
+		end;
+	end;
+end;
+v44.DisplayPetOnce = function(_, v238, v239) --[[ Line: 1059 ]] --[[ Name: DisplayPetOnce ]]
+	-- upvalues: v213 (copy), v236 (copy)
+	table.insert(v213, {
+		Pet = v238, 
+		Egg = v239
+	});
+	task.spawn(v236);
+end;
+local v240 = nil;
+local v241 = 0;
+v44.Play = function(v242, v243) --[[ Line: 1071 ]] --[[ Name: Play ]]
+	-- upvalues: v58 (copy), v9 (copy), v63 (copy), v11 (copy), v150 (copy), v163 (copy), l_Hatching_0 (copy), v241 (ref), l_CurrentCamera_0 (copy), v14 (copy), v52 (copy), v72 (copy), l_ScreenGui_0 (copy), v240 (ref), v21 (copy), l_LocalPlayer_0 (copy), v35 (copy), v16 (copy), v42 (copy), v17 (copy), v20 (copy), v36 (copy), l_RunService_0 (copy), v13 (copy), v206 (copy), v102 (copy), l_Template_0 (copy), v18 (copy), v212 (copy), l_TweenService_0 (copy), v29 (copy), v15 (copy), v38 (copy), v26 (copy), v54 (copy), v44 (copy), v84 (copy), v169 (ref)
+	local v244 = #v243.Pets;
+	local v245 = v58(v244);
+	local v246 = v9.new();
+	local v247 = v63(v243.Speed);
+	local v248 = v11.new((Vector3.new()));
+	v248.Friction = 0.2;
+	v248.Stiffness = 13;
+	local v249 = v11.new((Vector3.new()));
+	v249.Friction = 0.4;
+	v249.Stiffness = 5;
+	local v250 = v150(v243.Name, v244, v243, v248, v249);
+	local v251 = v163(v243);
+	local v252 = {};
+	l_Hatching_0.Border.ImageTransparency = 1;
+	local v253 = os.clock();
+	local _ = os.clock();
+	local v255 = nil;
+	local v256 = {};
+	local v257 = v241 + 1;
+	v241 = v257;
+	local v258 = 0;
+	local function v271(v259) --[[ Line: 1099 ]] --[[ Name: update ]]
+		-- upvalues: l_CurrentCamera_0 (ref), v250 (copy), v253 (ref), v14 (ref), v52 (ref), v72 (ref), v258 (ref), v251 (copy), v252 (copy), l_ScreenGui_0 (ref), l_Hatching_0 (ref)
+		local l_CFrame_1 = l_CurrentCamera_0.CFrame;
+		for v261, v262 in v250 do
+			local v263 = l_CFrame_1 * CFrame.new(v262.Position.Value + v262.Animator.Value + v262.Pulse.Value) * CFrame.Angles(0, 0, v262.Hatch.Value.X);
+			if v262.Shaking then
+				if v262.Index == 1 and os.clock() - v253 > 0.05 then
+					v14("Pop2");
+					v253 = os.clock();
+				end;
+				if v52:NextInteger(1, 2) == 1 then
+					v72(v262.Attachment, "CircleHit", 1);
+					v72(v262.Attachment, "Strike", 1);
+				end;
+				v262.Delta = v262.Delta + v259 * 100 * v262.Intensity.Value;
+				v262.Hatch.Target = Vector3.new(math.rad(math.sin(v262.Delta) * 7.5), 0, 0);
+			end;
+			if v262.Vibration.Value > 0 then
+				local v264 = v258 * 36 + v262.Index;
+				v263 = v263 + Vector3.new(math.noise(v264, 0), math.noise(v264, 0, 100), math.noise(v264, 100, 0)) * v262.Vibration.Value;
+				if v52:NextInteger(1, 2) == 1 then
+					v72(v262.Attachment, "Charge", 1);
+				end;
+			end;
+			v261:PivotTo(v263);
+		end;
+		for v265, v266 in v251 do
+			if v265.Parent then
+				local v267 = l_CFrame_1 * CFrame.new(v266.Position.Value + v266.Animator.Value) * v266.Offset * CFrame.Angles(0, v266.Rotation.Value, 0);
+				local v268 = v252[v266.Index];
+				if v268 then
+					local l_Hitbox_1 = v265:FindFirstChild("Hitbox");
+					if l_Hitbox_1 then
+						local v270 = l_CurrentCamera_0:WorldToScreenPoint(v267.Position + Vector3.new(0, l_Hitbox_1.Size.Y / 2 - 0.25, 0)) / l_ScreenGui_0.UIScale.Scale;
+						v268.Position = UDim2.fromOffset(v270.X, v270.Y);
+					end;
+				end;
+				v265:PivotTo(v267);
+			end;
+		end;
+		v258 = v258 + v259;
+		l_Hatching_0.Border.UIGradient.Rotation = v258 * 100 % 360;
+	end;
+	local v272 = {};
+	local function _(v273) --[[ Line: 1155 ]] --[[ Name: playOnce ]]
+		-- upvalues: v272 (copy), v14 (ref)
+		if not v272[v273] then
+			v272[v273] = true;
+			v14(v273);
+		end;
+	end;
+	if v240 ~= v243.Name then
+		l_Hatching_0.Last.Visible = false;
+	end;
+	v240 = v243.Name;
+	v21:Hide();
+	l_LocalPlayer_0.CameraMinZoomDistance = 22;
+	v246:Add(function() --[[ Line: 1170 ]]
+		-- upvalues: v250 (copy), v35 (ref), v251 (copy), v252 (copy), v16 (ref), v247 (copy), v272 (copy)
+		for v275, v276 in v250 do
+			v276.Animator:Destroy();
+			v276.Hatch:Destroy();
+			v276.Pulse:Destroy();
+			v276.Intensity:Destroy();
+			v276.Highlight:Destroy();
+			v276.Vibration:Destroy();
+			v276.Position:Destroy();
+			v35(v276.Highlight, {
+				Type = "None"
+			});
+			v275:Destroy();
+			v250[v275] = nil;
+		end;
+		for v277, v278 in v251 do
+			local v279 = v252[v278.Index];
+			local v280 = v279 and v279:FindFirstChild("Shiny");
+			if v280 then
+				v16.None(v280);
+			end;
+			v278.Position:Destroy();
+			v278.Rotation:Destroy();
+			v278.Animator:Destroy();
+			v277:Destroy();
+			v251[v277] = nil;
+		end;
+		table.clear(v251);
+		table.clear(v250);
+		table.clear(v247);
+		table.clear(v272);
+	end);
+	if v42.Active then
+		l_ScreenGui_0.Notifications.Visible = false;
+	end;
+	l_ScreenGui_0.HUD.Visible = false;
+	l_ScreenGui_0.Hatching.Visible = true;
+	v17:Close();
+	v20:Hide();
+	v36:Disable();
+	l_Hatching_0.Border:SetAttribute("Used", nil);
+	v242._hatching = true;
+	v271(0);
+	v246:Add(l_RunService_0.RenderStepped:Connect(v271));
+	local v281 = false;
+	for _, v283 in v243.Pets do
+		local l_Rarity_1 = v13[v283.Pet.Name].Rarity;
+		if l_Rarity_1 == "Legendary" or l_Rarity_1 == "Secret" then
+			v281 = true;
+			break;
+		end;
+	end;
+	local v285 = 0;
+	local v286 = false;
+	local v287 = false;
+	for v288, v289 in v250 do
+		local v290 = nil;
+		local v291 = nil;
+		for v292, v293 in v251 do
+			if v293.Index == v289.Index then
+				v290 = v292;
+				v291 = v293;
+				break;
+			end;
+		end;
+		local l_Position_0 = v289.Position;
+		local l_Index_0 = v289.Index;
+		l_Position_0.Value = (CFrame.new(v245[l_Index_0] or Vector3.new()) * CFrame.new(0, #v245 >= 4 and -0.25 or 0, -6.5)).Position;
+		do
+			local l_v290_0, l_v291_0 = v290, v291;
+			task.delay((v289.Index - 1) / 75, function() --[[ Line: 1246 ]]
+				-- upvalues: v206 (ref), v288 (copy), v243 (copy), v289 (copy), v255 (ref), v256 (copy), l_v291_0 (ref), v245 (copy), l_v290_0 (ref), v13 (ref), v281 (ref), v287 (ref), v286 (ref), v102 (ref), l_Template_0 (ref), l_ScreenGui_0 (ref), v252 (copy), v246 (copy), v272 (copy), v14 (ref), v16 (ref), v18 (ref), v212 (ref), l_TweenService_0 (ref), v247 (copy), v250 (copy), v29 (ref), v15 (ref), l_Hatching_0 (ref), v285 (ref)
+				v206(v288, v243.Speed, v289, v255, #v256 > 0 and "Secret" or nil);
+				local v298 = #v256 > 0;
+				local v299 = v289.ReorderedIndex or l_v291_0.Index;
+				local v300 = v289.ReorderedGrid or v245;
+				local v301 = v300[v299];
+				local v302 = l_v290_0:FindFirstChild("Hitbox").Position.Y - l_v290_0:GetPivot().Y;
+				local v303 = v243.Pets[v289.Index];
+				local v304 = v13[v303.Pet.Name];
+				local v305 = true;
+				if v304.Rarity ~= "Legendary" then
+					v305 = v304.Rarity == "Secret";
+				end;
+				local v306 = v281 and v304.Chance == v255;
+				local v307 = not v255 or v305 and v306;
+				if v298 then
+					if v306 then
+						v287 = true;
+					end;
+					return;
+				else
+					local v308 = true;
+					if v303.Pet.Mythic and not v286 then
+						v286 = true;
+						v308 = false;
+						task.spawn(v102, function() --[[ Line: 1279 ]]
+							-- upvalues: v308 (ref)
+							v308 = true;
+						end);
+					end;
+					local v309 = l_Template_0:Clone();
+					v309.Label.Text = v303.Pet.Name;
+					v309.New.Visible = v303.New;
+					v309.Deleted.Visible = v303.Deleted;
+					v309.Chance.Visible = not v303.Deleted and v305;
+					v309.Shiny.Visible = v303.Pet.Shiny or false;
+					v309.Visible = false;
+					v309.Parent = l_ScreenGui_0.Hatching;
+					v252[v289.Index] = v307 and v309 or nil;
+					v246:Add(v309);
+					if not v272.Hatch then
+						v272.Hatch = true;
+						v14("Hatch");
+					end;
+					if v303.Pet.Mythic then
+						v309.Rarity.Text = "Mythic";
+					else
+						v309.Rarity.Text = v304.Rarity;
+					end;
+					if v303.Pet.Mythic then
+						v16.Cycle(v309.Rarity, "Mythic", {
+							Speed = 1
+						});
+					elseif v304.Rarity == "Legendary" then
+						v16.Cycle(v309.Rarity, "Rainbow", {
+							Speed = 0.5
+						});
+					else
+						v16.None(v309.Rarity);
+						v309.Rarity.TextColor3 = v18.RarityColors[v304.Rarity];
+					end;
+					if v309.Chance.Visible then
+						v212(v309.Chance, v303.Pet);
+					end;
+					if v303.Pet.Shiny then
+						if not v272.Shiny then
+							v272.Shiny = true;
+							v14("Shiny");
+						end;
+						v16.Cycle(v309.Shiny, "Shiny", {
+							Speed = 1
+						});
+					end;
+					if v303.Pet.Mythic and not v272.Mythic then
+						v272.Mythic = true;
+						v14("Mythic");
+					end;
+					if v303.New and not v272.Discovered then
+						v272.Discovered = true;
+						v14("Discovered");
+					end;
+					if v304.Rarity == "Legendary" and v306 and not v272.Legendary then
+						v272.Legendary = true;
+						v14("Legendary");
+					end;
+					l_v290_0.Parent = workspace.Rendered.Generic;
+					l_v291_0.Position.Value = (CFrame.new(v300[v299] or Vector3.new()) * CFrame.new(0, #v300 >= 4 and -0.25 or 0, -6.5)).Position - Vector3.new(0, v302, 0);
+					l_v291_0.Rotation.Value = 3.141592653589793;
+					l_v291_0.Scale.Value = 0.25;
+					l_v291_0.Animator.Value = Vector3.new(0, -0.75, 0, 0);
+					l_v291_0.Offset = CFrame.Angles(0.08726646259971647 * v301.Y, -0.08726646259971647 * v301.X, 0);
+					l_TweenService_0:Create(l_v291_0.Scale, v247.Grow, {
+						Value = 1
+					}):Play();
+					l_TweenService_0:Create(l_v291_0.Animator, v247.Grow, {
+						Value = Vector3.new()
+					}):Play();
+					l_TweenService_0:Create(l_v291_0.Rotation, v247.Spin, {
+						Value = 6.283185307179586
+					}):Play();
+					task.delay(0.2 / v243.Speed, function() --[[ Line: 1339 ]]
+						-- upvalues: v309 (copy), v243 (ref), l_TweenService_0 (ref), v247 (ref), v307 (copy)
+						if v309.New.Visible then
+							task.delay(0.3 / v243.Speed, function() --[[ Line: 1341 ]]
+								-- upvalues: l_TweenService_0 (ref), v309 (ref), v247 (ref)
+								l_TweenService_0:Create(v309.New.UIGradient, v247.Shine, {
+									Offset = Vector2.new(0.6, 0)
+								}):Play();
+							end);
+						end;
+						v309.Visible = v307;
+						v309.UIScale.Scale = 0.75;
+						v309.Label.TextSize = v309.New.Visible and 50 or 65;
+						v309.Label.Size = UDim2.new(1, 0, 0, v309.Label.TextSize);
+						l_TweenService_0:Create(v309.UIScale, v247.Grow, {
+							Scale = 1
+						}):Play();
+					end);
+					local v310 = (1.35 + v289.Index / (#v250 > 3 and 10 or 15)) / v243.Speed;
+					if v305 then
+						local l_Pet_2 = v289.Data.Pet;
+						local v312;
+						if not l_Pet_2.Name then
+							v312 = false;
+						else
+							local v313 = v13[l_Pet_2.Name];
+							local v314 = v29:Get();
+							local v315 = v313.Chance >= v18.EasyLegendaryThreshold;
+							if v314 and v313.Rarity == "Legendary" and not v314.Settings["Skip Easy Legendary"] then
+								v315 = false;
+							end;
+							v312 = not l_Pet_2.Mythic and v315;
+						end;
+						if not v312 then
+							v310 = v310 + (1 + (v303.Pet.Mythic and 0.5 or 0));
+						end;
+					end;
+					if v281 and (v304.Rarity ~= "Legendary" and v304.Rarity ~= "Secret" or not v306) then
+						v310 = 0;
+					end;
+					task.delay(v310, function() --[[ Line: 1359 ]]
+						-- upvalues: l_v291_0 (ref), v309 (copy), v15 (ref), v304 (copy), v306 (copy), l_TweenService_0 (ref), l_Hatching_0 (ref), v247 (ref), v243 (ref), v14 (ref), v246 (ref), v285 (ref)
+						local l_Value_1 = l_v291_0.Position.Value;
+						local v317 = l_Value_1 * Vector3.new(0, 1, 1, 0) - Vector3.new(0, 7.5, 0, 0);
+						local l_NumberValue_4 = Instance.new("NumberValue");
+						v309.Visible = false;
+						l_v291_0.Attachment:Destroy();
+						l_NumberValue_4:GetPropertyChangedSignal("Value"):Connect(function() --[[ Line: 1366 ]]
+							-- upvalues: l_v291_0 (ref), l_NumberValue_4 (copy), v15 (ref), l_Value_1 (copy), v317 (copy)
+							l_v291_0.Scale.Value = math.max(1 - l_NumberValue_4.Value, 0.35);
+							l_v291_0.Position.Value = v15(l_Value_1, v317, 6, l_NumberValue_4.Value);
+						end);
+						if (v304.Rarity == "Legendary" or v304.Rarity == "Secret") and v306 then
+							l_TweenService_0:Create(l_Hatching_0.Border, v247.Shine, {
+								ImageTransparency = 1
+							}):Play();
+						end;
+						task.delay(0.1 / v243.Speed, v14, "PetMove");
+						v246:Add(l_NumberValue_4);
+						l_TweenService_0:Create(l_NumberValue_4, v247.Spin, {
+							Value = 1
+						}):Play();
+						task.wait(v247.Spin.Time);
+						v285 = v285 + 1;
+					end);
+					return;
+				end;
+			end);
+		end;
+	end;
+	local v319 = {};
+	for _, v321 in v250 do
+		local v322 = v13[v321.Data.Pet.Name];
+		local l_Rarity_2 = v322.Rarity;
+		if l_Rarity_2 == "Legendary" or l_Rarity_2 == "Secret" then
+			if l_Rarity_2 == "Secret" then
+				table.insert(v256, v321);
+			end;
+			v255 = math.min(v255 or 1e999, v322.Chance);
+			table.insert(v319, v321);
+		end;
+	end;
+	if v255 then
+		for v324 = #v319, 1, -1 do
+			if v13[v319[v324].Data.Pet.Name].Chance ~= v255 then
+				table.remove(v319, v324);
+			end;
+		end;
+	end;
+	if #v319 > 0 then
+		local v325 = v58(#v319);
+		local v326 = {};
+		for _, v328 in v319 do
+			local v329 = v245[v328.Index];
+			local v330 = 1;
+			local v331 = 1e999;
+			for v332, v333 in v325 do
+				if not v326[v332] then
+					local l_Magnitude_0 = (v329 - v333).Magnitude;
+					if l_Magnitude_0 < v331 then
+						v331 = l_Magnitude_0;
+						v330 = v332;
+					end;
+				end;
+			end;
+			v328.ReorderedIndex = v330;
+			v328.ReorderedGrid = v325;
+			v328.ReorderedPosition = (CFrame.new(v325[v330] or Vector3.new()) * CFrame.new(0, #v325 >= 4 and -0.25 or 0, -6.5)).Position;
+			v326[v330] = true;
+		end;
+	end;
+	repeat
+		if v287 then
+			l_Hatching_0.Border.ImageTransparency = 1;
+			for v335, _ in v250 do
+				v335.Parent = nil;
+			end;
+			for _, v338 in v256 do
+				v38:SetVolume(0);
+				l_Hatching_0.Overlay.BackgroundColor3 = Color3.new();
+				l_Hatching_0.Overlay.BackgroundTransparency = 0;
+				task.wait(0.75);
+				l_TweenService_0:Create(l_Hatching_0.Overlay, TweenInfo.new(0.5), {
+					BackgroundTransparency = 1
+				}):Play();
+				v26(v243.Name, v338.Data.Pet.Shiny);
+				l_TweenService_0:Create(l_Hatching_0.Overlay, v54.Pulse, {
+					BackgroundTransparency = 1
+				}):Play();
+				task.wait(0.25);
+				local v339 = nil;
+				local v340 = nil;
+				for v341, v342 in v251 do
+					if v342.Index == v338.Index then
+						v339 = v341;
+						v340 = v342;
+						break;
+					end;
+				end;
+				if v340 then
+					v44:DisplayPetOnce(v340.Data.Pet);
+					task.wait(4);
+				end;
+			end;
+			v285 = v244;
+		end;
+		task.wait();
+	until v285 == v244;
+	v84(v243);
+	v246:Cleanup();
+	v21:Show();
+	v36:Enable();
+	if v257 == v241 then
+		l_ScreenGui_0.Hatching.Visible = false;
+		l_ScreenGui_0.HUD.Visible = true;
+		l_ScreenGui_0.Notifications.Visible = true;
+		l_Hatching_0.Overlay.BackgroundTransparency = 1;
+		v169 = 0;
+		v242._hatching = false;
+	end;
+	l_LocalPlayer_0.CameraMinZoomDistance = 0.5;
+end;
+v44.IsHatching = function(v343) --[[ Line: 1491 ]] --[[ Name: IsHatching ]]
+	-- upvalues: v169 (ref), v213 (copy), v214 (ref)
+	if v169 > 0 then
+		return true;
+	else
+		return v343._hatching or #v213 > 0 or v214;
+	end;
+end;
+v44.GetQueue = function(_) --[[ Line: 1499 ]] --[[ Name: GetQueue ]]
+	-- upvalues: v213 (copy)
+	return v213;
+end;
+for _, v346 in l_ReplicatedStorage_0.Assets.Animations:GetChildren() do
+	if v346:FindFirstChild("Animation") then
+		for _, v348 in v346:GetDescendants() do
+			if v348:IsA("CFrameValue") then
+				v348.Value = v348.Value + Vector3.new(10000, 0, 0, 0);
+			end;
+		end;
+	end;
+end;
+v31(0.5, function() --[[ Line: 1517 ]]
+	-- upvalues: v213 (copy), v214 (ref), v236 (copy)
+	if #v213 > 0 and not v214 then
+		v236();
+	end;
+end);
+return v44;
+ModuleScript: SecretEgg
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_Players_0 = game:GetService("Players");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_RunService_0 = game:GetService("RunService");
+local l_TweenService_0 = game:GetService("TweenService");
+local v4 = require(l_ReplicatedStorage_0.Shared.Utils.GetPositionNearPlayer);
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local v6 = require(l_ReplicatedStorage_0.Client.PlayerRender);
+local v7 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.WorldEmitter);
+local v8 = require(l_ReplicatedStorage_0.Client.PlayerControls);
+local v9 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+local v10 = require(l_ReplicatedStorage_0.Client.PetRender);
+local v11 = require(l_ReplicatedStorage_0.Shared.Framework.Services.CollisionGroup);
+local v12 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.SequenceUtil);
+local v13 = require(l_ReplicatedStorage_0.Client.Effects.Bubble);
+local v14 = require(l_ReplicatedStorage_0.Client.Music);
+local v15 = require(l_ReplicatedStorage_0.Client.Effects.Physics);
+local v16 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v17 = v7.new(l_ReplicatedStorage_0.Assets.Effects.Dirt);
+v17.SpreadAngle = 80;
+v17.Radius = NumberRange.new(0, 3.5);
+v17.Rate = 0;
+v17.GravityMultiplier = NumberRange.new(0.2, 0.25);
+v17.Speed = NumberRange.new(22.5, 25);
+v17.Transparency = NumberSequence.new(0, 1);
+v17.Lifetime = NumberRange.new(0.5, 0.75);
+local v18 = v7.new(l_ReplicatedStorage_0.Assets.Effects.Dust);
+v18.Rate = 0;
+v18.SpreadAngle = 90;
+v18.Radius = NumberRange.new(0, 2);
+v18.Lifetime = NumberRange.new(0.5, 0.75);
+v18.GravityMultiplier = NumberRange.new(0.05);
+v18.Speed = NumberRange.new(5);
+v18.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.2), 
+    NumberSequenceKeypoint.new(0.5, 0.2), 
+    NumberSequenceKeypoint.new(1, 1)
+});
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local l_CurrentCamera_0 = workspace.CurrentCamera;
+local l_ScreenGui_0 = l_LocalPlayer_0.PlayerGui.ScreenGui;
+local v22 = {
+    Fall = TweenInfo.new(0.55, Enum.EasingStyle.Circular, Enum.EasingDirection.In), 
+    Shake = TweenInfo.new(0.25), 
+    Grow = TweenInfo.new(0.5, Enum.EasingStyle.Quint), 
+    Fade = TweenInfo.new(1, Enum.EasingStyle.Sine), 
+    Back = TweenInfo.new(0.75, Enum.EasingStyle.Back)
+};
+return function(v23, v24) --[[ Line: 60 ]] --[[ Name: Animation ]]
+    -- upvalues: v9 (copy), v4 (copy), l_LocalPlayer_0 (copy), l_ReplicatedStorage_0 (copy), l_CurrentCamera_0 (copy), v11 (copy), v14 (copy), v16 (copy), l_RunService_0 (copy), v8 (copy), v13 (copy), v10 (copy), v6 (copy), l_TweenService_0 (copy), v22 (copy), v18 (copy), v17 (copy), v12 (copy), l_ScreenGui_0 (copy), v15 (copy)
+    local v25 = v9.new();
+    local v26 = v4(l_LocalPlayer_0, true);
+    local v27 = l_ReplicatedStorage_0.Assets.Eggs[("%*%*"):format(v23, v24 and " Golden" or "")]:Clone();
+    local v28 = v27:GetBoundingBox().Y / 2;
+    local l_Attachment_0 = Instance.new("Attachment");
+    if v27.PrimaryPart then
+        l_Attachment_0.Parent = v27.PrimaryPart;
+        v28 = v27.PrimaryPart.Size.Y / 2;
+    end;
+    local l_CFrame_0 = l_CurrentCamera_0.CFrame;
+    v11:AddModel(v27, "Ignore");
+    v27.Parent = workspace.Rendered.Generic;
+    local l_NumberValue_0 = Instance.new("NumberValue");
+    l_NumberValue_0.Value = 15;
+    local l_NumberValue_1 = Instance.new("NumberValue");
+    l_NumberValue_1.Value = 1.35;
+    local l_NumberValue_2 = Instance.new("NumberValue");
+    local l_Highlight_0 = Instance.new("Highlight");
+    l_Highlight_0.OutlineTransparency = 1;
+    l_Highlight_0.FillTransparency = 1;
+    l_Highlight_0.FillColor = Color3.new(1, 1, 1);
+    l_Highlight_0.Parent = v27;
+    local v35 = l_ReplicatedStorage_0.Assets.Particles.Explosion:Clone();
+    v35.Lifetime = NumberRange.new(0.75);
+    v35.Enabled = false;
+    v35.Parent = l_Attachment_0;
+    local v36 = l_ReplicatedStorage_0.Assets.Particles.Electric:Clone();
+    v36.Enabled = false;
+    v36.Parent = l_Attachment_0;
+    v14:SetVolume(0);
+    v16("SecretEgg");
+    local v37 = 0;
+    local function v42(v38) --[[ Line: 102 ]] --[[ Name: update ]]
+        -- upvalues: v37 (ref), v26 (copy), v28 (ref), l_NumberValue_1 (copy), l_NumberValue_0 (copy), l_NumberValue_2 (copy), v27 (copy), l_CurrentCamera_0 (ref)
+        local v39 = v37 * 36;
+        local v40 = CFrame.new(v26.Position) + Vector3.new(0, v28 * l_NumberValue_1.Value + l_NumberValue_0.Value, 0);
+        local v41 = v26.Position + Vector3.new(0, 2.5, 0, 0) + v26.Unit * 10;
+        if l_NumberValue_2.Value > 0 then
+            v41 = v41 + Vector3.new(math.noise(v39, 0), math.noise(v39, 0, 100), math.noise(v39, 100, 0)) * l_NumberValue_2.Value;
+        end;
+        v37 = v37 + v38;
+        v27:PivotTo(v40);
+        v27:ScaleTo(l_NumberValue_1.Value);
+        l_CurrentCamera_0.CFrame = CFrame.new(v41, v40.Position);
+    end;
+    v42(0);
+    v25:Add(l_Attachment_0);
+    v25:Add(l_NumberValue_0);
+    v25:Add(l_NumberValue_2);
+    v25:Add(l_NumberValue_1);
+    v25:Add(v27);
+    v25:Add(l_RunService_0.Heartbeat:Connect(v42));
+    l_CurrentCamera_0.CameraType = Enum.CameraType.Scriptable;
+    v8:Disable();
+    v13:SetVisible(false);
+    v10:SetVisible(false);
+    v6:SetPlayersVisible(false, true);
+    l_TweenService_0:Create(l_NumberValue_0, v22.Fall, {
+        Value = 0
+    }):Play();
+    task.wait(v22.Fall.Time);
+    v18.Origin = CFrame.new(v26.Position) + Vector3.new(0, 1, 0, 0);
+    v17.Origin = v18.Origin + Vector3.new(0, 1, 0, 0);
+    v18:Emit(10);
+    v17:Emit(5);
+    l_TweenService_0:Create(l_NumberValue_2, v22.Shake, {
+        Value = 2
+    }):Play();
+    task.wait(0.5);
+    l_TweenService_0:Create(l_NumberValue_2, v22.Shake, {
+        Value = 0
+    }):Play();
+    task.wait(v22.Shake.Time);
+    for v43 = 1, 3 do
+        local v44 = TweenInfo.new((v43 + 1) / 3, Enum.EasingStyle.Quart);
+        l_TweenService_0:Create(l_NumberValue_1, v44, {
+            Value = l_NumberValue_1.Value + v43 / 3
+        }):Play();
+        l_TweenService_0:Create(l_NumberValue_2, v22.Shake, {
+            Value = 0.75
+        }):Play();
+        l_TweenService_0:Create(l_CurrentCamera_0, v22.Back, {
+            FieldOfView = 70 + v43 * 5
+        }):Play();
+        l_TweenService_0:Create(l_Highlight_0, v44, {
+            FillTransparency = v43 == 3 and 0 or 0.65
+        }):Play();
+        v35:Emit(1);
+        v36:Emit(3);
+        v35.Size = v12.transformNumberSequence(v35.Size, function(v45, _) --[[ Line: 162 ]]
+            return NumberSequenceKeypoint.new(v45.Time, v45.Value * 1.5);
+        end);
+        v18:Emit(10);
+        v17:Emit(5);
+        if v43 < 3 then
+            task.delay(0.2, function() --[[ Line: 168 ]]
+                -- upvalues: l_TweenService_0 (ref), l_Highlight_0 (copy), v44 (copy)
+                l_TweenService_0:Create(l_Highlight_0, v44, {
+                    FillTransparency = 1
+                }):Play();
+            end);
+            task.wait(v44.Time);
+            l_TweenService_0:Create(l_NumberValue_2, v22.Shake, {
+                Value = 0
+            }):Play();
+            task.wait(v22.Shake.Time + 0.25);
+        end;
+    end;
+    local l_Frame_0 = Instance.new("Frame");
+    l_Frame_0.Size = UDim2.fromScale(1, 1);
+    l_Frame_0.BackgroundColor3 = Color3.new(1, 1, 1);
+    l_Frame_0.BackgroundTransparency = 1;
+    l_Frame_0.Parent = l_ScreenGui_0;
+    l_TweenService_0:Create(l_Frame_0, v22.Fade, {
+        BackgroundTransparency = 0
+    }):Play();
+    task.wait(v22.Fade.Time + 1);
+    l_TweenService_0:Create(l_Frame_0, v22.Fade, {
+        BackgroundTransparency = 1
+    }):Play();
+    v25:Cleanup();
+    l_CurrentCamera_0.CFrame = l_CFrame_0;
+    l_CurrentCamera_0.FieldOfView = 70;
+    local l_Character_0 = l_LocalPlayer_0.Character;
+    local v49 = l_Character_0 and l_Character_0:FindFirstChild("Humanoid");
+    if v49 ~= nil then
+        l_CurrentCamera_0.CameraSubject = v49;
+        l_CurrentCamera_0.CameraType = Enum.CameraType.Custom;
+    end;
+    v14:SetVolume(0.5);
+    v8:Enable();
+    v15:Update();
+    v13:SetVisible(true);
+    v10:SetVisible(true);
+    v6:SetPlayersVisible(true, true);
+end;
+ModuleScript: InterestMark
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_TweenService_0 = game:GetService("TweenService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_RunService_0 = game:GetService("RunService");
+local v3 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.GetAngleBetweenVectors);
+local v4 = require(l_ReplicatedStorage_0.Client.LowDetail);
+local v5 = {
+    Bend = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), 
+    Jump = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 0, true), 
+    Spin = TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut)
+};
+local l_CFrameValue_0 = Instance.new("CFrameValue");
+local l_NumberValue_0 = Instance.new("NumberValue");
+local l_CurrentCamera_0 = workspace.CurrentCamera;
+local function v23(v9, v10) --[[ Line: 29 ]] --[[ Name: InterestMark ]]
+    -- upvalues: v4 (copy), l_CFrameValue_0 (copy), l_NumberValue_0 (copy), v3 (copy), l_CurrentCamera_0 (copy), l_RunService_0 (copy)
+    local v11 = v9:Clone();
+    local l_Generic_0 = workspace.Rendered.Generic;
+    local v13 = 0;
+    local function v17() --[[ Line: 34 ]] --[[ Name: updateCFrame ]]
+        -- upvalues: v13 (ref), v4 (ref), l_CFrameValue_0 (ref), l_NumberValue_0 (ref), v3 (ref), l_CurrentCamera_0 (ref), v10 (copy), v11 (copy)
+        v13 = (v13 + 1) % 3;
+        if v4.Enabled and v13 ~= 0 then
+            return;
+        else
+            local v14 = l_CFrameValue_0.Value * CFrame.Angles(0, math.rad(l_NumberValue_0.Value), 0) + Vector3.new(0, 1, 0, 0);
+            local v15 = v3(l_CurrentCamera_0.CFrame.Position, v10);
+            local v16 = CFrame.new(v10) * CFrame.Angles(0, v15, 0) * v14;
+            v11:PivotTo(v16);
+            return;
+        end;
+    end;
+    local v18 = nil;
+    local function _() --[[ Line: 46 ]] --[[ Name: disconnect ]]
+        -- upvalues: v18 (ref)
+        if v18 then
+            v18:Disconnect();
+        end;
+        v18 = nil;
+    end;
+    return {
+        Enable = function(_) --[[ Line: 55 ]] --[[ Name: Enable ]]
+            -- upvalues: v18 (ref), l_RunService_0 (ref), v17 (copy), v11 (copy), l_Generic_0 (copy)
+            if not v18 then
+                v18 = l_RunService_0.Heartbeat:Connect(function() --[[ Line: 57 ]]
+                    -- upvalues: v17 (ref)
+                    v17();
+                end);
+            end;
+            v17();
+            v11.Parent = l_Generic_0;
+        end, 
+        Disable = function(_) --[[ Line: 65 ]] --[[ Name: Disable ]]
+            -- upvalues: v18 (ref), v11 (copy)
+            if v18 then
+                v18:Disconnect();
+            end;
+            v18 = nil;
+            v11.Parent = nil;
+        end, 
+        Destroy = function(_) --[[ Line: 70 ]] --[[ Name: Destroy ]]
+            -- upvalues: v18 (ref), v11 (copy)
+            if v18 then
+                v18:Disconnect();
+            end;
+            v18 = nil;
+            v11:Destroy();
+        end
+    };
+end;
+task.spawn(function() --[[ Line: 79 ]]
+    -- upvalues: l_NumberValue_0 (copy), l_TweenService_0 (copy), l_CFrameValue_0 (copy), v5 (copy)
+    while true do
+        l_NumberValue_0.Value = 0;
+        l_TweenService_0:Create(l_CFrameValue_0, v5.Bend, {
+            Value = CFrame.Angles(0, 0, 0.17453292519943295)
+        }):Play();
+        task.wait(v5.Bend.Time);
+        l_TweenService_0:Create(l_CFrameValue_0, v5.Bend, {
+            Value = CFrame.Angles(0, 0, -0.17453292519943295)
+        }):Play();
+        task.wait(v5.Bend.Time);
+        l_TweenService_0:Create(l_CFrameValue_0, v5.Bend, {
+            Value = CFrame.new()
+        }):Play();
+        task.wait(v5.Bend.Time);
+        l_TweenService_0:Create(l_CFrameValue_0, v5.Jump, {
+            Value = CFrame.new(0, 1, 0)
+        }):Play();
+        l_TweenService_0:Create(l_NumberValue_0, v5.Spin, {
+            Value = 720
+        }):Play();
+        task.wait(v5.Spin.Time + 0.15);
+    end;
+end);
+return v23;
+ModuleScript: OutlinePulse
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_TweenService_0 = game:GetService("TweenService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local v2 = require(l_ReplicatedStorage_0.Shared.Utils.AnimateColor);
+local l_Frame_0 = Instance.new("Frame");
+l_Frame_0.Size = UDim2.fromScale(1, 1);
+l_Frame_0.Position = UDim2.fromScale(0.5, 0.5);
+l_Frame_0.AnchorPoint = Vector2.one / 2;
+l_Frame_0.BackgroundTransparency = 1;
+local l_UICorner_0 = Instance.new("UICorner");
+l_UICorner_0.CornerRadius = UDim.new(0, 8);
+l_UICorner_0.Parent = l_Frame_0;
+local l_UIStroke_0 = Instance.new("UIStroke");
+l_UIStroke_0.Color = Color3.new(1, 1, 1);
+l_UIStroke_0.Thickness = 3;
+l_UIStroke_0.Parent = l_Frame_0;
+local v6 = TweenInfo.new(0.85, Enum.EasingStyle.Sine);
+return function(v7) --[[ Line: 30 ]] --[[ Name: OutlinePulse ]]
+    -- upvalues: l_Frame_0 (copy), l_TweenService_0 (copy), v6 (copy), v2 (copy)
+    local v8 = l_Frame_0:Clone();
+    v8.Size = UDim2.fromScale(1, 1);
+    if v7 then
+        v7(v8);
+    end;
+    l_TweenService_0:Create(v8.UIStroke, v6, {
+        Thickness = 0, 
+        Transparency = 1
+    }):Play();
+    l_TweenService_0:Create(v8, v6, {
+        Size = UDim2.new(1, 40, 1, 40)
+    }):Play();
+    task.delay(v6.Time, function() --[[ Line: 42 ]]
+        -- upvalues: v8 (copy), v2 (ref)
+        if v8:FindFirstChildOfClass("UIStroke") then
+            v2.None(v8.UIStroke);
+        end;
+        v8:Destroy();
+    end);
+    return v8;
+end;
+ModuleScript: PhysicalItem
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local _ = game:GetService("TweenService");
+local l_RunService_0 = game:GetService("RunService");
+local v4 = require(l_ReplicatedStorage_0.Shared.Utils.Chunker);
+local v5 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.CharacterUtil);
+local v7 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Time);
+local _ = require(l_ReplicatedStorage_0.Shared.Data.Chests);
+local v10 = require(l_ReplicatedStorage_0.Client.Gui.LootPoolViewer);
+local v11 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local _ = require(l_ReplicatedStorage_0.Shared.Utils.GetPositionNearPlayer);
+local v13 = require(script.Chest);
+local v14 = require(script.Gift);
+local v15 = require(l_ReplicatedStorage_0.Client.Framework.Utilities.UserInput);
+local v16 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Table.CountKeys);
+local v17 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Bindable);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local _ = l_LocalPlayer_0.PlayerGui.ScreenGui;
+local v20 = {
+    IsGiftInRange = false
+};
+local v21 = v4.new(256, 2);
+local v22 = {};
+local v23 = {};
+local v24 = {};
+v20.Chest = function(v25, v26) --[[ Line: 39 ]] --[[ Name: Chest ]]
+    -- upvalues: v22 (copy), l_ReplicatedStorage_0 (copy), v13 (copy), v21 (copy)
+    if v22[v25] then
+        return;
+    else
+        local v27 = l_ReplicatedStorage_0.Assets.Chests:FindFirstChild(v25):Clone();
+        v27:PivotTo(v26.CFrame);
+        v27.Name = v25;
+        v22[v25] = v13.new(v27, v26);
+        v21:Add(v26.Position, v27);
+        return;
+    end;
+end;
+v20.Gift = function(v28, v29, v30) --[[ Line: 64 ]] --[[ Name: Gift ]]
+    -- upvalues: v23 (copy), l_ReplicatedStorage_0 (copy), v14 (copy), v21 (copy)
+    if v23[v28] then
+        return;
+    else
+        local v31 = l_ReplicatedStorage_0.Assets.Powerups:FindFirstChild(v29):Clone();
+        v31.CanCollide = false;
+        v31.Anchored = true;
+        v31.Name = v28;
+        v31:PivotTo(CFrame.new(v30));
+        local v32 = v14.new(v31, v30);
+        v32.Destroying:Connect(function() --[[ Line: 75 ]]
+            -- upvalues: v23 (ref), v28 (copy), v21 (ref), v30 (copy), v31 (copy)
+            v23[v28] = nil;
+            v21:Remove(v30, v31);
+        end);
+        v23[v28] = v32;
+        v21:Add(v30, v31);
+        return;
+    end;
+end;
+v20.GetActiveObjects = function(_, v34) --[[ Line: 85 ]] --[[ Name: GetActiveObjects ]]
+    -- upvalues: v16 (copy), v23 (copy), v22 (copy)
+    if v34 == "Gift" then
+        return v16(v23);
+    elseif v34 == "Chest" then
+        return v16(v22);
+    else
+        return 0;
+    end;
+end;
+v17.Function("GetPhysicalItems", function(v35) --[[ Line: 95 ]]
+    -- upvalues: v20 (copy)
+    return v20:GetActiveObjects(v35);
+end);
+v21.Loaded:Connect(function(v36) --[[ Line: 100 ]]
+    -- upvalues: v22 (copy), v23 (copy), v24 (copy)
+    local v37 = v22[v36.Name];
+    if v37 then
+        v37:Update();
+        v37:SetVisible(true);
+    end;
+    local v38 = v23[v36.Name];
+    if v38 then
+        v38:SetVisible(true);
+        v24[v36] = true;
+    end;
+end);
+v21.Unloaded:Connect(function(v39) --[[ Line: 113 ]]
+    -- upvalues: v22 (copy), v23 (copy), v24 (copy)
+    local v40 = v22[v39.Name];
+    if v40 then
+        v40:SetVisible(false);
+    end;
+    local v41 = v23[v39.Name];
+    if v41 then
+        v41:SetVisible(false);
+        v24[v39] = nil;
+    end;
+end);
+v15.new({
+    Enum.UserInputType.MouseButton1, 
+    Enum.UserInputType.Touch, 
+    Enum.KeyCode.ButtonX
+}).Activated:Connect(function() --[[ Line: 131 ]]
+    -- upvalues: v24 (copy), v23 (copy)
+    for v42 in v24 do
+        local v43 = v23[v42.Name];
+        if v43 and v43.InRange then
+            task.delay(math.random() / 10, v43.Hit, v43);
+        end;
+    end;
+end);
+local v44 = nil;
+v5(0.5, function() --[[ Line: 144 ]]
+    -- upvalues: v6 (copy), l_LocalPlayer_0 (copy), v22 (copy), v21 (copy), v44 (ref), v10 (copy), v11 (copy)
+    local l_v6_RootPart_0 = v6:GetRootPart(l_LocalPlayer_0);
+    if not l_v6_RootPart_0 then
+        return;
+    else
+        local v46 = nil;
+        local v47 = 20;
+        for _, v49 in v22 do
+            if v49.Model.Parent then
+                local l_Magnitude_0 = (l_v6_RootPart_0.Position - v49.CFrame.Position).Magnitude;
+                if l_Magnitude_0 < v47 and not v49.Opened and not v49.Animating then
+                    v46 = v49;
+                    v47 = l_Magnitude_0;
+                end;
+                v49:Update();
+            end;
+        end;
+        v21:Update(l_v6_RootPart_0.Position);
+        if v44 == v46 then
+            return;
+        else
+            if v46 then
+                local l_Model_0 = v46.Model;
+                v10.fromChest(l_Model_0.Name);
+                v10:Attach(l_Model_0.Prompt);
+                v10.Activated:Connect(function(_) --[[ Line: 179 ]]
+                    -- upvalues: v22 (ref), l_Model_0 (copy), v11 (ref), v10 (ref)
+                    if not v22[l_Model_0.Name] then
+                        return;
+                    else
+                        v11:FireServer("ClaimChest", l_Model_0.Name);
+                        v10:Attach(nil);
+                        return;
+                    end;
+                end);
+            else
+                v10:Attach(nil);
+            end;
+            v44 = v46;
+            return;
+        end;
+    end;
+end);
+l_RunService_0.Heartbeat:Connect(function() --[[ Line: 194 ]]
+    -- upvalues: v6 (copy), l_LocalPlayer_0 (copy), v24 (copy), v20 (copy), v23 (copy)
+    local l_v6_RootPart_1 = v6:GetRootPart(l_LocalPlayer_0);
+    if not l_v6_RootPart_1 then
+        return;
+    elseif not next(v24) then
+        v20.IsGiftInRange = false;
+        return;
+    else
+        local v54 = false;
+        for v55 in v24 do
+            local v56 = v23[v55.Name];
+            if v56 then
+                local v57 = ((v55:GetPivot().Position - l_v6_RootPart_1.Position) * Vector3.new(1, 0, 1, 0)).Magnitude <= 15;
+                if v57 then
+                    v54 = true;
+                end;
+                v56:SetInRange(v57);
+            end;
+        end;
+        v20.IsGiftInRange = v54;
+        return;
+    end;
+end);
+v7:ConnectDataChanged("Cooldowns", function() --[[ Line: 219 ]]
+    -- upvalues: v22 (copy)
+    for _, v59 in v22 do
+        v59:Update();
+    end;
+end);
+return v20;
+ModuleScript: Chest
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_RunService_0 = game:GetService("RunService");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_MarketplaceService_0 = game:GetService("MarketplaceService");
+local l_Players_0 = game:GetService("Players");
+local v5 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Time);
+local v7 = require(l_ReplicatedStorage_0.Client.LowDetail);
+local v8 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.SequenceUtil);
+local v9 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v10 = require(l_ReplicatedStorage_0.Shared.Utils.RichText);
+local v11 = require(l_ReplicatedStorage_0.Client.Gui.Utils.Notification);
+local v12 = require(l_ReplicatedStorage_0.Client.Gui.GetScreenGuiHolder);
+local v13 = require(l_ReplicatedStorage_0.Shared.Data.Chests);
+local v14 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.ProductInfo);
+local v15 = require(l_ReplicatedStorage_0.Shared.Constants);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.String.FormatSuffix);
+local v17 = require(l_ReplicatedStorage_0.Client.Gui.Utils.AutoButtonColor);
+local v18 = require(l_ReplicatedStorage_0.Shared.Palette);
+local v19 = require(l_ReplicatedStorage_0.Client.Gui.Utils.ClickableButton);
+local v20 = require(l_ReplicatedStorage_0.Client.Gui.Animations.ProcessingPurchase);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v22 = {};
+v22.__index = v22;
+local v23 = {
+    Spin = TweenInfo.new(0.5, Enum.EasingStyle.Cubic), 
+    Drop = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.In), 
+    Open = TweenInfo.new(0.45, Enum.EasingStyle.Back)
+};
+local v24 = v10.new():color(Color3.fromRGB(255, 134, 245));
+local function _(v25, v26) --[[ Line: 70 ]] --[[ Name: setHidden ]]
+    local l_v25_Attribute_0 = v25:GetAttribute("OriginalCollide");
+    if not l_v25_Attribute_0 then
+        l_v25_Attribute_0 = v25.CanCollide;
+        v25:SetAttribute("OriginalCollide", v25.CanCollide);
+    end;
+    if v26 then
+        v25.CanCollide = false;
+    else
+        v25.CanCollide = l_v25_Attribute_0;
+    end;
+    v25.CanQuery = not v26;
+    v25.CanTouch = not v26;
+end;
+v22.new = function(v29, v30) --[[ Line: 85 ]] --[[ Name: new ]]
+    -- upvalues: l_ReplicatedStorage_0 (copy), v12 (copy), v13 (copy), v17 (copy), v18 (copy), v19 (copy), v20 (copy), l_MarketplaceService_0 (copy), l_LocalPlayer_0 (copy), v14 (copy), v15 (copy), v22 (copy)
+    local l_Top_0 = v29.Decoration.Top;
+    local l_v29_Pivot_0 = v29:GetPivot();
+    local v33 = l_ReplicatedStorage_0.Assets.ChestRespawn:Clone();
+    v33:PivotTo(v30.CFrame);
+    local l_SurfaceGui_0 = v33.Display.SurfaceGui;
+    l_SurfaceGui_0.Adornee = v33.Display;
+    l_SurfaceGui_0.Parent = v12();
+    local l_DevProduct_0 = v13[v29.Name].DevProduct;
+    if l_DevProduct_0 then
+        v17(l_SurfaceGui_0.Action.Button, v18.Button.Green);
+        v19(l_SurfaceGui_0.Action.Button, function() --[[ Line: 99 ]]
+            -- upvalues: v20 (ref), l_MarketplaceService_0 (ref), l_LocalPlayer_0 (ref), l_DevProduct_0 (copy)
+            v20:Show();
+            l_MarketplaceService_0:PromptProductPurchase(l_LocalPlayer_0, l_DevProduct_0);
+        end);
+        local v36 = nil;
+        do
+            local l_v36_0 = v36;
+            v14:ConnectProductChanged(l_DevProduct_0, function(v38) --[[ Line: 105 ]]
+                -- upvalues: l_v36_0 (ref), l_SurfaceGui_0 (copy), v15 (ref)
+                if v38 and v38.PriceInRobux then
+                    l_v36_0 = v38.PriceInRobux;
+                end;
+                l_SurfaceGui_0.Action.Button.Label.Text = ("%*%*"):format(v15.RobuxUnicode, l_v36_0 or "__");
+            end);
+        end;
+    end;
+    local v39 = setmetatable({
+        Sign = v33, 
+        SignGui = l_SurfaceGui_0, 
+        Hinge = l_v29_Pivot_0:ToObjectSpace(v29.Decoration.Top:GetPivot()), 
+        CFrame = v29:GetPivot(), 
+        Outer = v29.Outer, 
+        Model = v29, 
+        Top = l_Top_0, 
+        Location = v30, 
+        Opened = false, 
+        Animating = false
+    }, v22);
+    v29.Prompt.Transparency = 1;
+    v29.Countdown.Transparency = 1;
+    v39:Display(true);
+    return v39;
+end;
+v22.Display = function(v40, v41) --[[ Line: 137 ]] --[[ Name: Display ]]
+    -- upvalues: l_ReplicatedStorage_0 (copy), l_RunService_0 (copy), v9 (copy), l_TweenService_0 (copy), v23 (copy)
+    if v40.Animating then
+        return;
+    else
+        v40.Sign.Parent = nil;
+        v40.Top:PivotTo(v40.CFrame * v40.Hinge);
+        local v42 = l_ReplicatedStorage_0.Assets.Effects.Beam:Clone();
+        v42.Beam.Color = ColorSequence.new(v40.Model:GetAttribute("Beam") or Color3.fromRGB(255, 219, 41));
+        v42.CFrame = v40.CFrame;
+        v42.Parent = v40.Model.Parent or nil;
+        if v40.Beam then
+            v40.Beam:Destroy();
+        end;
+        v40.Beam = v42;
+        v40.Model.Countdown.BillboardGui.Enabled = false;
+        v40.Top.Transparency = 0;
+        v40.Model.Decoration.Bottom.Transparency = 0;
+        if v41 then
+            return;
+        else
+            local l_NumberValue_0 = Instance.new("NumberValue");
+            local l_Vector3Value_0 = Instance.new("Vector3Value");
+            l_Vector3Value_0.Value = Vector3.new(0, 7, 0, 0);
+            local v46 = l_RunService_0.Heartbeat:Connect(function() --[[ Line: 166 ]] --[[ Name: update ]]
+                -- upvalues: v40 (copy), l_NumberValue_0 (copy), l_Vector3Value_0 (copy)
+                local v45 = v40.CFrame * CFrame.Angles(0, l_NumberValue_0.Value, 0) + l_Vector3Value_0.Value;
+                v40.Model:PivotTo(v45);
+                v40.Top:PivotTo(v45 * v40.Hinge);
+            end);
+            local l_Highlight_0 = Instance.new("Highlight");
+            l_Highlight_0.OutlineTransparency = 1;
+            l_Highlight_0.FillTransparency = 0;
+            l_Highlight_0.FillColor = Color3.new(1, 1, 1);
+            l_Highlight_0.DepthMode = Enum.HighlightDepthMode.Occluded;
+            l_Highlight_0.Parent = v40.Model;
+            local l_Highlight_1 = Instance.new("Highlight");
+            l_Highlight_1.OutlineTransparency = 1;
+            l_Highlight_1.FillTransparency = 0;
+            l_Highlight_1.FillColor = Color3.new(1, 1, 1);
+            l_Highlight_1.DepthMode = Enum.HighlightDepthMode.Occluded;
+            l_Highlight_1.Parent = v40.Top;
+            v9("ChestWhoosh", v40.CFrame.Position);
+            v40.Animating = true;
+            local v49 = v40.CFrame * CFrame.Angles(0, l_NumberValue_0.Value, 0) + l_Vector3Value_0.Value;
+            v40.Model:PivotTo(v49);
+            v40.Top:PivotTo(v49 * v40.Hinge);
+            l_TweenService_0:Create(l_NumberValue_0, v23.Spin, {
+                Value = 6.283185307179586
+            }):Play();
+            task.delay(v23.Spin.Time / 2, function() --[[ Line: 196 ]]
+                -- upvalues: l_TweenService_0 (ref), l_Highlight_0 (copy), v23 (ref), l_Highlight_1 (copy)
+                l_TweenService_0:Create(l_Highlight_0, v23.Drop, {
+                    FillTransparency = 1
+                }):Play();
+                l_TweenService_0:Create(l_Highlight_1, v23.Drop, {
+                    FillTransparency = 1
+                }):Play();
+                task.wait(v23.Drop.Time);
+                l_Highlight_0:Destroy();
+                l_Highlight_1:Destroy();
+            end);
+            task.wait(v23.Spin.Time);
+            l_TweenService_0:Create(l_Vector3Value_0, v23.Drop, {
+                Value = Vector3.new()
+            }):Play();
+            task.delay(v23.Drop.Time / 1.5, function() --[[ Line: 207 ]]
+                -- upvalues: v42 (copy)
+                v42.Particles.Dust:Emit(20);
+            end);
+            task.wait(v23.Drop.Time);
+            for _, v51 in v40.Model:GetDescendants() do
+                if v51:IsA("BasePart") and v51.Parent.Name ~= "ChestRespawn" then
+                    local l_v51_Attribute_0 = v51:GetAttribute("OriginalCollide");
+                    if not l_v51_Attribute_0 then
+                        l_v51_Attribute_0 = v51.CanCollide;
+                        v51:SetAttribute("OriginalCollide", v51.CanCollide);
+                    end;
+                    v51.CanCollide = l_v51_Attribute_0;
+                    v51.CanQuery = true;
+                    v51.CanTouch = true;
+                end;
+            end;
+            v49 = v40.Top;
+            local l_v49_Attribute_0 = v49:GetAttribute("OriginalCollide");
+            if not l_v49_Attribute_0 then
+                l_v49_Attribute_0 = v49.CanCollide;
+                v49:SetAttribute("OriginalCollide", v49.CanCollide);
+            end;
+            v49.CanCollide = l_v49_Attribute_0;
+            v49.CanQuery = true;
+            v49.CanTouch = true;
+            v49 = v40.Outer;
+            l_v49_Attribute_0 = v49:GetAttribute("OriginalCollide");
+            if not l_v49_Attribute_0 then
+                l_v49_Attribute_0 = v49.CanCollide;
+                v49:SetAttribute("OriginalCollide", v49.CanCollide);
+            end;
+            v49.CanCollide = l_v49_Attribute_0;
+            v49.CanQuery = true;
+            v49.CanTouch = true;
+            v9("ChestSpawn", v40.CFrame.Position);
+            v9("ChestLand", v40.CFrame.Position);
+            v49 = v40.CFrame * CFrame.Angles(0, l_NumberValue_0.Value, 0) + l_Vector3Value_0.Value;
+            v40.Model:PivotTo(v49);
+            v40.Top:PivotTo(v49 * v40.Hinge);
+            v46:Disconnect();
+            l_Vector3Value_0:Destroy();
+            l_NumberValue_0:Destroy();
+            v40.Animating = false;
+            return;
+        end;
+    end;
+end;
+v22.Open = function(v54, v55) --[[ Line: 232 ]] --[[ Name: Open ]]
+    -- upvalues: v9 (copy), v23 (copy), v7 (copy), l_ReplicatedStorage_0 (copy), v8 (copy), l_TweenService_0 (copy)
+    if v54.Animating then
+        return;
+    else
+        if v54.Beam then
+            v54.Beam:Destroy();
+        end;
+        if v55 then
+            v54.Model.Decoration.Coins.Transparency = 1;
+            v54.Model.Decoration.Coins.Attachment.Rays.Enabled = false;
+            v54.Top:PivotTo(v54.CFrame * v54.Hinge * CFrame.Angles(1.9198621771937625, 0, 0));
+            return;
+        else
+            local l_NumberValue_1 = Instance.new("NumberValue");
+            l_NumberValue_1:GetPropertyChangedSignal("Value"):Connect(function() --[[ Line: 248 ]]
+                -- upvalues: v54 (copy), l_NumberValue_1 (copy)
+                v54.Top:PivotTo(v54.CFrame * v54.Hinge * CFrame.Angles(l_NumberValue_1.Value, 0, 0));
+            end);
+            v9("ChestCollect", v54.CFrame.Position);
+            v54.Animating = true;
+            task.delay(v23.Open.Time * 0.25, function() --[[ Line: 255 ]]
+                -- upvalues: v7 (ref), v54 (copy), l_ReplicatedStorage_0 (ref), v8 (ref)
+                if v7.Enabled then
+                    return;
+                else
+                    local l_Attachment_0 = Instance.new("Attachment");
+                    l_Attachment_0.WorldPosition = v54.Model.Decoration.Coins.Position - Vector3.new(0, 4, 0, 0);
+                    l_Attachment_0.Parent = workspace.Terrain;
+                    for _, v59 in (l_ReplicatedStorage_0.Assets.Particles.Pillar:GetChildren()) do
+                        local v60 = v59:Clone();
+                        v60.Size = v8.transformNumberSequence(v60.Size, function(v61) --[[ Line: 265 ]]
+                            return NumberSequenceKeypoint.new(v61.Time, v61.Value * 3.5);
+                        end);
+                        v60.Enabled = false;
+                        v60.Parent = l_Attachment_0;
+                        v60:Emit(15);
+                    end;
+                    task.wait(2);
+                    l_Attachment_0:Destroy();
+                    return;
+                end;
+            end);
+            l_TweenService_0:Create(l_NumberValue_1, v23.Open, {
+                Value = 1.9198621771937625
+            }):Play();
+            task.wait(v23.Open.Time);
+            v54.Model.Decoration.Coins.Attachment.Rays.Enabled = false;
+            l_TweenService_0:Create(v54.Model.Decoration.Coins, v23.Spin, {
+                Transparency = 1
+            }):Play();
+            task.wait(v23.Spin.Time);
+            l_NumberValue_1:Destroy();
+            for _, v63 in v54.Model:GetDescendants() do
+                if v63:IsA("BasePart") and v63.Parent.Name ~= "ChestRespawn" then
+                    if not v63:GetAttribute("OriginalCollide") then
+                        local _ = v63.CanCollide;
+                        v63:SetAttribute("OriginalCollide", v63.CanCollide);
+                    end;
+                    v63.CanCollide = false;
+                    v63.CanQuery = false;
+                    v63.CanTouch = false;
+                end;
+            end;
+            local l_Top_1 = v54.Top;
+            if not l_Top_1:GetAttribute("OriginalCollide") then
+                local _ = l_Top_1.CanCollide;
+                l_Top_1:SetAttribute("OriginalCollide", l_Top_1.CanCollide);
+            end;
+            l_Top_1.CanCollide = false;
+            l_Top_1.CanQuery = false;
+            l_Top_1.CanTouch = false;
+            l_Top_1 = v54.Outer;
+            if not l_Top_1:GetAttribute("OriginalCollide") then
+                local _ = l_Top_1.CanCollide;
+                l_Top_1:SetAttribute("OriginalCollide", l_Top_1.CanCollide);
+            end;
+            l_Top_1.CanCollide = false;
+            l_Top_1.CanQuery = false;
+            l_Top_1.CanTouch = false;
+            v54.Top.Transparency = 1;
+            v54.Model.Decoration.Bottom.Transparency = 1;
+            v54.Animating = false;
+            return;
+        end;
+    end;
+end;
+v22.Update = function(v68) --[[ Line: 302 ]] --[[ Name: Update ]]
+    -- upvalues: v5 (copy), v6 (copy), v11 (copy), v24 (copy)
+    local v69 = v5:Get();
+    if not v69 then
+        return;
+    else
+        local v70 = v6.now();
+        local v71 = (v69.Cooldowns[v68.Model.Name] or 0) - v70;
+        local v72 = v71 > 0;
+        if v68.Opened ~= v72 then
+            local v73 = not v72;
+            for _, v75 in v68.Model.Inner:GetChildren() do
+                if v75:IsA("ParticleEmitter") then
+                    v75.Enabled = v73;
+                end;
+            end;
+            v68.Model.Inner.Attachment.Rays.Enabled = v73;
+            v68.Model.Inner.PointLight.Enabled = v73;
+            v68.Outer.PointLight.Enabled = v73;
+            v68.Outer.Stars.Enabled = v73;
+            v68.Opened = v72;
+            task.spawn(function() --[[ Line: 322 ]]
+                -- upvalues: v72 (copy), v68 (copy), v11 (ref), v24 (ref)
+                if v72 then
+                    v68:Open(v68.Model.Parent == nil);
+                    return;
+                else
+                    v11(v24((("%* has Respawned"):format(v68.Model.Name))), {
+                        Sound = "ChestSpawn", 
+                        TeleportId = v68.Location:GetFullName()
+                    });
+                    v68:Display(v68.Model.Parent == nil);
+                    return;
+                end;
+            end);
+        end;
+        v68.Outer.Parent = not v72 and v68.Model or nil;
+        v68.Sign.Parent = v72 and v68.Model or nil;
+        v68.Model.Countdown.BillboardGui.Enabled = v72;
+        v68.Model.Countdown.BillboardGui.Label.Text = v6.formatTime(v71);
+        return;
+    end;
+end;
+v22.SetVisible = function(v76, v77) --[[ Line: 341 ]] --[[ Name: SetVisible ]]
+    local v78 = v77 and workspace.Rendered.Generic or nil;
+    if v76.Beam then
+        pcall(function() --[[ Line: 344 ]]
+            -- upvalues: v76 (copy), v78 (copy)
+            v76.Beam.Parent = v78;
+        end);
+    end;
+    for _, v80 in v76.Model:GetDescendants() do
+        if v80:IsA("BasePart") and v80.Parent.Name ~= "ChestRespawn" then
+            local v81 = not v77;
+            local l_v80_Attribute_0 = v80:GetAttribute("OriginalCollide");
+            if not l_v80_Attribute_0 then
+                l_v80_Attribute_0 = v80.CanCollide;
+                v80:SetAttribute("OriginalCollide", v80.CanCollide);
+            end;
+            if v81 then
+                v80.CanCollide = false;
+            else
+                v80.CanCollide = l_v80_Attribute_0;
+            end;
+            v80.CanQuery = not v81;
+            v80.CanTouch = not v81;
+        end;
+    end;
+    local l_Top_2 = v76.Top;
+    local v84 = not v77;
+    local l_l_Top_2_Attribute_0 = l_Top_2:GetAttribute("OriginalCollide");
+    if not l_l_Top_2_Attribute_0 then
+        l_l_Top_2_Attribute_0 = l_Top_2.CanCollide;
+        l_Top_2:SetAttribute("OriginalCollide", l_Top_2.CanCollide);
+    end;
+    if v84 then
+        l_Top_2.CanCollide = false;
+    else
+        l_Top_2.CanCollide = l_l_Top_2_Attribute_0;
+    end;
+    l_Top_2.CanQuery = not v84;
+    l_Top_2.CanTouch = not v84;
+    l_Top_2 = v76.Outer;
+    v84 = not v77;
+    l_l_Top_2_Attribute_0 = l_Top_2:GetAttribute("OriginalCollide");
+    if not l_l_Top_2_Attribute_0 then
+        l_l_Top_2_Attribute_0 = l_Top_2.CanCollide;
+        l_Top_2:SetAttribute("OriginalCollide", l_Top_2.CanCollide);
+    end;
+    if v84 then
+        l_Top_2.CanCollide = false;
+    else
+        l_Top_2.CanCollide = l_l_Top_2_Attribute_0;
+    end;
+    l_Top_2.CanQuery = not v84;
+    l_Top_2.CanTouch = not v84;
+    v76.Top.Parent = v78;
+    v76.Model.Parent = v78;
+end;
+return v22;
+ModuleScript: Gift
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_RunService_0 = game:GetService("RunService");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_UserInputService_0 = game:GetService("UserInputService");
+local _ = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Time);
+local _ = require(l_ReplicatedStorage_0.Client.LowDetail);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.SequenceUtil);
+local v8 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v9 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+local v10 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local v11 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.EmitParticleAtPosition);
+local _ = require(l_ReplicatedStorage_0.Shared.Framework.Classes.WorldEmitter);
+local v13 = require(l_ReplicatedStorage_0.Shared.Framework.Services.CollisionGroup);
+local v14 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local v15 = require(l_ReplicatedStorage_0.Client.Framework.Services.InputMode);
+local v16 = {};
+v16.__index = v16;
+local v17 = {
+    Spin = TweenInfo.new(0.5, Enum.EasingStyle.Cubic), 
+    Elastic = TweenInfo.new(0.85, Enum.EasingStyle.Elastic), 
+    Drop = TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.In), 
+    Hit = TweenInfo.new(0.1, Enum.EasingStyle.Quart), 
+    Explode = TweenInfo.new(0.5, Enum.EasingStyle.Quint)
+};
+local function v22(v18, v19, v20) --[[ Line: 65 ]] --[[ Name: emit ]]
+    local v21 = v18:Clone();
+    v21.Enabled = false;
+    v21.Parent = v19;
+    v21:Emit(v20);
+    task.delay(v21.Lifetime.Max, function() --[[ Line: 74 ]]
+        -- upvalues: v21 (copy)
+        v21:Destroy();
+    end);
+end;
+v16.new = function(v23, v24) --[[ Line: 79 ]] --[[ Name: new ]]
+    -- upvalues: v9 (copy), l_ReplicatedStorage_0 (copy), v14 (copy), v16 (copy), l_RunService_0 (copy), v13 (copy), l_TweenService_0 (copy), v17 (copy), v15 (copy), l_UserInputService_0 (copy)
+    local _ = v23:GetPivot();
+    local l_Scale_0 = v23.Mesh.Scale;
+    local l_Offset_0 = v23.Mesh.Offset;
+    local l_NumberValue_0 = Instance.new("NumberValue");
+    local l_NumberValue_1 = Instance.new("NumberValue");
+    l_NumberValue_1.Value = 1;
+    local l_NumberValue_2 = Instance.new("NumberValue");
+    l_NumberValue_2.Value = 4;
+    local v31 = v9.new();
+    local v32 = l_ReplicatedStorage_0.Assets.GiftGui:Clone();
+    v32.Enabled = false;
+    v32.Parent = v23;
+    local l_Attachment_0 = Instance.new("Attachment");
+    l_Attachment_0.Parent = v23;
+    local v34 = setmetatable({
+        Squash = l_NumberValue_1, 
+        CFrame = v23:GetPivot(), 
+        Model = v23, 
+        Animating = true, 
+        AnimationId = 0, 
+        LastAnimation = 0, 
+        HitCount = 0, 
+        InRange = false, 
+        Attachment = l_Attachment_0, 
+        Destroying = v14.new(), 
+        Gui = v32, 
+        _maid = v31
+    }, v16);
+    v31:Add(l_RunService_0.Heartbeat:Connect(function() --[[ Line: 116 ]]
+        -- upvalues: l_Scale_0 (copy), l_NumberValue_1 (copy), v23 (copy), l_Offset_0 (copy), v24 (copy), l_NumberValue_0 (copy), l_NumberValue_2 (copy)
+        local v35 = l_Scale_0.X * l_NumberValue_1.Value;
+        local v36 = l_Scale_0.Y / l_NumberValue_1.Value;
+        if l_NumberValue_1.Value ~= 1 then
+            v23.Mesh.Scale = Vector3.new(v35, v36, v35);
+            v23.Mesh.Offset = l_Offset_0 - Vector3.new(0, v36 / 2, 0);
+        end;
+        v23.CFrame = CFrame.new(v24) * CFrame.Angles(0, l_NumberValue_0.Value, 0) + Vector3.new(0, l_NumberValue_2.Value + v36 / 2, 0) + Vector3.new(0, v23.Size.Y / 2, 0);
+    end));
+    v31:Add(l_NumberValue_1);
+    v31:Add(v23);
+    v31:Add(l_NumberValue_2);
+    v31:Add(l_NumberValue_0);
+    v13:AddBasePart(v23, "Ignore");
+    local l_Highlight_0 = Instance.new("Highlight");
+    l_Highlight_0.OutlineTransparency = 1;
+    l_Highlight_0.FillTransparency = 0;
+    l_Highlight_0.FillColor = Color3.new(1, 1, 1);
+    l_Highlight_0.DepthMode = Enum.HighlightDepthMode.Occluded;
+    l_Highlight_0.Parent = v23;
+    l_TweenService_0:Create(l_NumberValue_0, v17.Spin, {
+        Value = 6.283185307179586
+    }):Play();
+    task.delay(v17.Spin.Time / 2, function() --[[ Line: 144 ]]
+        -- upvalues: l_TweenService_0 (ref), l_Highlight_0 (copy), v17 (ref), l_NumberValue_2 (copy), l_NumberValue_1 (copy), v32 (copy), v34 (copy)
+        l_TweenService_0:Create(l_Highlight_0, v17.Drop, {
+            FillTransparency = 1
+        }):Play();
+        l_TweenService_0:Create(l_NumberValue_2, v17.Drop, {
+            Value = 0
+        }):Play();
+        l_TweenService_0:Create(l_NumberValue_1, v17.Drop, {
+            Value = 1.25
+        }):Play();
+        task.wait(v17.Drop.Time);
+        l_Highlight_0:Destroy();
+        l_TweenService_0:Create(l_NumberValue_1, v17.Elastic, {
+            Value = 1
+        }):Play();
+        v32.Enabled = true;
+        v34.Animating = false;
+    end);
+    local function v39() --[[ Line: 156 ]] --[[ Name: onInputModeChanged ]]
+        -- upvalues: v15 (ref), v32 (copy), l_UserInputService_0 (ref)
+        local l_Mode_0 = v15.Mode;
+        if l_Mode_0 == "Keyboard" then
+            v32.Label.Text = "Click!";
+            v32.Icon.Image = "rbxassetid://95988244521042";
+            return;
+        elseif l_Mode_0 == "Touch" then
+            v32.Label.Text = "Tap!";
+            v32.Icon.Image = "rbxasset://textures/ui/Controls/TouchTapIcon@3x.png";
+            return;
+        else
+            v32.Label.Text = "Press!";
+            v32.Icon.Image = l_UserInputService_0:GetImageForKeyCode(Enum.KeyCode.ButtonX);
+            return;
+        end;
+    end;
+    v31:Add(v15.Changed:Connect(v39));
+    local l_Mode_1 = v15.Mode;
+    if l_Mode_1 == "Keyboard" then
+        v32.Label.Text = "Click!";
+        v32.Icon.Image = "rbxassetid://95988244521042";
+        return v34;
+    elseif l_Mode_1 == "Touch" then
+        v32.Label.Text = "Tap!";
+        v32.Icon.Image = "rbxasset://textures/ui/Controls/TouchTapIcon@3x.png";
+        return v34;
+    else
+        v32.Label.Text = "Press!";
+        v32.Icon.Image = l_UserInputService_0:GetImageForKeyCode(Enum.KeyCode.ButtonX);
+        return v34;
+    end;
+end;
+v16.Collect = function(v41) --[[ Line: 176 ]] --[[ Name: Collect ]]
+    -- upvalues: l_TweenService_0 (copy), v17 (copy), v10 (copy), v8 (copy), v11 (copy), l_ReplicatedStorage_0 (copy)
+    if v41.Animating then
+        return;
+    else
+        v41.Animating = true;
+        v41.Gui.Enabled = false;
+        l_TweenService_0:Create(v41.Squash, v17.Hit, {
+            Value = 1
+        }):Play();
+        task.wait(v17.Hit.Time);
+        v10:FireServer("ClaimGift", v41.Model.Name);
+        l_TweenService_0:Create(v41.Model, v17.Explode, {
+            Transparency = 1
+        }):Play();
+        l_TweenService_0:Create(v41.Model.Mesh, v17.Explode, {
+            Scale = v41.Model.Mesh.Scale * 2.5, 
+            VertexColor = Vector3.new(10, 10, 10, 0)
+        }):Play();
+        v8("SparkleExplode", v41.Model:GetPivot().Position);
+        v11(v41.CFrame.Position, l_ReplicatedStorage_0.Assets.Particles.Gift.Explosion, 3);
+        task.wait(v17.Explode.Time);
+        v41:Destroy();
+        return;
+    end;
+end;
+v16.Hit = function(v42) --[[ Line: 203 ]] --[[ Name: Hit ]]
+    -- upvalues: v8 (copy), v22 (copy), l_ReplicatedStorage_0 (copy), l_TweenService_0 (copy), v17 (copy)
+    if v42.Animating then
+        return;
+    else
+        local v43 = os.clock();
+        if v43 - v42.LastAnimation <= 0.05 then
+            return;
+        else
+            local l_Highlight_1 = v42.Model:FindFirstChildOfClass("Highlight");
+            if not l_Highlight_1 then
+                local l_Highlight_2 = Instance.new("Highlight");
+                l_Highlight_2.OutlineTransparency = 1;
+                l_Highlight_2.FillTransparency = 0;
+                l_Highlight_2.FillColor = Color3.new(1, 1, 1);
+                l_Highlight_2.DepthMode = Enum.HighlightDepthMode.Occluded;
+                l_Highlight_2.Parent = v42.Model;
+                l_Highlight_1 = l_Highlight_2;
+            end;
+            assert(l_Highlight_1);
+            local v46 = v42.AnimationId + 1;
+            v42.AnimationId = v46;
+            v42.LastAnimation = v43;
+            v42.HitCount = v42.HitCount + 1;
+            v8("Hit", v42.CFrame.Position);
+            v22(l_ReplicatedStorage_0.Assets.Particles.Gift.Tracer, v42.Attachment, 8);
+            v22(l_ReplicatedStorage_0.Assets.Particles.Gift.Strikes, v42.Attachment, 1);
+            if v42.HitCount == 8 then
+                return task.defer(v42.Collect, v42);
+            else
+                l_TweenService_0:Create(v42.Squash, v17.Hit, {
+                    Value = 0.85
+                }):Play();
+                l_TweenService_0:Create(l_Highlight_1, v17.Hit, {
+                    FillTransparency = 0
+                }):Play();
+                task.delay(v17.Hit.Time, function() --[[ Line: 239 ]]
+                    -- upvalues: v42 (copy), v46 (copy), l_TweenService_0 (ref), v17 (ref), l_Highlight_1 (ref)
+                    if v42.AnimationId ~= v46 then
+                        return;
+                    else
+                        l_TweenService_0:Create(v42.Squash, v17.Elastic, {
+                            Value = 1
+                        }):Play();
+                        l_TweenService_0:Create(l_Highlight_1, v17.Hit, {
+                            FillTransparency = 1
+                        }):Play();
+                        task.wait(v17.Hit.Time);
+                        if v42.AnimationId ~= v46 then
+                            return;
+                        else
+                            l_Highlight_1:Destroy();
+                            return;
+                        end;
+                    end;
+                end);
+                return;
+            end;
+        end;
+    end;
+end;
+v16.SetInRange = function(v47, v48) --[[ Line: 254 ]] --[[ Name: SetInRange ]]
+    if v47.InRange == v48 then
+        return;
+    else
+        v47.InRange = v48;
+        return;
+    end;
+end;
+v16.SetVisible = function(v49, v50) --[[ Line: 262 ]] --[[ Name: SetVisible ]]
+    v49.Model.Parent = v50 and workspace.Rendered.Gifts or nil;
+end;
+v16.Destroy = function(v51) --[[ Line: 267 ]] --[[ Name: Destroy ]]
+    v51.Destroying:Fire();
+    v51.Destroying:Destroy();
+    v51._maid:Cleanup();
+end;
+return v16;
+ModuleScript: Physics
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local l_Workspace_0 = game:GetService("Workspace");
+local l_RunService_0 = game:GetService("RunService");
+local l_TweenService_0 = game:GetService("TweenService");
+local l_CollectionService_0 = game:GetService("CollectionService");
+local v6 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local _ = require(l_ReplicatedStorage_0.Client.Effects.Bubble);
+local v8 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Math.Curve);
+local v9 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.CharacterUtil);
+local v10 = require(l_ReplicatedStorage_0.Client.Gui.Utils.PlayLocalSound);
+local v11 = require(l_ReplicatedStorage_0.Shared.Framework.Network.Remote);
+local v12 = require(l_ReplicatedStorage_0.Client.Gui.GuiFrame);
+local v13 = require(l_ReplicatedStorage_0.Client.Framework.Services.InputMode);
+local v14 = require(l_ReplicatedStorage_0.Shared.Utils.Stats.StatsUtil);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local l_Gravity_0 = l_Workspace_0.Gravity;
+local l_CurrentCamera_0 = workspace.CurrentCamera;
+local l_LocalPlayer_1 = l_Players_0.LocalPlayer;
+local v19 = {
+    Enabled = true, 
+    Override = false
+};
+local v20 = {
+    Gravity = v8.new(), 
+    Power = v8.new()
+};
+local v21 = {
+    {
+        Length = 600, 
+        Gravity = 50, 
+        Power = 100
+    }, 
+    {
+        Length = 3000, 
+        Gravity = 65, 
+        Power = 130
+    }, 
+    {
+        Length = 25000, 
+        Gravity = 85, 
+        Power = 200
+    }, 
+    {
+        Length = 100000, 
+        Gravity = 135, 
+        Power = 275
+    }, 
+    {
+        Length = 600000, 
+        Gravity = 135, 
+        Power = 335
+    }
+};
+local v22 = TweenInfo.new(0.125, Enum.EasingStyle.Sine, Enum.EasingDirection.In);
+local v23 = TweenInfo.new(v22.Time, v22.EasingStyle);
+local l_ScreenGui_0 = l_LocalPlayer_0.PlayerGui.ScreenGui;
+local function v33(v25) --[[ Line: 56 ]] --[[ Name: updatePhysics ]]
+    -- upvalues: l_LocalPlayer_0 (copy), v6 (copy), v13 (copy), v12 (copy), l_ScreenGui_0 (copy), v19 (copy), l_LocalPlayer_1 (copy), l_Workspace_0 (copy), l_Gravity_0 (copy), v20 (copy), v14 (copy)
+    local l_Character_0 = l_LocalPlayer_0.Character;
+    local v27 = if l_Character_0 then l_Character_0:WaitForChild("Humanoid") else nil;
+    if not v27 then
+        return;
+    else
+        local v28 = v6:Get();
+        if not v28 then
+            return;
+        else
+            local l_Amount_0 = v28.Bubble.Amount;
+            local v30 = false;
+            if v13.Mode == "Touch" then
+                v30 = v12:IsAnyOpen() or l_ScreenGui_0.Trading.Visible == true;
+            end;
+            task.defer(function() --[[ Line: 72 ]]
+                -- upvalues: v19 (ref), l_LocalPlayer_1 (ref), v28 (copy), v25 (copy), v27 (copy), l_Workspace_0 (ref), l_Gravity_0 (ref), v20 (ref), l_Amount_0 (copy), v30 (copy), v14 (ref)
+                local v31 = v19.Enabled == false;
+                if l_LocalPlayer_1:GetAttribute("InRace") then
+                    v31 = false;
+                end;
+                local v32 = v28.Settings["Bubble Gravity"] / 100;
+                if v31 and not v25 then
+                    v27.JumpPower = 50;
+                    l_Workspace_0.Gravity = l_Gravity_0;
+                else
+                    v27.JumpPower = 50 + (20 + v20.Power:Get(l_Amount_0)) * v32;
+                    workspace.Gravity = l_Gravity_0 - v20.Gravity:Get(l_Amount_0) * v32;
+                end;
+                if v30 then
+                    v27.JumpPower = 0;
+                    v27.WalkSpeed = 0;
+                    return;
+                else
+                    v27.WalkSpeed = v14:GetWalkspeed(v28);
+                    return;
+                end;
+            end);
+            return;
+        end;
+    end;
+end;
+v13.Changed:Connect(function() --[[ Line: 98 ]]
+    -- upvalues: v33 (copy)
+    v33();
+end);
+v12.Changed:Connect(function() --[[ Line: 101 ]]
+    -- upvalues: v33 (copy)
+    v33();
+end);
+l_ScreenGui_0.Trading:GetPropertyChangedSignal("Visible"):Connect(v33);
+v6:ConnectDataChanged({
+    "MasteryUpgrades", 
+    "Settings"
+}, function() --[[ Line: 106 ]]
+    -- upvalues: v33 (copy)
+    v33();
+end);
+local v34 = 0;
+local function v36() --[[ Line: 115 ]] --[[ Name: pulseCamera ]]
+    -- upvalues: v34 (ref), l_TweenService_0 (copy), l_CurrentCamera_0 (copy), v23 (copy), v22 (copy)
+    local v35 = v34 + 1;
+    v34 = v35;
+    l_TweenService_0:Create(l_CurrentCamera_0, v23, {
+        FieldOfView = 80
+    }):Play();
+    task.wait(v23.Time);
+    if v35 == v34 then
+        l_TweenService_0:Create(l_CurrentCamera_0, v22, {
+            FieldOfView = 70
+        }):Play();
+    end;
+end;
+local v37 = false;
+local v38 = TweenInfo.new(0.5, Enum.EasingStyle.Sine);
+local function v47(v39) --[[ Line: 128 ]] --[[ Name: hookTrampoline ]]
+    -- upvalues: v37 (ref), l_Players_0 (copy), l_LocalPlayer_1 (copy), v9 (copy), v11 (copy), l_TweenService_0 (copy), v38 (copy), v36 (copy), v10 (copy), v6 (copy), v33 (copy)
+    local l_Bounce_0 = v39:FindFirstChild("Bounce");
+    if not l_Bounce_0 or not l_Bounce_0:IsA("BasePart") then
+        return;
+    else
+        local v41 = 0;
+        l_Bounce_0.Transparency = 1;
+        l_Bounce_0.CanCollide = false;
+        l_Bounce_0.Touched:Connect(function(v42) --[[ Line: 136 ]]
+            -- upvalues: v37 (ref), l_Players_0 (ref), l_LocalPlayer_1 (ref), v9 (ref), v41 (ref), v11 (ref), v39 (copy), l_TweenService_0 (ref), v38 (ref), v36 (ref), v10 (ref), v6 (ref), v33 (ref)
+            if v37 then
+                return;
+            else
+                local v43 = v42.Parent and l_Players_0:GetPlayerFromCharacter(v42.Parent);
+                if not v43 or v43 ~= l_LocalPlayer_1 then
+                    return;
+                else
+                    local l_v9_RootPart_0 = v9:GetRootPart(v43);
+                    local l_v9_Humanoid_0 = v9:GetHumanoid(v43);
+                    if not l_v9_RootPart_0 or not l_v9_Humanoid_0 then
+                        return;
+                    else
+                        v37 = true;
+                        v41 = v41 + 1;
+                        if v41 == 5 then
+                            v11:FireServer("EasterBouncyEgg");
+                        end;
+                        local v46 = math.max(1, v39:GetAttribute("Power") or 1.25);
+                        l_v9_RootPart_0.AssemblyLinearVelocity = Vector3.new(0, 75 + l_v9_Humanoid_0.JumpPower * v46, 0);
+                        l_TweenService_0:Create(l_LocalPlayer_1, v38, {
+                            CameraMinZoomDistance = 84
+                        }):Play();
+                        task.delay(v38.Time, function() --[[ Line: 160 ]]
+                            -- upvalues: l_TweenService_0 (ref), l_LocalPlayer_1 (ref)
+                            l_TweenService_0:Create(l_LocalPlayer_1, TweenInfo.new(0.01), {
+                                CameraMinZoomDistance = 0.5
+                            }):Play();
+                        end);
+                        v36();
+                        v10("Spring");
+                        if v6:Get() then
+                            v11:FireServer("SetSetting", "Bubble Gravity", 100);
+                            v33(true);
+                        end;
+                        task.wait(0.5);
+                        v37 = false;
+                        return;
+                    end;
+                end;
+            end;
+        end);
+        return;
+    end;
+end;
+local function v49(v48) --[[ Line: 179 ]] --[[ Name: onCharacterAdded ]]
+    -- upvalues: v33 (copy)
+    v48:WaitForChild("Humanoid");
+    v33();
+end;
+v19.Enable = function(_) --[[ Line: 185 ]] --[[ Name: Enable ]]
+    -- upvalues: v19 (copy), v33 (copy)
+    v19.Enabled = true;
+    v33();
+end;
+v19.Disable = function(_) --[[ Line: 190 ]] --[[ Name: Disable ]]
+    -- upvalues: v19 (copy), v33 (copy)
+    v19.Enabled = false;
+    v33();
+end;
+v19.Update = function(_) --[[ Line: 195 ]] --[[ Name: Update ]]
+    -- upvalues: v33 (copy)
+    v33();
+end;
+l_LocalPlayer_1:GetAttributeChangedSignal("InRace"):Connect(function() --[[ Line: 199 ]]
+    -- upvalues: v33 (copy)
+    v33();
+end);
+l_LocalPlayer_0.CharacterAdded:Connect(v49);
+if l_LocalPlayer_0.Character then
+    task.spawn(v49, l_LocalPlayer_0.Character);
+end;
+v33();
+v6:ConnectDataChanged({
+    "Bubble", 
+    "Settings"
+}, function() --[[ Line: 211 ]]
+    -- upvalues: v33 (copy)
+    v33();
+end);
+local v53 = RaycastParams.new();
+v53.FilterType = Enum.RaycastFilterType.Include;
+v53.FilterDescendantsInstances = {
+    workspace.Stages
+};
+local v54 = {};
+local function v64(v55) --[[ Line: 228 ]] --[[ Name: updateHeadHit ]]
+    -- upvalues: l_LocalPlayer_0 (copy), l_Workspace_0 (copy), v53 (copy), v54 (copy)
+    local v56 = os.clock();
+    local l_Character_1 = l_LocalPlayer_0.Character;
+    local v58 = l_Character_1 and l_Character_1:FindFirstChild("HumanoidRootPart");
+    if v58 then
+        local l_Y_0 = v58.AssemblyLinearVelocity.Y;
+        if l_Y_0 > 1 then
+            local v60 = math.max(4, l_Y_0 * v55 * 4);
+            local v61 = l_Workspace_0:Blockcast(v58.CFrame, Vector3.new(4, 1, 4, 0), Vector3.new(0, v60, 0), v53);
+            if v61 and v61.Instance.CanCollide then
+                v54[v61.Instance] = v56 + 0.125;
+                v61.Instance.CanCollide = false;
+            end;
+        end;
+    end;
+    for v62, v63 in v54 do
+        if v63 <= v56 then
+            v54[v62] = nil;
+            v62.CanCollide = true;
+        end;
+    end;
+end;
+for _, v66 in v21 do
+    v20.Gravity:Add({
+        Value = v66.Gravity, 
+        Length = v66.Length
+    });
+    v20.Power:Add({
+        Value = v66.Power, 
+        Length = v66.Length
+    });
+end;
+for _, v68 in l_CollectionService_0:GetTagged("Trampoline") do
+    v47(v68);
+end;
+l_CollectionService_0:GetInstanceAddedSignal("Trampoline"):Connect(v47);
+l_RunService_0.Heartbeat:Connect(v64);
+return v19;
+ModuleScript: RenderAnimatedObject
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_HttpService_0 = game:GetService("HttpService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_Players_0 = game:GetService("Players");
+local l_RunService_0 = game:GetService("RunService");
+local v4 = require(l_ReplicatedStorage_0.Shared.Utils.Chunker);
+local v5 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.CharacterUtil);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.every);
+local v7 = require(l_ReplicatedStorage_0.Client.LowDetail);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v9 = {};
+local v10 = v4.new(128, 2);
+v10.Mode = "3D";
+local function v14(v11, v12) --[[ Line: 33 ]] --[[ Name: RenderAnimatedObject ]]
+    -- upvalues: l_HttpService_0 (copy), v10 (copy)
+    local v13 = {
+        Guid = l_HttpService_0:GenerateGUID(false), 
+        Constructor = v12
+    };
+    v10:Add(v11, v13);
+end;
+local function v16(v15) --[[ Line: 42 ]] --[[ Name: create ]]
+    -- upvalues: v9 (copy)
+    if v9[v15.Guid] then
+        return;
+    else
+        v9[v15.Guid] = v15.Constructor();
+        return;
+    end;
+end;
+local function v19(v17) --[[ Line: 49 ]] --[[ Name: remove ]]
+    -- upvalues: v9 (copy)
+    local v18 = v9[v17.Guid];
+    if v18 then
+        v18.cleanup();
+        v9[v17.Guid] = nil;
+    end;
+end;
+local function v21() --[[ Line: 57 ]] --[[ Name: update ]]
+    -- upvalues: v5 (copy), l_LocalPlayer_0 (copy), v10 (copy)
+    local l_v5_RootPart_0 = v5:GetRootPart(l_LocalPlayer_0);
+    if not l_v5_RootPart_0 then
+        return;
+    else
+        v10:Update(l_v5_RootPart_0.Position);
+        return;
+    end;
+end;
+l_RunService_0.Heartbeat:Connect(function(v22) --[[ Line: 65 ]]
+    -- upvalues: v7 (copy), v9 (copy)
+    if v7.Enabled then
+        return;
+    else
+        for _, v24 in v9 do
+            v24.update(v22);
+        end;
+        return;
+    end;
+end);
+l_LocalPlayer_0.CharacterAdded:Connect(function() --[[ Line: 74 ]]
+    -- upvalues: v5 (copy), l_LocalPlayer_0 (copy), v10 (copy)
+    local l_v5_RootPart_1 = v5:GetRootPart(l_LocalPlayer_0);
+    if not l_v5_RootPart_1 then
+        return;
+    else
+        v10:Update(l_v5_RootPart_1.Position);
+        return;
+    end;
+end);
+v6(0.5, v21);
+local l_v5_RootPart_2 = v5:GetRootPart(l_LocalPlayer_0);
+if l_v5_RootPart_2 then
+    v10:Update(l_v5_RootPart_2.Position);
+end;
+v10.Loaded:Connect(v16);
+v10.Unloaded:Connect(v19);
+return v14;
+ModuleScript: SetObjectStyle
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_RunService_0 = game:GetService("RunService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local _ = require(l_ReplicatedStorage_0.Shared.Data.Flavors);
+local v3 = {
+    [Enum.NormalId.Left] = true, 
+    [Enum.NormalId.Right] = true, 
+    [Enum.NormalId.Top] = true, 
+    [Enum.NormalId.Bottom] = true, 
+    [Enum.NormalId.Front] = true, 
+    [Enum.NormalId.Back] = true
+};
+local v4 = {};
+local function v12(v5, v6) --[[ Line: 34 ]] --[[ Name: cycleSequenceColor ]]
+    local l_Keypoints_0 = v5.Keypoints;
+    if v6 == 0 then
+        return l_Keypoints_0[1].Value;
+    elseif v6 == 1 then
+        return l_Keypoints_0[#l_Keypoints_0].Value;
+    else
+        for v8 = 1, #l_Keypoints_0 - 1 do
+            local v9 = l_Keypoints_0[v8];
+            local v10 = l_Keypoints_0[v8 + 1];
+            if v9.Time <= v6 and v6 <= v10.Time then
+                local v11 = v10.Time - v9.Time;
+                if v11 == 0 then
+                    return v9.Value;
+                else
+                    return v9.Value:Lerp(v10.Value, (v6 - v9.Time) / v11);
+                end;
+            end;
+        end;
+        return l_Keypoints_0[1].Value;
+    end;
+end;
+local v13 = 0;
+local function v21(v14) --[[ Line: 58 ]] --[[ Name: update ]]
+    -- upvalues: v4 (copy), v13 (ref), v12 (copy)
+    local v15 = {};
+    for v16, v17 in v4 do
+        if v17.Type == "Cycle" then
+            local v18 = v15[v17.Color] or {
+                [0] = v17.Color.Keypoints[1].Value
+            };
+            local v19 = v13 * 1.5 % 1;
+            local v20 = v18[v19];
+            if not v20 then
+                v20 = v12(v17.Color, v19);
+                v18[v19] = v20;
+            end;
+            if v16:IsA("BasePart") then
+                v16.Color = v20;
+            else
+                v16.FillColor = v20;
+            end;
+        end;
+    end;
+    v13 = v13 + v14;
+end;
+local function v33(v22, v23) --[[ Line: 84 ]] --[[ Name: SetObjectStyle ]]
+    -- upvalues: v4 (copy), v3 (copy), v21 (copy)
+    if v23.Type == "None" then
+        v4[v22] = nil;
+        return;
+    else
+        local v24 = v4[v22];
+        if v24 and v24.Type == v23.Type then
+            local v25 = v24.Color == v23.Color;
+            local v26 = v24.Texture and v23.Texture and v24.Texture.Texture == v23.Texture.Texture;
+            local v27 = v24.Material == v23.Material;
+            if v25 and v26 and v27 then
+                return;
+            end;
+        end;
+        if v23.Type == "Static" then
+            if v22:IsA("BasePart") then
+                v22.Color = v23.Color;
+            else
+                v22.FillColor = v23.Color;
+            end;
+        end;
+        if v23.Texture and v22:IsA("BasePart") then
+            for v28 in v3 do
+                local l_v22_FirstChild_0 = v22:FindFirstChild(v28.Name);
+                if not l_v22_FirstChild_0 then
+                    local v30 = v23.Texture:Clone();
+                    v30.Name = v28.Name;
+                    v30.Face = v28;
+                    v30.Parent = v22;
+                    l_v22_FirstChild_0 = v30;
+                end;
+                l_v22_FirstChild_0.Texture = v23.Texture.Texture;
+            end;
+        else
+            for _, v32 in v22:GetChildren() do
+                if v32:IsA("Texture") then
+                    v32:Destroy();
+                end;
+            end;
+        end;
+        if v22:IsA("BasePart") then
+            v22.Material = v23.Material or Enum.Material.SmoothPlastic;
+        end;
+        v4[v22] = v23;
+        v21(0);
+        return;
+    end;
+end;
+l_RunService_0.Heartbeat:Connect(v21);
+return v33;

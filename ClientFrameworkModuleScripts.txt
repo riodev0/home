@@ -1,0 +1,1373 @@
+ModuleScript: InlineLayout
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_RunService_0 = game:GetService("RunService");
+local v1 = {};
+v1.__index = v1;
+v1.new = function(v2) --[[ Line: 50 ]] --[[ Name: new ]]
+    -- upvalues: l_RunService_0 (copy), v1 (copy)
+    local v3 = nil;
+    local function v4() --[[ Line: 52 ]] --[[ Name: update ]]
+        -- upvalues: v3 (ref)
+        v3:_queueUpdate();
+    end;
+    local v5 = nil;
+    local v6 = nil;
+    local v7 = nil;
+    local v8 = nil;
+    local v9 = nil;
+    local v10 = nil;
+    local v11 = nil;
+    local v12 = l_RunService_0.Heartbeat:Connect(function() --[[ Line: 63 ]]
+        -- upvalues: v3 (ref), v5 (ref), v6 (ref), v7 (ref), v8 (ref), v9 (ref), v10 (ref), v11 (ref)
+        if v3.Padding ~= v5 or v3.SortOrder ~= v6 or v3.FillDirection ~= v7 or v3.StartCorner ~= v8 or v3.HorizontalAlignment ~= v9 or v3.VerticalAlignment ~= v10 or v3.FillDirectionMaxCells ~= v11 then
+            v5 = v3.Padding;
+            v6 = v3.SortOrder;
+            v7 = v3.FillDirection;
+            v8 = v3.StartCorner;
+            v9 = v3.HorizontalAlignment;
+            v10 = v3.VerticalAlignment;
+            v11 = v3.FillDirectionMaxCells;
+            v3:_queueUpdate();
+        end;
+    end);
+    local v13 = {};
+    local v14 = {};
+    local v15 = {};
+    local v16 = {};
+    local function v18(v17) --[[ Line: 88 ]] --[[ Name: newChild ]]
+        -- upvalues: v13 (copy), v4 (copy), v14 (copy), v15 (copy), v16 (copy), v3 (ref)
+        if v17:IsA("GuiObject") then
+            v13[v17] = v17:GetPropertyChangedSignal("Name"):Connect(v4);
+            v14[v17] = v17:GetPropertyChangedSignal("AbsoluteSize"):Connect(v4);
+            v15[v17] = v17:GetPropertyChangedSignal("LayoutOrder"):Connect(v4);
+            v16[v17] = v17:GetPropertyChangedSignal("AnchorPoint"):Connect(v4);
+            v3:_queueUpdate();
+            return;
+        else
+            if v17:IsA("UIPadding") then
+                if #v3._paddingChanged > 0 then
+                    warn("multiple UIPaddings in an InlineLayout are not supported");
+                    return;
+                else
+                    v3._paddingChanged = {
+                        v17:GetPropertyChangedSignal("PaddingLeft"):Connect(v4), 
+                        v17:GetPropertyChangedSignal("PaddingRight"):Connect(v4), 
+                        v17:GetPropertyChangedSignal("PaddingTop"):Connect(v4), 
+                        v17:GetPropertyChangedSignal("PaddingBottom"):Connect(v4)
+                    };
+                    v3:_queueUpdate();
+                end;
+            end;
+            return;
+        end;
+    end;
+    local v19 = v2.ChildAdded:Connect(v18);
+    local v23 = v2.ChildRemoved:Connect(function(v20) --[[ Line: 111 ]]
+        -- upvalues: v14 (copy), v13 (copy), v15 (copy), v16 (copy), v3 (ref)
+        if v20:IsA("GuiObject") then
+            if v14[v20] then
+                v13[v20]:Disconnect();
+                v14[v20]:Disconnect();
+                v15[v20]:Disconnect();
+                v16[v20]:Disconnect();
+                v13[v20] = nil;
+                v14[v20] = nil;
+                v15[v20] = nil;
+                v16[v20] = nil;
+            end;
+            v3:_queueUpdate();
+            return;
+        else
+            if v20:IsA("UIPadding") then
+                for _, v22 in v3._paddingChanged do
+                    v22:Disconnect();
+                end;
+                table.clear(v3._paddingChanged);
+                v3:_queueUpdate();
+            end;
+            return;
+        end;
+    end);
+    v3 = setmetatable({
+        AbsoluteContentSize = Vector2.zero, 
+        _dirty = false, 
+        _destroyed = false, 
+        _parent = v2, 
+        Padding = UDim2.fromOffset(0, 0), 
+        SortOrder = Enum.SortOrder.LayoutOrder, 
+        FillDirection = Enum.FillDirection.Horizontal, 
+        StartCorner = Enum.StartCorner.TopLeft, 
+        HorizontalAlignment = Enum.HorizontalAlignment.Left, 
+        VerticalAlignment = Enum.VerticalAlignment.Top, 
+        FillDirectionMaxCells = 0, 
+        _heartbeat = v12, 
+        _contentSizeChangedBindable = Instance.new("BindableEvent"), 
+        _parentSizeChanged = v2:GetPropertyChangedSignal("AbsoluteSize"):Connect(v4), 
+        _paddingChanged = {}, 
+        _childAdded = v19, 
+        _childRemoved = v23, 
+        _childNameChanged = v13, 
+        _childSizeChanged = v14, 
+        _childOrderChanged = v15, 
+        _childAnchorChanged = v16
+    }, v1);
+    for _, v25 in v2:GetChildren() do
+        v18(v25);
+    end;
+    return v3;
+end;
+v1._queueUpdate = function(v26) --[[ Line: 169 ]] --[[ Name: _queueUpdate ]]
+    if v26._destroyed or v26._dirty then
+        return;
+    else
+        v26._dirty = true;
+        task.defer(function() --[[ Line: 174 ]]
+            -- upvalues: v26 (copy)
+            v26._dirty = false;
+            v26:_update();
+        end);
+        return;
+    end;
+end;
+local function v29(v27, v28) --[[ Line: 181 ]] --[[ Name: compareName ]]
+    return v27.Name < v28.Name;
+end;
+local function v32(v30, v31) --[[ Line: 186 ]] --[[ Name: compareLayoutOrder ]]
+    if v30.LayoutOrder ~= v31.LayoutOrder then
+        return v30.LayoutOrder < v31.LayoutOrder;
+    else
+        return v30.Name < v31.Name;
+    end;
+end;
+v1._update = function(v33) --[[ Line: 194 ]] --[[ Name: _update ]]
+    -- upvalues: v29 (copy), v32 (copy)
+    if v33._destroyed then
+        return;
+    else
+        local v34 = {};
+        for _, v36 in v33._parent:GetChildren() do
+            if v36:IsA("GuiObject") then
+                table.insert(v34, v36);
+            end;
+        end;
+        if v33.SortOrder == Enum.SortOrder.Name then
+            table.sort(v34, v29);
+        elseif v33.SortOrder == Enum.SortOrder.LayoutOrder then
+            table.sort(v34, v32);
+        else
+            warn("InlineLayout.SortOrder does not support Enum.SortOrder.Custom");
+        end;
+        local l_FirstAncestorWhichIsA_0 = v33._parent:FindFirstAncestorWhichIsA("LayerCollector");
+        local v38 = if l_FirstAncestorWhichIsA_0 then l_FirstAncestorWhichIsA_0:FindFirstChildWhichIsA("UIScale") else nil;
+        local v39 = if v38 then v38.Scale else 1;
+        local l_Padding_0 = v33.Padding;
+        local l_UIPadding_0 = v33._parent:FindFirstChildWhichIsA("UIPadding");
+        local v42 = v33._parent.AbsoluteSize.X / v39;
+        local v43 = v33._parent.AbsoluteSize.Y / v39;
+        if l_UIPadding_0 ~= nil then
+            if l_UIPadding_0.PaddingLeft.Scale ~= 0 or l_UIPadding_0.PaddingRight.Scale ~= 0 or l_UIPadding_0.PaddingTop.Scale ~= 0 or l_UIPadding_0.PaddingBottom.Scale ~= 0 then
+                warn("UIPadding scale is not supported in InlineLayout");
+            end;
+            v42 = v42 - l_UIPadding_0.PaddingLeft.Offset - l_UIPadding_0.PaddingRight.Offset;
+            v43 = v43 - l_UIPadding_0.PaddingTop.Offset - l_UIPadding_0.PaddingBottom.Offset;
+        end;
+        if l_Padding_0.Width.Scale ~= 0 or l_Padding_0.Height.Scale ~= 0 then
+            warn("InlineLayout.Padding scale is not supported");
+        end;
+        local v44 = 0;
+        local v45 = 0;
+        local l_v44_0 = v44;
+        local l_v45_0 = v45;
+        local v48 = 0;
+        local v49 = 1e999;
+        if v33.FillDirectionMaxCells > 0 then
+            v49 = v33.FillDirectionMaxCells;
+        end;
+        local v50 = {};
+        for _, v52 in v34 do
+            local v53 = v52.AbsoluteSize / v39;
+            if v33.FillDirection == Enum.FillDirection.Horizontal then
+                local v54 = v44 + v53.X;
+                if v44 > 0 and (v42 < v54 or v49 <= v48) then
+                    v44 = 0;
+                    v45 = l_v45_0 + l_Padding_0.Height.Offset;
+                    v48 = 0;
+                end;
+                v50[v52] = Vector2.new(v44, v45);
+                l_v44_0 = math.max(l_v44_0, v44 + v53.X);
+                l_v45_0 = math.max(l_v45_0, v45 + v53.Y);
+                v44 = v44 + (v53.X + l_Padding_0.Width.Offset);
+            else
+                local v55 = v45 + v53.Y;
+                if v45 > 0 and (v43 < v55 or v49 <= v48) then
+                    v44 = l_v44_0 + l_Padding_0.Width.Offset;
+                    v45 = 0;
+                    v48 = 0;
+                end;
+                v50[v52] = Vector2.new(v44, v45);
+                l_v44_0 = math.max(l_v44_0, v44 + v53.X);
+                l_v45_0 = math.max(l_v45_0, v45 + v53.Y);
+                v45 = v45 + (v53.Y + l_Padding_0.Height.Offset);
+            end;
+            v48 = v48 + 1;
+        end;
+        local v56 = 0;
+        local v57 = v42 - l_v44_0;
+        if v33.HorizontalAlignment == Enum.HorizontalAlignment.Right then
+            v56 = v57;
+        elseif v33.HorizontalAlignment == Enum.HorizontalAlignment.Center then
+            v56 = v57 / 2;
+        end;
+        local v58 = 0;
+        local v59 = v43 - l_v45_0;
+        if v33.VerticalAlignment == Enum.VerticalAlignment.Bottom then
+            v58 = v59;
+        elseif v33.VerticalAlignment == Enum.VerticalAlignment.Center then
+            v58 = v59 / 2;
+        end;
+        for v60, v61 in v50 do
+            if v33.StartCorner == Enum.StartCorner.TopLeft then
+                v60.AnchorPoint = Vector2.new(0, 0);
+                v60.Position = UDim2.new(UDim.new(0, v61.X + v56), UDim.new(0, v61.Y + v58));
+            elseif v33.StartCorner == Enum.StartCorner.TopRight then
+                v60.AnchorPoint = Vector2.new(1, 0);
+                v60.Position = UDim2.new(UDim.new(1, v56 - v57 - v61.X), UDim.new(0, v61.Y + v58));
+            elseif v33.StartCorner == Enum.StartCorner.BottomLeft then
+                v60.AnchorPoint = Vector2.new(0, 1);
+                v60.Position = UDim2.new(UDim.new(0, v61.X + v56), UDim.new(1, v58 - v59 - v61.Y));
+            elseif v33.StartCorner == Enum.StartCorner.BottomRight then
+                v60.AnchorPoint = Vector2.new(1, 1);
+                v60.Position = UDim2.new(UDim.new(1, v56 - v57 - v61.X), UDim.new(1, v58 - v59 - v61.Y));
+            end;
+        end;
+        local v62 = Vector2.new(l_v44_0, l_v45_0) * v39;
+        if v62 ~= v33.AbsoluteContentSize then
+            v33.AbsoluteContentSize = v62;
+            v33._contentSizeChangedBindable:Fire();
+        end;
+        return;
+    end;
+end;
+v1.GetPropertyChangedSignal = function(v63, v64) --[[ Line: 340 ]] --[[ Name: GetPropertyChangedSignal ]]
+    assert(not v63._destroyed, "layout was destroyed");
+    assert(v64 == "AbsoluteContentSize", "invalid property name");
+    return v63._contentSizeChangedBindable.Event;
+end;
+v1.Destroy = function(v65) --[[ Line: 348 ]] --[[ Name: Destroy ]]
+    v65._destroyed = true;
+    v65._heartbeat:Disconnect();
+    v65._contentSizeChangedBindable:Destroy();
+    for _, v67 in v65._paddingChanged do
+        v67:Disconnect();
+    end;
+    table.clear(v65._paddingChanged);
+    v65._parentSizeChanged:Disconnect();
+    v65._childAdded:Disconnect();
+    v65._childRemoved:Disconnect();
+    for v68 in v65._childSizeChanged do
+        v68.AnchorPoint = Vector2.zero;
+        v68.Position = UDim2.fromOffset(0, 0);
+    end;
+    for _, v70 in v65._childNameChanged do
+        v70:Disconnect();
+    end;
+    for _, v72 in v65._childSizeChanged do
+        v72:Disconnect();
+    end;
+    for _, v74 in v65._childOrderChanged do
+        v74:Disconnect();
+    end;
+    for _, v76 in v65._childAnchorChanged do
+        v76:Disconnect();
+    end;
+    table.clear(v65._childNameChanged);
+    table.clear(v65._childSizeChanged);
+    table.clear(v65._childOrderChanged);
+    table.clear(v65._childAnchorChanged);
+end;
+return v1;
+ModuleScript: VirtualGrid
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_RunService_0 = game:GetService("RunService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local v2 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Pool);
+local function _(v3, v4) --[[ Line: 103 ]] --[[ Name: Deferrer ]]
+    -- upvalues: l_RunService_0 (copy)
+    local v5 = false;
+    local function v6() --[[ Line: 109 ]] --[[ Name: defer ]]
+        -- upvalues: v5 (ref)
+        if v5 == true then
+            return;
+        else
+            v5 = true;
+            return;
+        end;
+    end;
+    local v7 = 0;
+    return v6, (l_RunService_0.Heartbeat:Connect(function() --[[ Line: 117 ]]
+        -- upvalues: v7 (ref), v3 (copy), v5 (ref), v4 (copy)
+        v7 = v7 + 1;
+        v7 = v7 % v3;
+        if v7 == 0 and v5 then
+            v5 = false;
+            v4();
+        end;
+    end));
+end;
+local function _(v9, v10) --[[ Line: 130 ]] --[[ Name: absFromUDim ]]
+    return (math.ceil(v9 * v10.Scale + v10.Offset));
+end;
+local l_Frame_0 = Instance.new("Frame");
+l_Frame_0.BackgroundTransparency = 1;
+l_Frame_0.Size = UDim2.fromScale(1, 1);
+local v13 = {};
+v13.__index = v13;
+v13.new = function(v14, v15, v16) --[[ Line: 173 ]] --[[ Name: new ]]
+    -- upvalues: l_Frame_0 (copy), v2 (copy), l_RunService_0 (copy), v13 (copy)
+    local v17 = assert(assert(v14:FindFirstAncestorWhichIsA("ScreenGui"), "missing screengui"):FindFirstChildWhichIsA("UIScale"), "missing uiscale");
+    local v18 = assert(v15.Parent, "layout has no parent");
+    local l_l_Frame_0_0 = l_Frame_0;
+    local l_Backings_0 = v14:FindFirstChild("Backings");
+    if l_Backings_0 ~= nil then
+        local l_GuiObject_0 = l_Backings_0:FindFirstChildWhichIsA("GuiObject");
+        if l_GuiObject_0 ~= nil then
+            l_l_Frame_0_0 = l_GuiObject_0:Clone();
+            for _, v23 in l_Backings_0:GetChildren() do
+                if v23:IsA("GuiObject") then
+                    v23:Destroy();
+                end;
+            end;
+        end;
+        l_Backings_0.Visible = false;
+    end;
+    l_Frame_0.Name = "Backing";
+    local v24 = v2.new(function() --[[ Line: 194 ]]
+        -- upvalues: l_l_Frame_0_0 (ref)
+        return l_l_Frame_0_0:Clone();
+    end);
+    local v25 = UDim.new(0, 0);
+    local v26 = UDim.new();
+    local v27 = UDim.new();
+    local v28 = UDim.new();
+    local v29 = UDim.new();
+    local l_UIPadding_0 = Instance.new("UIPadding");
+    local l_UIPadding_1 = v14:FindFirstChildWhichIsA("UIPadding");
+    if l_UIPadding_1 then
+        v25 = v25 + l_UIPadding_1.PaddingTop + l_UIPadding_1.PaddingBottom;
+    end;
+    local l_UIPadding_2 = v18:FindFirstChildWhichIsA("UIPadding");
+    if l_UIPadding_2 then
+        v26 = l_UIPadding_2.PaddingLeft;
+        v27 = l_UIPadding_2.PaddingRight;
+        v28 = l_UIPadding_2.PaddingTop;
+        v29 = l_UIPadding_2.PaddingBottom;
+        l_UIPadding_2:Destroy();
+    end;
+    l_UIPadding_0.PaddingLeft = v26;
+    l_UIPadding_0.PaddingRight = v27;
+    l_UIPadding_0.PaddingTop = v28;
+    l_UIPadding_0.PaddingBottom = v29;
+    l_UIPadding_0.Parent = v18;
+    l_UIPadding_1 = nil;
+    l_UIPadding_2 = nil;
+    local l_BindableEvent_0 = Instance.new("BindableEvent");
+    local function v75(v34) --[[ Line: 233 ]] --[[ Name: internalUpdate ]]
+        -- upvalues: v17 (copy), v15 (copy), v18 (copy), v14 (copy), v28 (ref), v26 (ref), v27 (ref), v25 (ref), v29 (ref), l_UIPadding_0 (copy), l_UIPadding_1 (ref), l_UIPadding_2 (ref), v16 (copy), v24 (copy), l_BindableEvent_0 (copy)
+        local l_Scale_0 = v17.Scale;
+        local l_Height_0 = v15.CellSize.Height;
+        local l_Width_0 = v15.CellSize.Width;
+        local l_Height_1 = v15.CellPadding.Height;
+        local l_Width_1 = v15.CellPadding.Width;
+        local v40 = v18.AbsoluteSize.X / l_Scale_0;
+        local v41 = v14.AbsoluteSize.Y / l_Scale_0;
+        local v42 = v14.CanvasPosition.Y / l_Scale_0;
+        local l_Offset_0 = v18.Position.Height.Offset;
+        local l_v28_0 = v28;
+        local v45 = math.ceil(v41 * l_v28_0.Scale + l_v28_0.Offset);
+        local l_v40_0 = v40;
+        local v47 = v26 + v27;
+        v40 = v40 - math.ceil(l_v40_0 * v47.Scale + v47.Offset);
+        v42 = v42 - v45 - (v25.Offset + l_Offset_0);
+        l_v40_0 = math.ceil(v40 * l_Width_0.Scale + l_Width_0.Offset);
+        v47 = math.ceil(v40 * l_Width_1.Scale + l_Width_1.Offset);
+        local v48 = math.ceil(v41 * l_Height_0.Scale + l_Height_0.Offset);
+        local v49 = math.ceil(v41 * l_Height_1.Scale + l_Height_1.Offset);
+        local v50 = math.max(1, (math.floor((v40 + v47) / (l_v40_0 + v47))));
+        local v51 = math.floor((v42 + v49) / (v48 + v49));
+        local v52 = math.floor((v42 + v41 + v49) / (v48 + v49));
+        v51 = v51 - 3;
+        v52 = v52 + 3;
+        if v51 < 0 then
+            v51 = 0;
+        end;
+        if v52 < v51 then
+            v52 = v51;
+        end;
+        local v53 = v50 * v51 + 1;
+        local v54 = v50 * (v52 + 1);
+        local l_v28_1 = v28;
+        local v56 = math.ceil(v41 * l_v28_1.Scale + l_v28_1.Offset);
+        local l_v29_0 = v29;
+        l_v28_1 = math.ceil(v41 * l_v29_0.Scale + l_v29_0.Offset);
+        l_v29_0 = math.max(0, v51 * (v48 + v49));
+        l_UIPadding_0.PaddingTop = UDim.new(0, v56 + l_v29_0);
+        if not v34 and v53 == l_UIPadding_1 and v54 == l_UIPadding_2 then
+            return;
+        else
+            l_UIPadding_1 = v53;
+            l_UIPadding_2 = v54;
+            local v58, v59 = v16(not v34);
+            if v58 == nil then
+                return;
+            else
+                local v60 = 0;
+                for v61 = v53, v54 do
+                    local v62 = v58(v61);
+                    if v62 ~= nil then
+                        v62.LayoutOrder = v61;
+                        v62.Parent = v18;
+                        v60 = v61;
+                    end;
+                end;
+                local v63 = v59();
+                local v64 = v50 * math.ceil((v41 - v56 - l_v28_1) / (v48 + v49));
+                local v65 = v63 % v50;
+                if v63 < v64 then
+                    for v66 = v63 + 1, v64 do
+                        local v67 = v24:Get();
+                        v67.LayoutOrder = v60 + v66;
+                        v67.Parent = v18;
+                    end;
+                    v63 = v64;
+                elseif v65 > 0 then
+                    for v68 = 1, v50 - v65 do
+                        local v69 = v24:Get();
+                        v69.LayoutOrder = v60 + v68;
+                        v69.Parent = v18;
+                    end;
+                    v63 = v63 + (v50 - v65);
+                end;
+                v24:Done();
+                local v70 = math.ceil(v63 / v50);
+                local v71 = v70 * v48 + (v70 - 1) * v49 + v56 + l_v28_1;
+                local v72 = v14.AbsoluteSize.Y / l_Scale_0;
+                local v73 = v25 + UDim.new(0, l_Offset_0);
+                local v74 = v71 + math.ceil(v72 * v73.Scale + v73.Offset);
+                v14.CanvasSize = UDim2.fromOffset(0, v74);
+                l_BindableEvent_0:Fire();
+                return;
+            end;
+        end;
+    end;
+    local function _() --[[ Line: 347 ]]
+        -- upvalues: v75 (copy)
+        v75(true);
+    end;
+    local function v77() --[[ Line: 351 ]]
+        -- upvalues: v75 (copy)
+        v75(true);
+    end;
+    local v78 = false;
+    local v79, v80;
+    do
+        local l_v78_0 = v78;
+        local function v82() --[[ Line: 109 ]] --[[ Name: defer ]]
+            -- upvalues: l_v78_0 (ref)
+            if l_v78_0 == true then
+                return;
+            else
+                l_v78_0 = true;
+                return;
+            end;
+        end;
+        local v83 = 0;
+        local l_Heartbeat_0 = l_RunService_0.Heartbeat;
+        local v85 = 1;
+        local l_v77_0 = v77 --[[ copy: 22 -> 32 ]];
+        l_Heartbeat_0 = l_Heartbeat_0:Connect(function() --[[ Line: 117 ]]
+            -- upvalues: v83 (ref), v85 (copy), l_v78_0 (ref), l_v77_0 (copy)
+            v83 = v83 + 1;
+            v83 = v83 % v85;
+            if v83 == 0 and l_v78_0 then
+                l_v78_0 = false;
+                l_v77_0();
+            end;
+        end);
+        v79 = v82;
+        v80 = l_Heartbeat_0;
+    end;
+    local function v87() --[[ Line: 355 ]]
+        -- upvalues: v75 (copy)
+        v75(false);
+    end;
+    local v88 = false;
+    do
+        local l_v88_0 = v88;
+        local function v90() --[[ Line: 109 ]] --[[ Name: defer ]]
+            -- upvalues: l_v88_0 (ref)
+            if l_v88_0 == true then
+                return;
+            else
+                l_v88_0 = true;
+                return;
+            end;
+        end;
+        local v91 = 0;
+        local l_Heartbeat_1 = l_RunService_0.Heartbeat;
+        local v93 = 5;
+        local l_v87_0 = v87 --[[ copy: 24 -> 33 ]];
+        l_Heartbeat_1 = l_Heartbeat_1:Connect(function() --[[ Line: 117 ]]
+            -- upvalues: v91 (ref), v93 (copy), l_v88_0 (ref), l_v87_0 (copy)
+            v91 = v91 + 1;
+            v91 = v91 % v93;
+            if v91 == 0 and l_v88_0 then
+                l_v88_0 = false;
+                l_v87_0();
+            end;
+        end);
+        v77 = v90;
+        v78 = l_Heartbeat_1;
+    end;
+    v87 = {
+        v17:GetPropertyChangedSignal("Scale"):Connect(v79), 
+        v15:GetPropertyChangedSignal("CellSize"):Connect(v79), 
+        v15:GetPropertyChangedSignal("CellPadding"):Connect(v79), 
+        v14:GetPropertyChangedSignal("AbsoluteSize"):Connect(v79), 
+        v18:GetPropertyChangedSignal("AbsolutePosition"):Connect(v79), 
+        v14:GetPropertyChangedSignal("CanvasPosition"):Connect(v77), 
+        v80, 
+        v78
+    };
+    return (setmetatable({
+        OnUpdated = l_BindableEvent_0.Event, 
+        _container = v18, 
+        _layout = v15, 
+        _backingsPool = v24, 
+        _connections = v87, 
+        _internalUpdate = v79
+    }, v13));
+end;
+v13.Update = function(v95) --[[ Line: 381 ]] --[[ Name: Update ]]
+    v95._internalUpdate();
+end;
+v13.Destroy = function(v96) --[[ Line: 389 ]] --[[ Name: Destroy ]]
+    for _, v98 in v96._connections do
+        v98:Disconnect();
+    end;
+    table.clear(v96._connections);
+    v96._backingsPool:Destroy();
+end;
+return v13;
+ModuleScript: InputMode
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_UserInputService_0 = game:GetService("UserInputService");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local v2 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local v3 = {
+    Mode = "Keyboard", 
+    Changed = v2.new()
+};
+local function v7(v4) --[[ Line: 14 ]] --[[ Name: update ]]
+    -- upvalues: l_UserInputService_0 (copy), v3 (copy)
+    local v5 = "Keyboard";
+    local l_l_UserInputService_0_LastInputType_0 = l_UserInputService_0:GetLastInputType();
+    if l_l_UserInputService_0_LastInputType_0 == Enum.UserInputType.Touch then
+        v5 = "Touch";
+    elseif string.sub(l_l_UserInputService_0_LastInputType_0.Name, 1, 7) == "Gamepad" then
+        v5 = "Gamepad";
+    end;
+    if v3.Mode ~= v5 or v4 == true then
+        v3.Mode = v5;
+        v3.Changed:Fire(v5);
+    end;
+end;
+l_UserInputService_0.LastInputTypeChanged:Connect(v7);
+v7(true);
+return v3;
+ModuleScript: LocalData
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local l_Remotes_0 = l_ReplicatedStorage_0.Remotes;
+local v3 = {};
+local v4 = nil;
+local v5 = nil;
+local v6 = {};
+v3.IsReady = function(_) --[[ Line: 20 ]] --[[ Name: IsReady ]]
+    -- upvalues: v4 (ref)
+    return v4 ~= nil;
+end;
+v3.DidLoadFail = function(_) --[[ Line: 24 ]] --[[ Name: DidLoadFail ]]
+    -- upvalues: v5 (ref)
+    if v5 == true then
+        return true;
+    else
+        return false;
+    end;
+end;
+v3.Get = function(_) --[[ Line: 31 ]] --[[ Name: Get ]]
+    -- upvalues: v4 (ref)
+    return v4;
+end;
+v3.ConnectDataChanged = function(_, v11, v12) --[[ Line: 35 ]] --[[ Name: ConnectDataChanged ]]
+    -- upvalues: v6 (copy), v4 (ref)
+    local v13 = {};
+    if type(v11) == "string" then
+        table.insert(v13, v11);
+    else
+        v13 = v11;
+    end;
+    for _, v15 in v13 do
+        if not v6[v15] then
+            v6[v15] = {};
+        end;
+        v6[v15][v12] = true;
+        if v4 ~= nil then
+            task.spawn(v12, v4);
+        end;
+    end;
+    return function() --[[ Line: 61 ]]
+        -- upvalues: v13 (ref), v6 (ref), v12 (copy)
+        for _, v17 in v13 do
+            v6[v17][v12] = nil;
+        end;
+    end;
+end;
+local l_BindableEvent_0 = Instance.new("BindableEvent");
+v3.DataReady = l_BindableEvent_0.Event;
+l_Remotes_0.PlayerDataFailed.OnClientEvent:Connect(function() --[[ Line: 73 ]]
+    -- upvalues: v5 (ref)
+    v5 = true;
+end);
+l_Remotes_0.PlayerDataLoaded.OnClientEvent:Once(function(v19) --[[ Line: 79 ]]
+    -- upvalues: v4 (ref), l_BindableEvent_0 (copy), v6 (copy), l_Remotes_0 (copy)
+    v4 = v19;
+    l_BindableEvent_0:Fire();
+    for _, v21 in v6 do
+        for v22 in v21 do
+            task.spawn(v22, v4);
+        end;
+    end;
+    l_Remotes_0.PlayerDataChanged.OnClientEvent:Connect(function(v23, v24) --[[ Line: 93 ]]
+        -- upvalues: v4 (ref), v6 (ref)
+        local _ = v4[v23];
+        v4[v23] = v24;
+        local v26 = v6[v23];
+        if v26 then
+            for v27 in v26 do
+                task.spawn(v27, v4);
+            end;
+        end;
+    end);
+end);
+return v3;
+ModuleScript: MakeDynamicNPC
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_RunService_0 = game:GetService("RunService");
+local l_Players_0 = game:GetService("Players");
+local l_HttpService_0 = game:GetService("HttpService");
+local _ = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local v5 = require(l_ReplicatedStorage_0.Shared.Framework.Services.CollisionGroup);
+local v6 = require(l_ReplicatedStorage_0.Client.LowDetail);
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local v8 = not v6.Enabled;
+local v9 = {};
+local function _(v10, v11, v12) --[[ Line: 39 ]] --[[ Name: lerp ]]
+    return v10 + (v11 - v10) * v12;
+end;
+local function v31(v14, v15) --[[ Line: 44 ]] --[[ Name: UpdateNPC ]]
+    local l_Model_0 = v14.Model;
+    local l_LastTwist_0 = v14.LastTwist;
+    local l_LastLean_0 = v14.LastLean;
+    local l_HumanoidRootPart_0 = l_Model_0:FindFirstChild("HumanoidRootPart");
+    if not l_HumanoidRootPart_0 then
+        return;
+    else
+        local l_CFrame_0 = l_HumanoidRootPart_0.CFrame;
+        local l_Magnitude_0 = (l_CFrame_0.Position - v15).Magnitude;
+        if l_Magnitude_0 > 250 then
+            return;
+        else
+            if l_Magnitude_0 <= 30 and tick() - v14.LastWave > 5 then
+                v14.WaveTrack:Play();
+                v14.LastWave = tick();
+                delay(1.5, function() --[[ Line: 63 ]]
+                    -- upvalues: v14 (copy)
+                    pcall(function() --[[ Line: 64 ]]
+                        -- upvalues: v14 (ref)
+                        v14.WaveTrack:Stop();
+                    end);
+                end);
+            end;
+            local l_UpperTorso_0 = l_Model_0:FindFirstChild("UpperTorso");
+            local v23 = l_UpperTorso_0 and l_UpperTorso_0:FindFirstChild("Waist");
+            if not v23 then
+                return;
+            else
+                local l_Head_0 = l_Model_0:FindFirstChild("Head");
+                local v25 = l_Head_0 and l_Head_0:FindFirstChild("Neck");
+                if not v25 then
+                    return;
+                else
+                    local v26 = CFrame.new();
+                    local v27 = CFrame.new();
+                    if l_Magnitude_0 <= 50 then
+                        local v28 = l_CFrame_0:PointToObjectSpace(v15);
+                        local v29 = l_LastTwist_0 + (math.clamp(-math.atan2(v28.X, -v28.Z), -1.5707963267948966, 1.5707963267948966) - l_LastTwist_0) * 0.15;
+                        v14.LastTwist = v29;
+                        local v30 = l_LastLean_0 + (math.clamp(math.asin(v28.Unit.Y), -0.7853981633974483, 0.7853981633974483) - l_LastLean_0) * 0.15;
+                        v14.LastLean = v30;
+                        v26 = CFrame.Angles(0, v29 * 1 / 3, 0) * CFrame.Angles(v30 * 0.4, 0, 0);
+                        v27 = CFrame.Angles(0, v29 * 2 / 3, 0) * CFrame.Angles(v30 * 0.4, 0, 0);
+                    end;
+                    v23.Transform = v26 * v23.Transform;
+                    v25.Transform = v27 * v25.Transform;
+                    return;
+                end;
+            end;
+        end;
+    end;
+end;
+local function v40(v32) --[[ Line: 110 ]] --[[ Name: MakeDynamicNPC ]]
+    -- upvalues: l_HttpService_0 (copy), v9 (copy), v5 (copy)
+    local v33 = l_HttpService_0:GenerateGUID(false);
+    local l_Animator_0 = v32.Humanoid:FindFirstChildOfClass("Animator");
+    if not l_Animator_0 then
+        return;
+    else
+        local v35 = l_Animator_0:LoadAnimation(script.Wave);
+        v35.Priority = Enum.AnimationPriority.Action;
+        v32.Destroying:Connect(function() --[[ Line: 120 ]]
+            -- upvalues: v9 (ref), v33 (copy)
+            for v36 = 1, #v9 do
+                if v9[v36].GUID == v33 then
+                    table.remove(v9, v36);
+                    return;
+                end;
+            end;
+        end);
+        table.insert(v9, {
+            GUID = v33, 
+            Model = v32, 
+            LastTwist = 0, 
+            LastLean = 0, 
+            LastWave = 0, 
+            WaveTrack = v35
+        });
+        local l_Idle_0 = v32.Humanoid:FindFirstChild("Idle");
+        if not l_Idle_0 then
+            local l_Animation_0 = Instance.new("Animation");
+            l_Animation_0.AnimationId = "rbxassetid://507766388";
+            l_Animation_0.Name = "Idle";
+            l_Animation_0.Parent = v32.Humanoid;
+            l_Idle_0 = l_Animation_0;
+        end;
+        local v39 = l_Animator_0:LoadAnimation(l_Idle_0);
+        v39.Priority = Enum.AnimationPriority.Idle;
+        v39:Play();
+        v5:AddModel(v32, "Characters");
+        return;
+    end;
+end;
+local function v45() --[[ Line: 155 ]] --[[ Name: update ]]
+    -- upvalues: l_LocalPlayer_0 (copy), v8 (ref), v9 (copy), v31 (copy)
+    local l_Character_0 = l_LocalPlayer_0.Character;
+    if not l_Character_0 then
+        return;
+    else
+        local l_HumanoidRootPart_1 = l_Character_0:FindFirstChild("HumanoidRootPart");
+        if not l_HumanoidRootPart_1 then
+            return;
+        elseif not v8 then
+            return;
+        else
+            for _, v44 in v9 do
+                if v44.Model.Name ~= "Old Sailor" then
+                    v31(v44, l_HumanoidRootPart_1.Position);
+                end;
+            end;
+            return;
+        end;
+    end;
+end;
+v6.Changed:Connect(function() --[[ Line: 178 ]]
+    -- upvalues: v8 (ref), v6 (copy), v45 (copy)
+    v8 = not v6.Enabled;
+    v45();
+end);
+l_RunService_0.Stepped:Connect(v45);
+return v40;
+ModuleScript: UserInput
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_UserInputService_0 = game:GetService("UserInputService");
+local l_RunService_0 = game:GetService("RunService");
+local v3 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Signal);
+local v4 = require(l_ReplicatedStorage_0.Shared.Framework.Classes.Maid);
+local v5 = {};
+v5.__index = v5;
+v5.new = function(v6, v7) --[[ Line: 33 ]] --[[ Name: new ]]
+    -- upvalues: v4 (copy), v3 (copy), v5 (copy), l_RunService_0 (copy), l_UserInputService_0 (copy)
+    local v8 = typeof(v6) == "table" and v6 or {
+        v6
+    };
+    local v9 = v4.new();
+    local v10 = setmetatable({
+        Enabled = true, 
+        IsPressed = false, 
+        Activated = v3.new(), 
+        Released = v3.new(), 
+        Pressed = v3.new(), 
+        _maid = v9
+    }, v5);
+    local v11 = 0;
+    local function _(v12) --[[ Line: 46 ]] --[[ Name: activated ]]
+        -- upvalues: v10 (copy), v11 (ref)
+        if not v10.Enabled then
+            return;
+        else
+            local v13 = v10.ActivateOnPressedEvery or 0;
+            if v12 and v13 == 0 then
+                return;
+            else
+                local v14 = os.clock();
+                if v14 < v11 then
+                    return;
+                else
+                    v11 = v14 + v13;
+                    v10.Activated:Fire();
+                    return;
+                end;
+            end;
+        end;
+    end;
+    v9:Add(l_RunService_0.Heartbeat:Connect(function(v16) --[[ Line: 62 ]]
+        -- upvalues: v10 (copy), v11 (ref)
+        if v10.IsPressed then
+            if not v10.Enabled then
+                return;
+            else
+                local v17 = v10.ActivateOnPressedEvery or 0;
+                if v16 and v17 == 0 then
+                    return;
+                else
+                    local v18 = os.clock();
+                    if v18 < v11 then
+                        return;
+                    else
+                        v11 = v18 + v17;
+                        v10.Activated:Fire();
+                    end;
+                end;
+            end;
+        end;
+    end));
+    v9:Add(l_UserInputService_0.InputBegan:Connect(function(v19, v20) --[[ Line: 68 ]]
+        -- upvalues: v7 (copy), v8 (copy), v10 (copy), v11 (ref)
+        if v20 then
+            return;
+        elseif v7 and not v7() then
+            return;
+        elseif not table.find(v8, v19.UserInputType) and not table.find(v8, v19.KeyCode) then
+            return;
+        else
+            if v10.Enabled then
+                local v21 = v10.ActivateOnPressedEvery or 0;
+                local v22 = os.clock();
+                if v22 >= v11 then
+                    v11 = v22 + v21;
+                    v10.Activated:Fire();
+                end;
+            end;
+            v10.IsPressed = true;
+            v10.Pressed:Fire();
+            return;
+        end;
+    end));
+    v9:Add(l_UserInputService_0.InputEnded:Connect(function(v23, _) --[[ Line: 81 ]]
+        -- upvalues: v8 (copy), v10 (copy)
+        if not table.find(v8, v23.UserInputType) and not table.find(v8, v23.KeyCode) then
+            return;
+        else
+            v10.IsPressed = false;
+            v10.Released:Fire();
+            return;
+        end;
+    end));
+    return v10;
+end;
+v5.Destroy = function(v25) --[[ Line: 93 ]] --[[ Name: Destroy ]]
+    v25._maid:Cleanup();
+    v25.Activated:Destroy();
+    v25.Released:Destroy();
+    v25.Pressed:Destroy();
+end;
+return v5;
+ModuleScript: Confetti
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_RunService_0 = game:GetService("RunService");
+local _ = game:GetService("TweenService");
+local l_TweenService_1 = game:GetService("TweenService");
+local l_Players_0 = game:GetService("Players");
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local _ = require(l_ReplicatedStorage_0.Client.Gui.GetScreenGuiHolder);
+local v6 = require(l_ReplicatedStorage_0.Shared.Framework.Utilities.Table.CountKeys);
+local l_CurrentCamera_0 = workspace.CurrentCamera;
+local l_LocalPlayer_0 = l_Players_0.LocalPlayer;
+local _ = Vector2.new(0, 1);
+local v10 = Random.new();
+local v11 = {
+    _particles = {}
+};
+local l_Frame_0 = Instance.new("Frame");
+l_Frame_0.Size = UDim2.fromScale(1, 1);
+l_Frame_0.BackgroundTransparency = 1;
+l_Frame_0.ZIndex = 50;
+l_Frame_0.Parent = l_LocalPlayer_0.PlayerGui.ScreenGui._overlay;
+v11.Create = function(_, v14) --[[ Line: 70 ]] --[[ Name: Create ]]
+    -- upvalues: v10 (copy), l_Frame_0 (copy), v11 (copy)
+    local v15 = Vector2.new(20, 40);
+    local v16 = v14.Color == "Random" and Color3.fromHSV(v10:NextNumber(), 0.85, 1) or v14.Color;
+    local v17, v18, v19 = v16:ToHSV();
+    local v20 = Color3.fromHSV(v17, v18, (math.clamp(v19 - 0.3, 0, 1)));
+    local v21 = UDim2.fromScale(v10:NextNumber(v14.Position.X.Min, v14.Position.X.Max), v10:NextNumber(v14.Position.Y.Min, v14.Position.Y.Max));
+    local l_Frame_1 = Instance.new("Frame");
+    l_Frame_1.AnchorPoint = Vector2.new(0.5, 0.5);
+    l_Frame_1.BorderSizePixel = 0;
+    l_Frame_1.Size = UDim2.new(0, v15.X, 0, v15.Y);
+    l_Frame_1.Position = v21;
+    l_Frame_1.ZIndex = 20;
+    l_Frame_1.Parent = l_Frame_0;
+    v11._particles[l_Frame_1] = {
+        ID = 1, 
+        Flips = 0, 
+        Lifetime = 0, 
+        Size = v15, 
+        Position = v21, 
+        State = v10:NextNumber() * 2 - 1, 
+        Seed = v10:NextInteger(0, 1000), 
+        Shade = v20, 
+        Color = v16, 
+        RotationSpeed = v14.RotationSpeed, 
+        Rotation = v10:NextInteger(v14.Rotation.Min, v14.Rotation.Max), 
+        Velocity = v10:NextInteger(v14.Velocity.Min, v14.Velocity.Max), 
+        Spread = v10:NextInteger(v14.SpreadAngle.Min, v14.SpreadAngle.Max), 
+        SwayAmplitude = v14.SwayAmplitude, 
+        SwayIntensity = v14.SwayIntensity, 
+        FlipSpeed = v14.FlipSpeed, 
+        LastNoise = nil
+    };
+end;
+v11.Emit = function(_, v24, v25, v26) --[[ Line: 112 ]] --[[ Name: Emit ]]
+    -- upvalues: v6 (copy), v11 (copy)
+    task.spawn(function() --[[ Line: 113 ]]
+        -- upvalues: v6 (ref), v11 (ref), v25 (copy), v24 (copy), v26 (copy)
+        local v27 = 35 - v6(v11._particles);
+        if v27 <= 0 then
+            return;
+        else
+            for _ = 1, math.min(v27, v25) do
+                v11:Create(v24);
+                if v26 then
+                    task.wait(v26);
+                end;
+            end;
+            return;
+        end;
+    end);
+end;
+local v29 = 0;
+l_RunService_0.Heartbeat:Connect(function(v30) --[[ Line: 130 ]]
+    -- upvalues: v11 (copy), l_CurrentCamera_0 (copy), l_TweenService_1 (copy), v29 (ref)
+    for v31, v32 in v11._particles do
+        local l_Lifetime_0 = v32.Lifetime;
+        local l_LastNoise_0 = v32.LastNoise;
+        local l_Position_0 = v32.Position;
+        local v36 = math.noise(l_Lifetime_0 * v32.SwayIntensity, v32.Seed);
+        local v37 = l_LastNoise_0 and math.abs(v36 - l_LastNoise_0) or 0;
+        local v38 = l_Lifetime_0 ^ 0.45;
+        local v39 = math.rad(v32.Spread) - 3.141592653589793;
+        local v40 = Vector2.new(math.sin(v39), (math.cos(v39))) * v32.Velocity * v38;
+        local v41 = UDim2.fromOffset(v36 * v32.SwayAmplitude + v40.X, l_Lifetime_0 * 980.0000000000001 + v40.Y);
+        if not (v31.AbsolutePosition.Y < l_CurrentCamera_0.ViewportSize.X + 100) then
+            table.clear(v32);
+            v11._particles[v31] = nil;
+            v31:Destroy();
+        else
+            local v42 = v32.State + v30 * v32.FlipSpeed + math.clamp((v38 - l_Lifetime_0) / 4, 0, 1e999) + v37 * 30;
+            if v42 > 2 then
+                v42 = 0;
+                v32.Flips = v32.Flips + 1;
+            end;
+            local v43 = v32.Flips % 2 == 0;
+            local v44 = v42 % 1;
+            local l_l_TweenService_1_Value_0 = l_TweenService_1:GetValue(v42 > 1 and 1 - v44 or v44, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut);
+            v31.BackgroundColor3 = v43 and v32.Color or v32.Shade;
+            v31.Size = UDim2.new(0, v32.Size.X * l_l_TweenService_1_Value_0, 0, v32.Size.Y);
+            v31.Position = l_Position_0 + v41;
+            v31.Rotation = v32.Rotation + (l_Lifetime_0 + v38) * v32.RotationSpeed + v37 ^ 10;
+            v32.LastNoise = v36;
+            v32.Lifetime = v32.Lifetime + v30;
+            v32.State = v42;
+        end;
+    end;
+    v29 = v29 + 1;
+end);
+v11.Bottom = {
+    Color = "Random", 
+    Position = {
+        X = NumberRange.new(0, 1), 
+        Y = NumberRange.new(0.9)
+    }, 
+    FlipSpeed = 0.25, 
+    RotationSpeed = 100, 
+    SwayIntensity = 0.25, 
+    SwayAmplitude = 400, 
+    Velocity = NumberRange.new(1250, 1750), 
+    Rotation = NumberRange.new(-360, 360), 
+    SpreadAngle = NumberRange.new(-5, 5)
+};
+v11.Explosion = {
+    Color = "Random", 
+    Position = {
+        X = NumberRange.new(0.5, 0.5), 
+        Y = NumberRange.new(0.5, 0.5)
+    }, 
+    FlipSpeed = 0.25, 
+    RotationSpeed = 100, 
+    SwayIntensity = 0.25, 
+    SwayAmplitude = 400, 
+    Velocity = NumberRange.new(1250, 1750), 
+    Rotation = NumberRange.new(-360, 360), 
+    SpreadAngle = NumberRange.new(-60, 60)
+};
+return v11;
+ModuleScript: DrawLine
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+DrawLine = function(v0, v1, v2, v3) --[[ Line: 2 ]] --[[ Name: DrawLine ]]
+    local l_X_0 = v2.X;
+    local l_Y_0 = v2.Y;
+    local v6 = v0.X.Scale * l_X_0 + v0.X.Offset;
+    local v7 = v0.Y.Scale * l_Y_0 + v0.Y.Offset;
+    local v8 = Vector2.new(v6, v7);
+    local v9 = v1.X.Scale * l_X_0 + v1.X.Offset;
+    local v10 = v1.Y.Scale * l_Y_0 + v1.Y.Offset;
+    local v11 = Vector2.new(v9, v10);
+    local v12 = v11 - v8;
+    local l_Unit_0 = v12.Unit;
+    local l_Magnitude_0 = v12.Magnitude;
+    local v15 = math.deg((math.atan2(l_Unit_0.Y, l_Unit_0.X)));
+    local v16 = v8:Lerp(v11, 0.5);
+    if not v3 then
+        v3 = Instance.new("Frame");
+    end;
+    assert(v3);
+    v3.AnchorPoint = Vector2.new(0.5, 0.5);
+    v3.BorderSizePixel = 0;
+    v3.BackgroundColor3 = Color3.new(1, 1, 1);
+    v3.Size = UDim2.fromOffset(l_Magnitude_0, 2);
+    v3.Rotation = v15;
+    v3.Position = UDim2.fromOffset(v16.X, v16.Y);
+    return v3;
+end;
+return DrawLine;
+ModuleScript: GetScaleFromUIScales
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+return function(v0) --[[ Line: 6 ]] --[[ Name: GetScaleFromUIScales ]]
+    local v1 = 1;
+    for v2 = 1, #v0 do
+        v1 = v1 * v0[v2].Scale;
+    end;
+    return v1;
+end;
+ModuleScript: GetUIScaleAnecestors
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_PlayerGui_0 = game:GetService("Players").LocalPlayer.PlayerGui;
+return function(v1) --[[ Line: 9 ]] --[[ Name: GetUIScaleAncestors ]]
+    -- upvalues: l_PlayerGui_0 (copy)
+    local v2 = {};
+    local l_Parent_0 = v1.Parent;
+    while l_Parent_0 ~= nil and l_Parent_0 ~= l_PlayerGui_0 do
+        local l_UIScale_0 = l_Parent_0:FindFirstChildOfClass("UIScale");
+        if l_UIScale_0 ~= nil then
+            table.insert(v2, l_UIScale_0);
+        end;
+        l_Parent_0 = l_Parent_0.Parent;
+    end;
+    return v2;
+end;
+ModuleScripts: HookScrollingFrame
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local GetUIScaleAncestors = require(ReplicatedStorage.Client.Framework.Utilities.Gui.GetUIScaleAncestors)
+
+return function(scrollFrame, frame)
+	local connections = {}
+	local scaleAncestors = GetUIScaleAncestors(scrollFrame)
+	local padding = frame.Parent:FindFirstChildWhichIsA("UIPadding") or scrollFrame:FindFirstChildWhichIsA("UIPadding")
+
+	local isUpdating = false
+
+	local function updateCanvasSize()
+		if isUpdating then return end
+		isUpdating = true
+
+		local contentHeight = frame.AbsoluteContentSize.Y
+		local scaleFactor = 1
+		for _, ancestor in scaleAncestors do
+			scaleFactor = scaleFactor * ancestor.Scale
+		end
+		local paddingOffset = 0
+		if padding then
+			paddingOffset = padding.PaddingTop.Offset + padding.PaddingBottom.Offset
+		end
+		scrollFrame.CanvasSize = UDim2.fromOffset(0, math.ceil(contentHeight / scaleFactor) + paddingOffset)
+
+		isUpdating = false
+	end
+
+	if padding then
+		table.insert(connections, padding:GetPropertyChangedSignal("PaddingTop"):Connect(updateCanvasSize))
+		table.insert(connections, padding:GetPropertyChangedSignal("PaddingBottom"):Connect(updateCanvasSize))
+	end
+
+	for _, ancestor in scaleAncestors do
+		table.insert(connections, ancestor:GetPropertyChangedSignal("Scale"):Connect(updateCanvasSize))
+	end
+
+	table.insert(connections, frame:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize))
+	updateCanvasSize()
+
+	return function()
+		for _, connection in connections do
+			connection:Disconnect()
+		end
+	end
+end
+ModuleScript: PointToViewportPostion
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+return function(v0, v1) --[[ Line: 3 ]] --[[ Name: PointToViewportPosition ]]
+    local v2 = assert(v0.CurrentCamera, "viewport has no camera");
+    local v3 = math.rad(v2.FieldOfView * 0.5);
+    local l_AbsoluteSize_0 = v0.AbsoluteSize;
+    local v5 = v2.CFrame:PointToObjectSpace(v1);
+    local v6 = l_AbsoluteSize_0.X / l_AbsoluteSize_0.Y;
+    local v7 = -v5.Z;
+    local v8 = v7 * math.tan(v3);
+    local v9 = v8 * v6;
+    local v10 = v5 + Vector3.new(v9, -v8, v7);
+    local v11 = v10.X / (2 * v9);
+    local v12 = v10.Y / (2 * v8) * -1;
+    local v13 = false;
+    if v7 >= 0 then
+        v13 = false;
+        if v11 >= 0 then
+            v13 = false;
+            if v11 <= 1 then
+                v13 = false;
+                if v12 >= 0 then
+                    v13 = v12 <= 1;
+                end;
+            end;
+        end;
+    end;
+    local v14 = v11 * l_AbsoluteSize_0.X;
+    local v15 = v12 * l_AbsoluteSize_0.Y;
+    return Vector2.new(v14, v15), v13;
+end;
+ModuleScript: ScaleUI
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_CurrentCamera_0 = game:GetService("Workspace").CurrentCamera;
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local v2 = require(l_ReplicatedStorage_0.Client.Framework.Services.LocalData);
+local _ = require(l_ReplicatedStorage_0.Shared.Types);
+local function _(v4) --[[ Line: 14 ]] --[[ Name: map ]]
+    return (math.clamp((v4 - 320) / 960 * 0.6 + 0.4, 0.4, 1));
+end;
+return function(v6, _) --[[ Line: 22 ]] --[[ Name: ScaleUI ]]
+    -- upvalues: l_CurrentCamera_0 (copy), v2 (copy)
+    local function v9() --[[ Line: 23 ]] --[[ Name: update ]]
+        -- upvalues: l_CurrentCamera_0 (ref), v6 (copy)
+        local l_ViewportSize_0 = l_CurrentCamera_0.ViewportSize;
+        v6.Scale = math.clamp((math.min(l_ViewportSize_0.X, l_ViewportSize_0.Y) - 320) / 960 * 0.6 + 0.4, 0.4, 1) * 1;
+    end;
+    local l_ViewportSize_1 = l_CurrentCamera_0.ViewportSize;
+    v6.Scale = math.clamp((math.min(l_ViewportSize_1.X, l_ViewportSize_1.Y) - 320) / 960 * 0.6 + 0.4, 0.4, 1) * 1;
+    v2:ConnectDataChanged("Options", v9);
+    l_CurrentCamera_0:GetPropertyChangedSignal("ViewportSize"):Connect(v9);
+end;
+ModuleScript: Viewport
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local _ = game:GetService("ReplicatedStorage");
+local v1 = {};
+local _ = {};
+local function _(v3, v4) --[[ Line: 18 ]] --[[ Name: GetCameraOffset ]]
+    return v3 / math.tan(math.rad(v4) / 2);
+end;
+local function v19(v6, v7, v8, v9) --[[ Line: 24 ]] --[[ Name: Mount ]]
+    -- upvalues: v1 (copy)
+    local v10 = v1[v8];
+    if not v10 then
+        print(debug.traceback());
+        warn(string.format("no viewport cframe data for %s (%s)", v8, v7.Name));
+        return;
+    elseif v6:FindFirstChild(v7.Name) then
+        return;
+    else
+        local l_CurrentCamera_0 = v6.CurrentCamera;
+        if not l_CurrentCamera_0 then
+            local l_Camera_0 = Instance.new("Camera");
+            l_Camera_0.Parent = v6;
+            v6.CurrentCamera = l_Camera_0;
+            l_CurrentCamera_0 = l_Camera_0;
+        end;
+        for _, v14 in pairs(v6:GetChildren()) do
+            if v14:IsA("Model") then
+                v14:Destroy();
+            end;
+        end;
+        local l_Hitbox_0 = v7:FindFirstChild("Hitbox");
+        local v16 = l_Hitbox_0 and l_Hitbox_0.Size or v7:GetExtentsSize();
+        local v17 = math.max(v16.X, v16.Y, v16.Z) / 2 * (1 / v10.Scale) / math.tan(math.rad(v10.FOV) / 2);
+        if not l_Hitbox_0 then
+            local l_Part_0 = Instance.new("Part");
+            l_Part_0.Anchored = true;
+            l_Part_0.CanCollide = false;
+            l_Part_0.Transparency = 1;
+            l_Part_0.Size = v16;
+            l_Part_0.CFrame = v7:GetBoundingBox();
+            l_Part_0.Parent = v7;
+            l_Hitbox_0 = l_Part_0;
+        end;
+        v7.PrimaryPart = l_Hitbox_0;
+        v7.Parent = v6;
+        l_CurrentCamera_0.FieldOfView = v10.FOV;
+        l_CurrentCamera_0.CFrame = CFrame.new(0, 0, v17);
+        if not v9 then
+            v6:SetAttribute("MultiMountId", nil);
+        end;
+        v7:SetPrimaryPartCFrame(v10.CFrame);
+        return v7;
+    end;
+end;
+return {
+    Mount = v19, 
+    MultiMount = function(v20, v21, v22, v23) --[[ Line: 89 ]] --[[ Name: MultiMount ]]
+        -- upvalues: v19 (copy)
+        local v24 = (v20:GetAttribute("MultiMountId") or 0) + 1;
+        v20:SetAttribute("MultiMountId", v24);
+        task.spawn(function() --[[ Line: 98 ]]
+            -- upvalues: v20 (copy), v24 (copy), v21 (copy), v23 (copy), v19 (ref), v22 (copy)
+            local v25 = 0;
+            while v20:GetAttribute("MultiMountId") == v24 do
+                v25 = v25 + 1;
+                if #v21 < v25 then
+                    v25 = 1;
+                end;
+                local v26 = v21[v25];
+                if v23 then
+                    v23(v25);
+                end;
+                v19(v20, v26:Clone(), v22, true);
+                task.wait(1);
+            end;
+            for _, v28 in v21 do
+                v28:Destroy();
+            end;
+            table.clear(v21);
+        end);
+    end, 
+    Template = function(v29, v30) --[[ Line: 122 ]] --[[ Name: Template ]]
+        -- upvalues: v1 (copy)
+        v1[v29] = v30;
+    end
+};
+ModuleScript: PopIn
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_TweenService_0 = game:GetService("TweenService");
+local v1 = {};
+local v2 = TweenInfo.new(0.25, Enum.EasingStyle.Back);
+Animate = function(v3, v4, v5) --[[ Line: 13 ]] --[[ Name: Animate ]]
+    -- upvalues: v1 (copy), l_TweenService_0 (copy), v2 (copy)
+    local v6 = v1[v3] or {
+        Tween = nil, 
+        Id = 0
+    };
+    local v7 = v6.Id + 1;
+    v6.Id = v7;
+    if v6.Tween then
+        v6.Tween:Pause();
+    end;
+    v3.Position = v4;
+    v6.Tween = l_TweenService_0:Create(v3, v2, {
+        Position = v5
+    });
+    assert(v6.Tween):Play();
+    task.delay(v2.Time, function() --[[ Line: 38 ]]
+        -- upvalues: v1 (ref), v3 (copy), v7 (copy)
+        local v8 = v1[v3];
+        if v8 and v8.Id == v7 then
+            v1[v3] = nil;
+        end;
+    end);
+end;
+return Animate;
+ModuleScript: SetFade
+-- Saved by UniversalSynSaveInstance (Join to Copy Games) https://discord.gg/wx4ThpAsmw
+
+local l_TweenService_0 = game:GetService("TweenService");
+return function(v1, v2, v3, v4) --[[ Line: 4 ]] --[[ Name: SetFade ]]
+    -- upvalues: l_TweenService_0 (copy)
+    local v5 = v4 or {};
+    for _, v7 in v1:GetDescendants() do
+        if not table.find(v5, v7.ClassName) then
+            local v8 = {};
+            if v7:IsA("ImageLabel") or v7:IsA("ViewportFrame") then
+                v8 = {
+                    ImageTransparency = v2
+                };
+            elseif v7:IsA("Frame") or v7:IsA("ImageButton") then
+                v8 = {
+                    BackgroundTransparency = v2
+                };
+            elseif v7:IsA("TextLabel") then
+                v8 = {
+                    TextTransparency = v2
+                };
+            elseif v7:IsA("UIStroke") then
+                v8 = {
+                    Transparency = v2
+                };
+            end;
+            if v2 < 1 then
+                for v9 in v8 do
+                    v7[v9] = 0;
+                end;
+            end;
+            if next(v8) then
+                if not v3 then
+                    for v10, v11 in v8 do
+                        v7[v10] = v11;
+                    end;
+                else
+                    l_TweenService_0:Create(v7, v3, v8):Play();
+                end;
+            end;
+        end;
+    end;
+end;
